@@ -23,17 +23,37 @@ func main() {
 		return
 	}
 
+
+
 	// *** Start server *********************************************************
 	e := echo.New()
 
 	e.Use(middleware.Logger())
 
-	e.GET("/", getJSON)
+	for key, api := range config.Apis {
+		fmt.Println(key)
+		fmt.Println(api.BaseURL)
+
+		for _, endpoint := range api.Endpoints {
+			file := endpoint.File
+			path := endpoint.Path
+
+			fmt.Printf("Path: %s || File: %s", path, file)
+
+			e.GET(path, func(c echo.Context) (err error) {
+				return getJSON(c, file)
+			})
+		}
+	}
+
+	// e.GET("/", getJSON)``
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", config.HTTP.Port)))
 }
 
-func getJSON(c echo.Context) error {
-	jsonFile, err := os.Open("jsonFile.json")
+func getJSON(c echo.Context, filePath string) error {
+	fmt.Println(filePath)
+
+	jsonFile, err := os.Open(filePath)
 	if err != nil {
 		fmt.Println(err)
 	}
