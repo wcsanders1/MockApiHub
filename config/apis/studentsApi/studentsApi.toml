@@ -1,0 +1,12 @@
+[api]
+baseUrl = "studentsApi"
+
+[endpoints]
+
+    [endpoints.getStudents]
+    path = "getStudents"
+    file = "students.json"
+
+    [endpoints.getGrades]
+    path = "getGrades"
+    file = "grades.json"

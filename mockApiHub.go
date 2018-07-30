@@ -7,7 +7,7 @@ import (
 	"os"
 	"io/ioutil"
 
-	"MockApiHub/config"
+	configurator "MockApiHub/config"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -15,7 +15,7 @@ import (
 )
 
 func main() {
-	var config config.Config
+	var config configurator.Config
 
 	// *** Get configuration ****************************************************
 	if _, err := toml.DecodeFile("config.toml", &config); err != nil {
@@ -30,21 +30,18 @@ func main() {
 
 	e.Use(middleware.Logger())
 
-	for key, api := range config.Apis {
-		fmt.Println(key)
-		fmt.Println(api.BaseURL)
-
+	for _, api := range config.Apis {
 		for _, endpoint := range api.Endpoints {
 			file := endpoint.File
 			path := endpoint.Path
-
-			fmt.Printf("Path: %s || File: %s", path, file)
 
 			e.GET(path, func(c echo.Context) (err error) {
 				return getJSON(c, file)
 			})
 		}
 	}
+
+	configurator.GetApis()
 
 	// e.GET("/", getJSON)``
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", config.HTTP.Port)))
