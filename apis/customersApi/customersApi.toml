@@ -1,0 +1,12 @@
+[api]
+baseUrl = "customersApi"
+
+[endpoints]
+
+    [endpoints.getCustomers]
+    path = "getCustomers"
+    file = "customers.json"
+
+    [endpoints.getAccounts]
+    path = "getAccounts"
+    file = "accounts.json"

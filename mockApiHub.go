@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 
 	configurator "MockApiHub/config"
+	"MockApiHub/apis"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -23,25 +24,25 @@ func main() {
 		return
 	}
 
-
+	apis.GetApis()
 
 	// *** Start server *********************************************************
 	e := echo.New()
 
 	e.Use(middleware.Logger())
 
-	for _, api := range config.Apis {
-		for _, endpoint := range api.Endpoints {
-			file := endpoint.File
-			path := endpoint.Path
+	// for _, api := range config.Apis {
+	// 	for _, endpoint := range api.Endpoints {
+	// 		file := endpoint.File
+	// 		path := endpoint.Path
 
-			e.GET(path, func(c echo.Context) (err error) {
-				return getJSON(c, file)
-			})
-		}
-	}
+	// 		e.GET(path, func(c echo.Context) (err error) {
+	// 			return getJSON(c, file)
+	// 		})
+	// 	}
+	// }
 
-	configurator.GetApis()
+	// configurator.GetApis()
 
 	// e.GET("/", getJSON)``
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", config.HTTP.Port)))

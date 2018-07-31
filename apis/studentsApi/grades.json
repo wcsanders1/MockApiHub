@@ -1,0 +1,10 @@
+[
+    {
+        "studentId": 1,
+        "grade": "A"
+    },
+    {
+        "studentId": 2,
+        "grade": "B"
+    }
+]
