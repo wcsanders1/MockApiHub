@@ -24,27 +24,31 @@ func main() {
 		return
 	}
 
-	apis.GetApis()
-
-	// *** Start server *********************************************************
+	// *** Instantiate server ***************************************************
 	e := echo.New()
 
 	e.Use(middleware.Logger())
 
-	// for _, api := range config.Apis {
-	// 	for _, endpoint := range api.Endpoints {
-	// 		file := endpoint.File
-	// 		path := endpoint.Path
+	// *** Register API *********************************************************
+	apis, err :=apis.GetApis()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
-	// 		e.GET(path, func(c echo.Context) (err error) {
-	// 			return getJSON(c, file)
-	// 		})
-	// 	}
-	// }
+	for name, api := range apis {
+		curName := name
+		fmt.Println("Registering ", name)
+		for _, endpoint := range api.Endpoints {
+			file := endpoint.File
+			path := endpoint.Path
+			e.GET(path, func(c echo.Context) (err error) {
+				return getJSON(c, fmt.Sprintf("apis/%s/%s", curName, file))
+			})
+		}
+	}
 
-	// configurator.GetApis()
-
-	// e.GET("/", getJSON)``
+	// *** Start server *********************************************************
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", config.HTTP.Port)))
 }
 
