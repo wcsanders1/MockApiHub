@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
+	"os"
 
 	"github.com/BurntSushi/toml"
 )
@@ -21,12 +22,14 @@ type endpoint struct {
 
 // GetApis gets all the apis in the apis directory
 func GetApis() (map[string]API, error) {
-	files, err := ioutil.ReadDir("./apis")
+	apiDir, err := ioutil.ReadDir("./apis")
 	if err != nil {
 		return nil, err
 	}
+
 	apis := make(map[string]API)
-	for _, f := range files {
+	
+	for _, f := range apiDir {
 		if f.IsDir() {
 			fName := f.Name()
 			if fName[len(fName)-3:] == "Api" {
@@ -51,4 +54,9 @@ func GetApis() (map[string]API, error) {
 	}
 
 	return apis, nil
+}
+
+// TODO: This
+func registerAPI(files []os.FileInfo) (error) {
+	return nil
 }

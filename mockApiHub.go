@@ -48,6 +48,8 @@ func main() {
 		}
 	}
 
+	
+
 	// *** Start server *********************************************************
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", config.HTTP.Port)))
 }
