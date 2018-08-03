@@ -31,24 +31,18 @@ func GetApis() (map[string]API, error) {
 	
 	for _, f := range apiDir {
 		if f.IsDir() {
-			fName := f.Name()
-			if fName[len(fName)-3:] == "Api" {
-				fmt.Println("Found the following mock api: ", fName)
+			dir := f.Name()
+			if isAPI(dir) {
+				fmt.Println("Found the following mock api: ", dir)
 			
-				inFiles, _ := ioutil.ReadDir(fmt.Sprintf("./apis/%s", f.Name()))
-				for _, inner := range inFiles {
-					ext := filepath.Ext(inner.Name())
-					if (ext == ".toml") {
-						var api API
-						path := fmt.Sprintf("./apis/%s/%s", f.Name(), inner.Name())
-						if _, err := toml.DecodeFile(path, &api); err != nil {
-							fmt.Println(err)
-							return nil, err
-						}
-						apis[fName] = api
-						fmt.Println(inner.Name())
-					}
+				files, _ := ioutil.ReadDir(fmt.Sprintf("./apis/%s", f.Name()))
+				api, err := getAPI(dir, files)
+				if err != nil {
+					fmt.Println(err)
+					return nil, err
 				}
+
+				apis[dir] = api
 			}
 		}
 	}
@@ -56,7 +50,26 @@ func GetApis() (map[string]API, error) {
 	return apis, nil
 }
 
-// TODO: This
-func registerAPI(files []os.FileInfo) (error) {
-	return nil
+func getAPI(dir string, files []os.FileInfo) (API, error) {
+	var api API
+	for _, file := range files {
+		if (isAPIConfig(file)) {
+			path := fmt.Sprintf("./apis/%s/%s", dir, file.Name())
+			if _, err := toml.DecodeFile(path, &api); err != nil {
+				fmt.Println(err)
+				return api, err
+			}
+			return api, nil
+		}
+	}
+	return api, nil
+}
+
+func isAPI(dir string) bool {
+	return len(dir) > 3 && dir[len(dir)-3:] == "Api"
+}
+
+func isAPIConfig(file os.FileInfo) bool {
+	ext := filepath.Ext(file.Name())
+	return ext == ".toml"
 }
