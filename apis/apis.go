@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"os"
 
+	"github.com/labstack/echo"
 	"github.com/BurntSushi/toml"
 )
 
@@ -16,18 +17,32 @@ type API struct {
 }
 
 type endpoint struct {
-	Path string
+	Path string 
 	File string
 }
 
-// GetApis gets all the apis in the apis directory
-func GetApis() (map[string]API, error) {
+// Register registers an api with the ECHO server
+func (api *API) Register(dir string, e *echo.Echo) error {
+	fmt.Println("Registering ", dir)
+	for _, endpoint := range api.Endpoints {
+		file := endpoint.File
+		path := endpoint.Path
+		e.GET(path, func(c echo.Context) (err error) {
+			return getJSON(c, fmt.Sprintf("apis/%s/%s", dir, file))
+		})
+	}
+
+	return nil
+}
+
+// GetAPIs gets all the apis in the apis directory
+func GetAPIs() (map[string]*API, error) {
 	apiDir, err := ioutil.ReadDir("./apis")
 	if err != nil {
 		return nil, err
 	}
 
-	apis := make(map[string]API)
+	apis := make(map[string]*API)
 	for _, file := range apiDir {
 		api, err := extractAPIFromFile(file)
 		if err != nil {
@@ -36,30 +51,11 @@ func GetApis() (map[string]API, error) {
 		}
 
 		if api != nil {
-			apis[file.Name()] = *api
+			apis[file.Name()] = api
 		}
 	}
 
 	return apis, nil
-}
-
-func extractAPIFromFile(file os.FileInfo) (*API, error) {
-	if (!file.IsDir() || !isAPI(file.Name())) {
-		return nil, nil
-	}
-	
-	dir := file.Name() 
-
-	fmt.Println("Found the following mock api: ", dir)
-
-	files, _ := ioutil.ReadDir(fmt.Sprintf("./apis/%s", dir))
-	api, err := getAPI(dir, files)
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-
-	return api, nil	
 }
 
 func getAPI(dir string, files []os.FileInfo) (*API, error) {
@@ -69,6 +65,23 @@ func getAPI(dir string, files []os.FileInfo) (*API, error) {
 		}
 	}
 	return nil, nil
+}
+
+func extractAPIFromFile(file os.FileInfo) (*API, error) {
+	if (!file.IsDir() || !isAPI(file.Name())) {
+		return nil, nil
+	}
+	
+	dir := file.Name()
+	fmt.Println("Found the following mock api: ", dir)
+	files, _ := ioutil.ReadDir(fmt.Sprintf("./apis/%s", dir))
+	api, err := getAPI(dir, files)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return api, nil	
 }
 
 func decodeAPIConfig(dir string, file os.FileInfo) (*API, error) {
