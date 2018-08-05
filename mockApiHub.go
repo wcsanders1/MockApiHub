@@ -15,7 +15,7 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-
+	
 	mgr := manager.NewManager(&config)
 	mgr.StartMockAPIHub()
 }
