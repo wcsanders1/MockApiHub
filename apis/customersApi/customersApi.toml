@@ -1,10 +1,9 @@
-[api]
 baseUrl = "customersApi"
 
 [endpoints]
 
     [endpoints.getCustomers]
-    path = "getCustomers"
+    path = "getCustomers/:id/funky"
     file = "customers.json"
 
     [endpoints.getAccounts]

@@ -1,4 +1,3 @@
-[api]
 baseUrl = "studentsApi"
 
 [endpoints]

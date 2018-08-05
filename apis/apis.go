@@ -24,9 +24,10 @@ type endpoint struct {
 // Register registers an api with the ECHO server
 func (api *API) Register(dir string, e *echo.Echo) error {
 	fmt.Println("Registering ", dir)
+	base := api.BaseURL
 	for _, endpoint := range api.Endpoints {
 		file := endpoint.File
-		path := endpoint.Path
+		path := fmt.Sprintf("%s/%s", base, endpoint.Path)
 		e.GET(path, func(c echo.Context) (err error) {
 			return getJSON(c, fmt.Sprintf("apis/%s/%s", dir, file))
 		})
