@@ -2,11 +2,13 @@ package config
 
 // Config is application configuration
 type Config struct {
-	HTTP http
+	HTTP HTTP
 }
 
-type http struct {
+// HTTP contains information regardin server setup
+type HTTP struct {
 	Port int
-	SSL bool
+	UseTLS bool
+	CertFile string
+	KeyFile string
 }
-

@@ -1,19 +1,5 @@
 [http]
 port = 5000
-ssl = false
-
-[apis]
-
-    [apis.testOne]
-    baseUrl = "testOne"
-    endpoints = [
-        { path = "getOne", file = "jsonFile.json"},
-        { path = "getOneAnother", file = "getOneAnother.json"}
-    ]
-
-    [apis.testTwo]
-    baseUrl = "testTwo"
-    endpoints = [
-        { path = "getTwo", file = "getTwo.json"},
-        { path = "getTwoAnother", file = "getTwoAnother.json"}
-    ]
+useTLS = false
+CertFile = ""
+KeyFile = ""

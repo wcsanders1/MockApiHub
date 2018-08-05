@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
+	"os"
 
-	configurator "MockApiHub/config"
+	"MockApiHub/config"
 	"MockApiHub/apis"
 
 	"github.com/labstack/echo"
@@ -13,7 +14,7 @@ import (
 
 func main() {
 	// *** Get configuration ****************************************************
-	var config configurator.Config
+	var config config.Config
 	if _, err := toml.DecodeFile("config.toml", &config); err != nil {
 		fmt.Println(err)
 		return
@@ -24,7 +25,7 @@ func main() {
 	e.Use(middleware.Logger())
 
 	// *** Register APIs ********************************************************
-	apis, err :=apis.GetAPIs()
+	apis, err := apis.GetAPIs()
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -35,5 +36,22 @@ func main() {
 	}
 
 	// *** Start server *********************************************************
-	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", config.HTTP.Port)))
+	addr := fmt.Sprintf(":%d", config.HTTP.Port)
+	if config.HTTP.UseTLS {
+		startUsingTLS(e, &config.HTTP, addr)
+	} else {
+		e.Logger.Fatal(e.Start(addr))
+	}
+}
+
+func startUsingTLS(e *echo.Echo, http *config.HTTP, addr string) {
+	if _, err := os.Stat(http.CertFile); os.IsNotExist(err) {
+		e.Logger.Fatal(fmt.Sprintf("%s cert file does not exist", http.CertFile))
+	}
+
+	if _, err := os.Stat(http.KeyFile); os.IsNotExist(err) {
+		e.Logger.Fatal(fmt.Sprintf("%s key file does not exist", http.KeyFile))
+	}
+
+	e.Logger.Fatal(e.StartTLS(addr, http.CertFile, http.KeyFile))
 }
