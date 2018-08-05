@@ -1,4 +1,4 @@
-package apis
+package api
 
 import (
 	"fmt"
@@ -21,6 +21,8 @@ type endpoint struct {
 	File string
 }
 
+const apiDir = "./api/apis"
+
 // Register registers an api with the ECHO server
 func (api *API) Register(dir string, e *echo.Echo) error {
 	fmt.Println("Registering ", dir)
@@ -29,7 +31,7 @@ func (api *API) Register(dir string, e *echo.Echo) error {
 		file := endpoint.File
 		path := fmt.Sprintf("%s/%s", base, endpoint.Path)
 		e.GET(path, func(c echo.Context) (err error) {
-			return getJSON(c, fmt.Sprintf("apis/%s/%s", dir, file))
+			return getJSON(c, fmt.Sprintf("%s/%s/%s", apiDir, dir, file))
 		})
 	}
 
@@ -38,7 +40,7 @@ func (api *API) Register(dir string, e *echo.Echo) error {
 
 // GetAPIs gets all the apis in the apis directory
 func GetAPIs() (map[string]*API, error) {
-	apiDir, err := ioutil.ReadDir("./apis")
+	apiDir, err := ioutil.ReadDir("./api/apis")
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +77,7 @@ func extractAPIFromFile(file os.FileInfo) (*API, error) {
 	
 	dir := file.Name()
 	fmt.Println("Found the following mock api: ", dir)
-	files, _ := ioutil.ReadDir(fmt.Sprintf("./apis/%s", dir))
+	files, _ := ioutil.ReadDir(fmt.Sprintf("%s/%s", apiDir, dir))
 	api, err := getAPI(dir, files)
 	if err != nil {
 		fmt.Println(err)
@@ -86,7 +88,7 @@ func extractAPIFromFile(file os.FileInfo) (*API, error) {
 }
 
 func decodeAPIConfig(dir string, file os.FileInfo) (*API, error) {
-	path := fmt.Sprintf("./apis/%s/%s", dir, file.Name())
+	path := fmt.Sprintf("%s/%s/%s", apiDir, dir, file.Name())
 	var api API
 	if _, err := toml.DecodeFile(path, &api); err != nil {
 		fmt.Println(err)

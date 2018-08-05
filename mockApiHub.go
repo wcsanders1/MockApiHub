@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"MockApiHub/config"
-	"MockApiHub/apis"
+	"MockApiHub/api"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -25,7 +25,7 @@ func main() {
 	e.Use(middleware.Logger())
 
 	// *** Register APIs ********************************************************
-	apis, err := apis.GetAPIs()
+	apis, err := api.GetAPIs()
 	if err != nil {
 		fmt.Println(err)
 		return
