@@ -1,12 +1,12 @@
 package manager
 
 import (
-	"time"
+	"net/http"
+	"io"	
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
 	"os"
-	"context"
 
 	"MockApiHub/api"
 	"MockApiHub/config"
@@ -21,28 +21,51 @@ type Manager struct{
 	apis map[string]*api.API
 	server *echo.Echo
 	config *config.Config
+	realServer *http.Server
 }
 
 const apiDir = "./api/apis"
 
 // NewManager returns an instance of the Manager type
 func NewManager(config *config.Config) *Manager {
+	server, err := createManagerServer(&config.HTTP)
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	return &Manager{
 		config: config,
+		realServer: server,
 	}
+}
+
+func createManagerServer(httpConfig *config.HTTP) (*http.Server, error) {
+	server := &http.Server {
+		Addr: getPort(httpConfig.Port),
+		Handler: http.HandlerFunc(handler),
+	}
+
+	return server, nil
+}
+
+func handler(w http.ResponseWriter, req *http.Request) {
+	if (req.Method == http.MethodGet) {
+		io.WriteString(w, "hi")
+	}		
+}
+
+func getPort(port int) string {
+	return fmt.Sprintf(":%d", port)
 }
 
 // StartMockAPIHub registers the mock apis and serves them
 func (mgr *Manager) StartMockAPIHub() error {
-	mgr.clearMockAPIs()
 	mgr.initializeServer()
 	err := mgr.loadMockAPIs()
 	if err != nil {
 		return err
 	}
 
-	mgr.registerMockAPIs()
-	mgr.registerUtilityEndpoints()
 	err = mgr.startServer()
 	if err != nil {
 		return err
@@ -56,56 +79,6 @@ func (mgr *Manager) initializeServer() {
 	server.Use(middleware.Logger())
 
 	mgr.server = server
-}
-
-func (mgr *Manager) clearMockAPIs() {
-	mgr.apis = make(map[string]*api.API)
-}
-
-func (mgr *Manager) registerUtilityEndpoints() error {
-	mgr.server.POST("refresh", mgr.refreshMockAPIRegistry)
-	
-	return nil
-}
-
-func (mgr *Manager) refreshMockAPIRegistry(ctx echo.Context) error {
-	if err := mgr.refreshServer(); err != nil {
-		mgr.server.Logger.Fatal(err)
-		return err
-	}
-
-	mgr.clearMockAPIs()
-	if err := mgr.loadMockAPIs(); err != nil {
-		return err
-	}
-
-	mgr.registerMockAPIs()
-	if err := mgr.startServer(); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (mgr *Manager) stopServer() error {
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-	defer cancel()
-	
-	if err := mgr.server.Shutdown(ctx); err != nil {
-		fmt.Println("going in here")
-		return err
-	}
-
-	return nil
-}
-
-func (mgr *Manager) refreshServer() error {
-	if err := mgr.stopServer(); err != nil {
-		return err
-	}
-	mgr.initializeServer()
-
-	return nil
 }
 
 func (mgr *Manager) startServer() error {

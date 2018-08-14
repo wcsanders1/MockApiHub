@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"MockApiHub/config"
-	"MockApiHub/manager"
+	// "MockApiHub/manager"
 
 	"github.com/BurntSushi/toml"
 )
@@ -15,7 +15,15 @@ func main() {
 		fmt.Println(err)
 		return
 	}
+
+	// s := &http.Server{
+	// 	Addr: ":5000",
+	// 	Handler: http.HandlerFunc(handler),
+	// }
 	
-	mgr := manager.NewManager(&config)
-	mgr.StartMockAPIHub()
+	// s.ListenAndServe()
+
+	// mgr := manager.NewManager(&config)
+	// mgr.StartMockAPIHub()
 }
+
