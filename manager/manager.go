@@ -10,6 +10,7 @@ import (
 
 	"MockApiHub/api"
 	"MockApiHub/config"
+	"MockApiHub/utils"
 
 	//"github.com/labstack/echo"
 	// "github.com/labstack/echo/middleware"
@@ -20,10 +21,12 @@ import (
 type Manager struct{
 	apis map[string]*api.API
 	config *config.Config
-	realServer *http.Server
+	server *http.Server
 }
 
 const apiDir = "./api/apis"
+
+// 	thenewstack.io/building-a-web-server-in-go
 
 // NewManager returns an instance of the Manager type
 func NewManager(config *config.Config) *Manager {
@@ -34,18 +37,16 @@ func NewManager(config *config.Config) *Manager {
 
 	return &Manager{
 		config: config,
-		realServer: server,
+		server: server,
 		apis: make(map[string]*api.API),
 	}
 }
 
 func createManagerServer(httpConfig *config.HTTP) (*http.Server, error) {
 	server := &http.Server {
-		Addr: getPort(httpConfig.Port),
+		Addr: utils.GetPort(httpConfig.Port),
 		Handler: http.HandlerFunc(handler),
 	}
-
-	// 	thenewstack.io/building-a-web-server-in-go
 
 	return server, nil
 }
@@ -56,9 +57,9 @@ func handler(w http.ResponseWriter, req *http.Request) {
 	}		
 }
 
-func getPort(port int) string {
-	return fmt.Sprintf(":%d", port)
-}
+// func getPort(port int) string {
+// 	return fmt.Sprintf(":%d", port)
+// }
 
 // StartMockAPIHub registers the mock apis and serves them
 func (mgr *Manager) StartMockAPIHub() error {
@@ -69,43 +70,31 @@ func (mgr *Manager) StartMockAPIHub() error {
 	}
 
 	mgr.registerMockAPIs()
-
-	// err = mgr.startServer()
-	// if err != nil {
-	// 	return err
-	// }
+	mgr.startHubServer()
 
 	return nil
 }
 
-// func (mgr *Manager) initializeServer() {
-// 	server := echo.New()
-// 	server.Use(middleware.Logger())
-
-// 	mgr.server = server
-// }
-
-func (mgr *Manager) startServer() error {
-	// addr := fmt.Sprintf(":%d", mgr.config.HTTP.Port)
-	// if mgr.config.HTTP.UseTLS {
-	// 	startUsingTLS(mgr.server, &mgr.config.HTTP, addr)
-	// } else {
-	// 	mgr.server.Logger.Fatal(mgr.server.Start(addr))
-	// }
-
+func (mgr *Manager) startHubServer() error {
+	if mgr.config.HTTP.UseTLS {
+		return mgr.startHubServerUsingTLS()
+	}
+	mgr.server.ListenAndServe()
+	
 	return nil
 }
 
-func startUsingTLS(http *config.HTTP, addr string) {
-	// if _, err := os.Stat(http.CertFile); os.IsNotExist(err) {
-	// 	server.Logger.Fatal(fmt.Sprintf("%s cert file does not exist", http.CertFile))
-	// }
+func (mgr *Manager) startHubServerUsingTLS() error {
+	certFile := mgr.config.HTTP.CertFile
+	keyFile := mgr.config.HTTP.KeyFile
+	if _, err := os.Stat(certFile); os.IsNotExist(err) {
+		return fmt.Errorf(fmt.Sprintf("%s cert file does not exist", certFile))
+	}
 
-	// if _, err := os.Stat(http.KeyFile); os.IsNotExist(err) {
-	// 	server.Logger.Fatal(fmt.Sprintf("%s key file does not exist", http.KeyFile))
-	// }
-
-	// server.Logger.Fatal(server.StartTLS(addr, http.CertFile, http.KeyFile))
+	if _, err := os.Stat(keyFile); os.IsNotExist(err) {
+		return fmt.Errorf(fmt.Sprintf("%s key file does not exist", keyFile))
+	}
+	return mgr.server.ListenAndServeTLS(certFile, keyFile)
 }
 
 func (mgr *Manager) registerMockAPIs() {

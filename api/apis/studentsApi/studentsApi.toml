@@ -1,4 +1,5 @@
 baseUrl = "studentsApi"
+port = 5002
 
 [endpoints]
 

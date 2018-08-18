@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	// "github.com/labstack/echo"
+	"MockApiHub/utils"
 )
 
 // API contains information for an API
@@ -12,6 +12,7 @@ type API struct {
 	BaseURL string
 	Endpoints map[string]endpoint
 	Server http.Server
+	Port int
 }
 
 type endpoint struct {
@@ -20,16 +21,14 @@ type endpoint struct {
 }
 
 type handler struct{}
-var mux map[string]func(http.ResponseWriter, *http.Request)
+var mux = make(map[string]func(http.ResponseWriter, *http.Request))
 const apiDir = "./api/apis"
 
 // Register registers an api with the server
 func (api *API) Register(dir string) error {
-	fmt.Println("Registering ", dir)
-
-	mux = make(map[string]func(http.ResponseWriter, *http.Request))
+	fmt.Println("Registering ", dir, " on port ", utils.GetPort(api.Port))
 	api.Server = http.Server {
-		Addr: ":5000",
+		Addr: utils.GetPort(api.Port),
 		Handler: &handler{},
 	}
 
@@ -49,15 +48,13 @@ func (api *API) Register(dir string) error {
 			w.Write(json)
 		}
 	}
-	api.Server.ListenAndServe()
+	go api.Server.ListenAndServe()
 
 	return nil
 }
 
 func (*handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Println(r.URL.String()[1:])
 	if h, ok := mux[r.URL.String()[1:]]; ok {
-		fmt.Println("here it is")
 		h(w, r)
 		return
 	}
