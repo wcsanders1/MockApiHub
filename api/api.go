@@ -36,12 +36,8 @@ func (api *API) Register(dir string) error {
 	for _, endpoint := range api.Endpoints {
 		file := endpoint.File
 		path := fmt.Sprintf("%s/%s", base, endpoint.Path)
-		// e.GET(path, func(c echo.Context) (err error) {
-		// 	return getJSON(c, fmt.Sprintf("%s/%s/%s", apiDir, dir, file))
-		// })
-		fmt.Println(path)
 		mux[path] = func(w http.ResponseWriter, r *http.Request) {
-			json, err := getJSON(fmt.Sprintf("%s/%s/%s", apiDir, dir, file))
+			json, err := utils.GetJSON(fmt.Sprintf("%s/%s/%s", apiDir, dir, file))
 			if err != nil {
 				fmt.Println(err)
 			}

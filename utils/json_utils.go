@@ -1,17 +1,15 @@
-package api
+package utils
 
 import (
 	"os"
 	"fmt"
-	// "net/http"
 	"io/ioutil"
 	"encoding/json"
 	"errors"
-
-	// "github.com/labstack/echo"
 )
 
-func getJSON(filePath string) ([]byte, error) {
+// GetJSON returns a []byte of valid JSON from a file
+func GetJSON(filePath string) ([]byte, error) {
 	fmt.Println(filePath)
 
 	jsonFile, err := os.Open(filePath)
