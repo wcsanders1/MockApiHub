@@ -1,14 +1,29 @@
 package config
 
-// AppConfig is application configuration
-type AppConfig struct {
-	HTTP HTTP
-}
+type (
+	// AppConfig is application configuration
+	AppConfig struct {
+		HTTP HTTP
+	}
 
-// HTTP contains information regardin server setup
-type HTTP struct {
-	Port int
-	UseTLS bool
-	CertFile string
-	KeyFile string
-}
+	// APIConfig is configuration for an individual mock api
+	APIConfig struct {
+		HTTP HTTP
+		BaseURL string
+		Endpoints map[string]Endpoint
+	}
+
+	// HTTP contains information regarding server setup
+	HTTP struct {
+		Port int
+		UseTLS bool
+		CertFile string
+		KeyFile string
+	}
+
+	// Endpoint contains information regarding an endpoint
+	Endpoint struct {
+		Path string 
+		File string
+	}
+)

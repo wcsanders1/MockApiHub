@@ -1,5 +1,10 @@
 baseUrl = "studentsApi"
+
+[http]
 port = 5002
+useTLS = false
+certFile = ""
+keyFile = ""
 
 [endpoints]
 

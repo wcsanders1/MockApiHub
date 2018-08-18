@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	"os"
+	"errors"
 
 	"MockApiHub/api"
 	"MockApiHub/config"
@@ -40,9 +41,13 @@ func NewManager(config *config.AppConfig) *Manager {
 	}
 }
 
-func createManagerServer(httpConfig *config.HTTP) (*http.Server, error) {
+func createManagerServer(config *config.HTTP) (*http.Server, error) {
+	if config.Port == 0 {
+		return nil, errors.New("no port provided")
+	}
+
 	server := &http.Server {
-		Addr: utils.GetPort(httpConfig.Port),
+		Addr: utils.GetPort(config.Port),
 		Handler: http.HandlerFunc(handler),
 	}
 
@@ -106,12 +111,18 @@ func (mgr *Manager) loadMockAPIs() error {
 	}
 
 	for _, file := range files {
-		api, err := extractAPIFromFile(file)
+		apiConfig, err := getAPIConfig(file)
 		if err != nil {
 			fmt.Println(err)
 			return err
 		}
 
+		api, err := api.NewAPI(apiConfig)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+		
 		if api != nil {
 			mgr.apis[file.Name()] = api
 		}
@@ -120,45 +131,45 @@ func (mgr *Manager) loadMockAPIs() error {
 	return nil
 }
 
-func extractAPIFromFile(file os.FileInfo) (*api.API, error) {
+func getAPIConfig(file os.FileInfo) (*config.APIConfig, error) {
 	if (!file.IsDir() || !isAPI(file.Name())) {
 		return nil, nil
 	}
 	
 	dir := file.Name()
 	fmt.Println("Found the following mock api: ", dir)
-	files, _ := ioutil.ReadDir(fmt.Sprintf("%s/%s", apiDir, dir))
-	api, err := getAPI(dir, files)
+	apiConfig, err := getAPIConfigFromDir(dir)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
 	}
 
-	return api, nil	
+	return apiConfig, nil	
 }
 
-func getAPI(dir string, files []os.FileInfo) (*api.API, error) {
+func getAPIConfigFromDir(dir string) (*config.APIConfig, error) {
+	files, _ := ioutil.ReadDir(fmt.Sprintf("%s/%s", apiDir, dir))
 	for _, file := range files {
 		if (isAPIConfig(file)) {
-			api, err:= decodeAPIConfig(dir, file)
+			apiConfig, err:= decodeAPIConfig(dir, file)
 			if err != nil {
 				fmt.Println(err)
 				return nil, err
 			}
-			return api, nil
+			return apiConfig, nil
 		}
 	}
 	return nil, nil
 }
 
-func decodeAPIConfig(dir string, file os.FileInfo) (*api.API, error) {
+func decodeAPIConfig(dir string, file os.FileInfo) (*config.APIConfig, error) {
 	path := fmt.Sprintf("%s/%s/%s", apiDir, dir, file.Name())
-	var api api.API
-	if _, err := toml.DecodeFile(path, &api); err != nil {
+	var config config.APIConfig
+	if _, err := toml.DecodeFile(path, &config); err != nil {
 		fmt.Println(err)
 		return nil, err
 	}
-	return &api, nil
+	return &config, nil
 }
 
 func isAPI(dir string) bool {
