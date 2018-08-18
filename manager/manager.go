@@ -12,7 +12,7 @@ import (
 	"MockApiHub/config"
 
 	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
+	// "github.com/labstack/echo/middleware"
 	"github.com/BurntSushi/toml"
 )
 
@@ -36,6 +36,7 @@ func NewManager(config *config.Config) *Manager {
 	return &Manager{
 		config: config,
 		realServer: server,
+		apis: make(map[string]*api.API),
 	}
 }
 
@@ -44,6 +45,8 @@ func createManagerServer(httpConfig *config.HTTP) (*http.Server, error) {
 		Addr: getPort(httpConfig.Port),
 		Handler: http.HandlerFunc(handler),
 	}
+
+	// 	thenewstack.io/building-a-web-server-in-go
 
 	return server, nil
 }
@@ -60,26 +63,28 @@ func getPort(port int) string {
 
 // StartMockAPIHub registers the mock apis and serves them
 func (mgr *Manager) StartMockAPIHub() error {
-	mgr.initializeServer()
+	// mgr.initializeServer()
 	err := mgr.loadMockAPIs()
 	if err != nil {
 		return err
 	}
 
-	err = mgr.startServer()
-	if err != nil {
-		return err
-	}
+	mgr.registerMockAPIs()
+
+	// err = mgr.startServer()
+	// if err != nil {
+	// 	return err
+	// }
 
 	return nil
 }
 
-func (mgr *Manager) initializeServer() {
-	server := echo.New()
-	server.Use(middleware.Logger())
+// func (mgr *Manager) initializeServer() {
+// 	server := echo.New()
+// 	server.Use(middleware.Logger())
 
-	mgr.server = server
-}
+// 	mgr.server = server
+// }
 
 func (mgr *Manager) startServer() error {
 	addr := fmt.Sprintf(":%d", mgr.config.HTTP.Port)
@@ -106,7 +111,7 @@ func startUsingTLS(server *echo.Echo, http *config.HTTP, addr string) {
 
 func (mgr *Manager) registerMockAPIs() {
 	for dir, api := range mgr.apis {
-		err := api.Register(dir, mgr.server)
+		err := api.Register(dir)
 		if err != nil {
 			mgr.server.Logger.Error(err, fmt.Sprintf("Error regisering the %s API.", dir))
 		}
@@ -154,7 +159,12 @@ func extractAPIFromFile(file os.FileInfo) (*api.API, error) {
 func getAPI(dir string, files []os.FileInfo) (*api.API, error) {
 	for _, file := range files {
 		if (isAPIConfig(file)) {
-			return decodeAPIConfig(dir, file)
+			api, err:= decodeAPIConfig(dir, file)
+			if err != nil {
+				fmt.Println(err)
+				return nil, err
+			}
+			return api, nil
 		}
 	}
 	return nil, nil

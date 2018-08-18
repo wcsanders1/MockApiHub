@@ -1,4 +1,4 @@
-baseUrl = "customersApi/:districtNumber"
+baseUrl = "customersApi"
 
 [endpoints]
 

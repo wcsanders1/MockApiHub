@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"MockApiHub/config"
-	// "MockApiHub/manager"
+	"MockApiHub/manager"
 
 	"github.com/BurntSushi/toml"
 )
@@ -23,7 +23,7 @@ func main() {
 	
 	// s.ListenAndServe()
 
-	// mgr := manager.NewManager(&config)
-	// mgr.StartMockAPIHub()
+	mgr := manager.NewManager(&config)
+	mgr.StartMockAPIHub()
 }
 
