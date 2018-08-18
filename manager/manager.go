@@ -11,7 +11,7 @@ import (
 	"MockApiHub/api"
 	"MockApiHub/config"
 
-	"github.com/labstack/echo"
+	//"github.com/labstack/echo"
 	// "github.com/labstack/echo/middleware"
 	"github.com/BurntSushi/toml"
 )
@@ -19,7 +19,6 @@ import (
 // Manager coordinates and controls the apis
 type Manager struct{
 	apis map[string]*api.API
-	server *echo.Echo
 	config *config.Config
 	realServer *http.Server
 }
@@ -87,33 +86,34 @@ func (mgr *Manager) StartMockAPIHub() error {
 // }
 
 func (mgr *Manager) startServer() error {
-	addr := fmt.Sprintf(":%d", mgr.config.HTTP.Port)
-	if mgr.config.HTTP.UseTLS {
-		startUsingTLS(mgr.server, &mgr.config.HTTP, addr)
-	} else {
-		mgr.server.Logger.Fatal(mgr.server.Start(addr))
-	}
+	// addr := fmt.Sprintf(":%d", mgr.config.HTTP.Port)
+	// if mgr.config.HTTP.UseTLS {
+	// 	startUsingTLS(mgr.server, &mgr.config.HTTP, addr)
+	// } else {
+	// 	mgr.server.Logger.Fatal(mgr.server.Start(addr))
+	// }
 
 	return nil
 }
 
-func startUsingTLS(server *echo.Echo, http *config.HTTP, addr string) {
-	if _, err := os.Stat(http.CertFile); os.IsNotExist(err) {
-		server.Logger.Fatal(fmt.Sprintf("%s cert file does not exist", http.CertFile))
-	}
+func startUsingTLS(http *config.HTTP, addr string) {
+	// if _, err := os.Stat(http.CertFile); os.IsNotExist(err) {
+	// 	server.Logger.Fatal(fmt.Sprintf("%s cert file does not exist", http.CertFile))
+	// }
 
-	if _, err := os.Stat(http.KeyFile); os.IsNotExist(err) {
-		server.Logger.Fatal(fmt.Sprintf("%s key file does not exist", http.KeyFile))
-	}
+	// if _, err := os.Stat(http.KeyFile); os.IsNotExist(err) {
+	// 	server.Logger.Fatal(fmt.Sprintf("%s key file does not exist", http.KeyFile))
+	// }
 
-	server.Logger.Fatal(server.StartTLS(addr, http.CertFile, http.KeyFile))
+	// server.Logger.Fatal(server.StartTLS(addr, http.CertFile, http.KeyFile))
 }
 
 func (mgr *Manager) registerMockAPIs() {
 	for dir, api := range mgr.apis {
 		err := api.Register(dir)
 		if err != nil {
-			mgr.server.Logger.Error(err, fmt.Sprintf("Error regisering the %s API.", dir))
+			// mgr.server.Logger.Error(err, fmt.Sprintf("Error regisering the %s API.", dir))
+			fmt.Println(err)
 		}
 	}
 }
