@@ -13,6 +13,7 @@ type API struct {
 	Endpoints map[string]endpoint
 	Server http.Server
 	Port int
+	Handlers map[string]func(http.ResponseWriter, *http.Request)
 }
 
 type endpoint struct {
@@ -23,6 +24,8 @@ type endpoint struct {
 type handler struct{}
 var mux = make(map[string]func(http.ResponseWriter, *http.Request))
 const apiDir = "./api/apis"
+
+
 
 // Register registers an api with the server
 func (api *API) Register(dir string) error {

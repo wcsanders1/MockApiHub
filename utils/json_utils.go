@@ -10,8 +10,6 @@ import (
 
 // GetJSON returns a []byte of valid JSON from a file
 func GetJSON(filePath string) ([]byte, error) {
-	fmt.Println(filePath)
-
 	jsonFile, err := os.Open(filePath)
 	if err != nil {
 		fmt.Println(err)
@@ -28,10 +26,8 @@ func GetJSON(filePath string) ([]byte, error) {
 
 	if (!isValidJSON(bytes)) {
 		return nil, errors.New("invalid JSON")
-		// return c.String(http.StatusInternalServerError, "bad json")
 	}
 
-	// return c.JSONBlob(http.StatusOK, bytes)
 	return bytes, nil
 }
 

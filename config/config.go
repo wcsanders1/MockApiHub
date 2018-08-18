@@ -1,7 +1,7 @@
 package config
 
-// Config is application configuration
-type Config struct {
+// AppConfig is application configuration
+type AppConfig struct {
 	HTTP HTTP
 }
 

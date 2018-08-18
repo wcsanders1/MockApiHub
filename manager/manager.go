@@ -12,15 +12,13 @@ import (
 	"MockApiHub/config"
 	"MockApiHub/utils"
 
-	//"github.com/labstack/echo"
-	// "github.com/labstack/echo/middleware"
 	"github.com/BurntSushi/toml"
 )
 
 // Manager coordinates and controls the apis
 type Manager struct{
 	apis map[string]*api.API
-	config *config.Config
+	config *config.AppConfig
 	server *http.Server
 }
 
@@ -29,7 +27,7 @@ const apiDir = "./api/apis"
 // 	thenewstack.io/building-a-web-server-in-go
 
 // NewManager returns an instance of the Manager type
-func NewManager(config *config.Config) *Manager {
+func NewManager(config *config.AppConfig) *Manager {
 	server, err := createManagerServer(&config.HTTP)
 	if err != nil {
 		fmt.Println(err)
@@ -57,13 +55,8 @@ func handler(w http.ResponseWriter, req *http.Request) {
 	}		
 }
 
-// func getPort(port int) string {
-// 	return fmt.Sprintf(":%d", port)
-// }
-
 // StartMockAPIHub registers the mock apis and serves them
 func (mgr *Manager) StartMockAPIHub() error {
-	// mgr.initializeServer()
 	err := mgr.loadMockAPIs()
 	if err != nil {
 		return err
@@ -101,7 +94,6 @@ func (mgr *Manager) registerMockAPIs() {
 	for dir, api := range mgr.apis {
 		err := api.Register(dir)
 		if err != nil {
-			// mgr.server.Logger.Error(err, fmt.Sprintf("Error regisering the %s API.", dir))
 			fmt.Println(err)
 		}
 	}
