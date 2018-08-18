@@ -74,9 +74,6 @@ func (api *API) Register(dir string) error {
 }
 
 func (api *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	for e := range api.handlers {
-		fmt.Println(e)
-	}
 	if h, ok := api.handlers[r.URL.String()[1:]]; ok {
 		h(w, r)
 		return
