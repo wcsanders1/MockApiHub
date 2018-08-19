@@ -25,8 +25,6 @@ type Manager struct{
 
 const apiDir = "./api/apis"
 
-// 	thenewstack.io/building-a-web-server-in-go
-
 // NewManager returns an instance of the Manager type
 func NewManager(config *config.AppConfig) *Manager {
 	server, err := createManagerServer(&config.HTTP)
