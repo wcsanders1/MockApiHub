@@ -11,7 +11,7 @@ import (
 
 	"MockApiHub/api"
 	"MockApiHub/config"
-	"MockApiHub/utils"
+	"MockApiHub/str"
 
 	"github.com/BurntSushi/toml"
 )
@@ -45,7 +45,7 @@ func createManagerServer(config *config.HTTP) (*http.Server, error) {
 	}
 
 	server := &http.Server {
-		Addr: utils.GetPort(config.Port),
+		Addr: str.GetPort(config.Port),
 		Handler: http.HandlerFunc(handler),
 	}
 

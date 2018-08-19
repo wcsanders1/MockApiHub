@@ -5,8 +5,9 @@ import (
 	"net/http"
 	"errors"
 
-	"MockApiHub/utils"
+	"MockApiHub/str"
 	"MockApiHub/config"
+	"MockApiHub/json"
 )
 
 // API contains information for an API
@@ -44,7 +45,7 @@ func createAPIServer(config *config.HTTP, api *API) (*http.Server, error) {
 	}
 	
 	server := &http.Server {
-		Addr: utils.GetPort(config.Port),
+		Addr: str.GetPort(config.Port),
 		Handler: api,
 	}
 
@@ -53,7 +54,7 @@ func createAPIServer(config *config.HTTP, api *API) (*http.Server, error) {
 
 // Register registers an api with the server
 func (api *API) Register(dir string) error {
-	fmt.Println("Registering ", dir, " on port ", utils.GetPort(api.port))
+	fmt.Println("Registering ", dir, " on port ", str.GetPort(api.port))
 
 	base := api.baseURL
 	for _, endpoint := range api.endpoints {
@@ -61,7 +62,7 @@ func (api *API) Register(dir string) error {
 		path := fmt.Sprintf("%s/%s", base, endpoint.Path)
 		fmt.Println(path)
 		api.handlers[path] = func(w http.ResponseWriter, r *http.Request) {
-			json, err := utils.GetJSON(fmt.Sprintf("%s/%s/%s", apiDir, dir, file))
+			json, err := json.GetJSON(fmt.Sprintf("%s/%s/%s", apiDir, dir, file))
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -74,8 +75,8 @@ func (api *API) Register(dir string) error {
 }
 
 func (api *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if h, ok := api.handlers[r.URL.String()[1:]]; ok {
-		h(w, r)
+	if handler, ok := api.handlers[r.URL.String()[1:]]; ok {
+		handler(w, r)
 		return
 	}
 }
