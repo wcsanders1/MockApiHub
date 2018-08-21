@@ -2,8 +2,9 @@ package route
 
 import (
 	"fmt"
-	"strings"
 	"errors"
+
+	"MockApiHub/str"
 )
 
 type (
@@ -31,9 +32,14 @@ func NewRouteTree() *Tree {
 }
 
 // AddRoute adds a route to the tree
-func (tree *Tree) AddRoute(route string) error {
-	fragments := strings.Split(route, "/")
-	if err := tree.addRoute(fragments); err != nil {
+func (tree *Tree) AddRoute(url string) error {
+	fragments, err := str.GetURLFragments(url)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	if err := tree.addRouteByFragments(fragments); err != nil {
 		fmt.Println(err)
 		return err
 	}
@@ -41,7 +47,7 @@ func (tree *Tree) AddRoute(route string) error {
 	return nil
 }
 
-func (tree *Tree) addRoute(fragments []string) error {
+func (tree *Tree) addRouteByFragments(fragments []string) error {
 	if len(fragments) == 0 {
 		return nil
 	}
@@ -73,5 +79,5 @@ func (tree *Tree) addRouteToExistingBranch(remFrags []string) error {
 		return nil
 	}
 
-	return tree.addRoute(remFrags)
+	return tree.addRouteByFragments(remFrags)
 }
