@@ -47,6 +47,43 @@ func (tree *Tree) AddRoute(url string) error {
 	return nil
 }
 
+// GetRoute returns a route if it exists in the tree
+func (tree *Tree) GetRoute(url string) (string, error) {
+	fragments, err := str.GetURLFragments(url)
+	if err != nil {
+		fmt.Println(err)
+		return "", err
+	}
+
+	return tree.getRouteByFragments(fragments)
+}
+
+func (tree *Tree) getRouteByFragments(fragments []string) (string, error) {
+	if (len(fragments) == 0) {
+		return "", nil
+	}
+
+	// curFrag := fragments[0]
+	// remFrags := fragments[1:]
+
+	// if branch, exists := tree.branches[curFrag]; !exists {
+	// 	params := tree.getRouteParamsInBranch
+	// }
+
+	return "", nil
+}
+
+func (tree *Tree) getRouteParamsInBranch() []string {
+	var params []string
+	for k := range tree.branches {
+		if (string(k[0]) == ":") {
+			params = append(params, k)
+		}
+	}
+
+	return params
+}
+
 func (tree *Tree) addRouteByFragments(fragments []string) error {
 	if len(fragments) == 0 {
 		return nil
