@@ -63,12 +63,39 @@ func (tree *Tree) getRouteByFragments(fragments []string) (string, error) {
 		return "", nil
 	}
 
-	// curFrag := fragments[0]
-	// remFrags := fragments[1:]
+	curFrag := fragments[0]
+	remFrags := fragments[1:]
+	notFoundError := errors.New("route not found")
 
-	// if branch, exists := tree.branches[curFrag]; !exists {
-	// 	params := tree.getRouteParamsInBranch
-	// }
+	if branch, exists := tree.branches[curFrag]; exists {
+		route, err := branch.getRouteByFragments(remFrags)
+		
+		if err != nil {
+			return "", err
+		}
+
+		if len(route) == 0 {
+			if len(remFrags) == 0 {
+				switch tree.routeType {
+				case complete:
+					return curFrag, nil
+				case incomplete:
+					return "", notFoundError
+				default:
+					return "", errors.New("problem finding route")
+				}
+			}
+			
+			return "", notFoundError
+		}
+		
+		return fmt.Sprintf("%s/%s", curFrag, route), nil
+	}
+
+	params := tree.getRouteParamsInBranch()
+	if len(params) == 0 {
+		return "", notFoundError
+	}
 
 	return "", nil
 }
