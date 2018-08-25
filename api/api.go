@@ -86,7 +86,15 @@ func (api *API) Register(dir string) error {
 func (api *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	path, err := api.routeTree.GetRoute(r.URL.String()[1:])
 	if err != nil {
-
+		switch err.(type) {
+		case *route.HTTPError:
+			httpError, _ := err.(*route.HTTPError)
+			w.WriteHeader(httpError.Status)
+			w.Write([]byte(httpError.Msg))
+		default:
+			fmt.Println(err)
+			return
+		}
 	}
 
 	if handler, ok := api.handlers[path]; ok {

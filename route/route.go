@@ -4,6 +4,7 @@ import (
 	"strings"
 	"fmt"
 	"errors"
+	"net/http"
 
 	"MockApiHub/str"
 )
@@ -13,16 +14,35 @@ type (
 	
 	// Tree contains routing for an API in a tree format
 	Tree struct {
-		routeType routeType
-		branches map[string]*Tree
+		routeType 	routeType
+		branches 	map[string]*Tree
+	}
+
+	// HTTPError is the error type returned when an HTTP error occurs
+	HTTPError struct {
+		Msg 	string
+		Status 	int
 	}
 )
 
 const (
-	incomplete routeType = 0
-	complete   routeType = 1
-	wildCard   routeType = 2
+	incomplete 	routeType = 0
+	complete   	routeType = 1
+	wildCard   	routeType = 2
+	notFoundMsg string = "route not found"
 )
+
+// NewHTTPError returns a reference to a NewHTTPError
+func NewHTTPError(msg string, status int) *HTTPError {
+	return &HTTPError {
+		Msg: 	fmt.Sprintf("msg: %s || status: %s", msg, http.StatusText(status)),
+		Status: status,
+	}
+}
+
+func (e *HTTPError) Error() string {
+	return e.Msg
+}
 
 // NewRouteTree returns a new instance of Tree
 func NewRouteTree() *Tree {
@@ -72,7 +92,7 @@ func (tree *Tree) getRouteByFragments(fragments []string) (string, error) {
 
 	curFrag := fragments[0]
 	remFrags := fragments[1:]
-	notFoundError := errors.New("route not found")
+	notFoundError := NewHTTPError(notFoundMsg, http.StatusNotFound)
 
 	if branch, exists := tree.branches[curFrag]; exists {
 		route, err := branch.getRouteByFragments(remFrags)
