@@ -1,4 +1,4 @@
-baseUrl = "studentsApi"
+baseUrl = "studentsApi/:districtNumber"
 
 [http]
 port = 5002

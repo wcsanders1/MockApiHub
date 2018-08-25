@@ -35,7 +35,7 @@ func NewManager(config *config.AppConfig) *Manager {
 	return &Manager{
 		config: config,
 		server: server,
-		apis: make(map[string]*api.API),
+		apis: 	make(map[string]*api.API),
 	}
 }
 

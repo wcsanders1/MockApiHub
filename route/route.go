@@ -23,28 +23,28 @@ const (
 	wildCard   routeType = 2
 )
 
-// NewRouteTree returns a new instance of RouteTree
+// NewRouteTree returns a new instance of Tree
 func NewRouteTree() *Tree {
 	return &Tree {
-		routeType: incomplete,
-		branches: make(map[string]*Tree),
+		routeType: 	incomplete,
+		branches: 	make(map[string]*Tree),
 	}
 }
 
 // AddRoute adds a route to the tree
-func (tree *Tree) AddRoute(url string) error {
+func (tree *Tree) AddRoute(url string) (string, error) {
 	fragments, err := str.GetURLFragments(url)
 	if err != nil {
 		fmt.Println(err)
-		return err
+		return "", err
 	}
 
 	if err := tree.addRouteByFragments(fragments); err != nil {
 		fmt.Println(err)
-		return err
+		return "", err
 	}
 
-	return nil
+	return tree.GetRoute(url)
 }
 
 // GetRoute returns a route if it exists in the tree

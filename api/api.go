@@ -8,6 +8,7 @@ import (
 	"MockApiHub/str"
 	"MockApiHub/config"
 	"MockApiHub/json"
+	"MockApiHub/route"
 )
 
 // API contains information for an API
@@ -17,6 +18,7 @@ type API struct {
 	server *http.Server
 	port int
 	handlers map[string]func(http.ResponseWriter, *http.Request)
+	routeTree *route.Tree
 }
 
 const apiDir = "./api/apis"
@@ -35,6 +37,7 @@ func NewAPI (config *config.APIConfig) (*API, error) {
 	api.port = config.HTTP.Port
 	api.server = server
 	api.handlers = make(map[string]func(http.ResponseWriter, *http.Request))
+	api.routeTree = route.NewRouteTree()	
 
 	return api, nil
 }
@@ -58,10 +61,16 @@ func (api *API) Register(dir string) error {
 
 	base := api.baseURL
 	for _, endpoint := range api.endpoints {
-		file := endpoint.File
 		path := fmt.Sprintf("%s/%s", base, endpoint.Path)
-		fmt.Println(path)
-		api.handlers[path] = func(w http.ResponseWriter, r *http.Request) {
+
+		registeredPath, err := api.routeTree.AddRoute(path)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+
+		file := endpoint.File
+		api.handlers[registeredPath] = func(w http.ResponseWriter, r *http.Request) {
 			json, err := json.GetJSON(fmt.Sprintf("%s/%s/%s", apiDir, dir, file))
 			if err != nil {
 				fmt.Println(err)
@@ -75,7 +84,12 @@ func (api *API) Register(dir string) error {
 }
 
 func (api *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if handler, ok := api.handlers[r.URL.String()[1:]]; ok {
+	path, err := api.routeTree.GetRoute(r.URL.String()[1:])
+	if err != nil {
+
+	}
+
+	if handler, ok := api.handlers[path]; ok {
 		handler(w, r)
 		return
 	}
