@@ -1,6 +1,7 @@
 package route
 
 import (
+	"strings"
 	"fmt"
 	"errors"
 
@@ -33,6 +34,7 @@ func NewRouteTree() *Tree {
 
 // AddRoute adds a route to the tree
 func (tree *Tree) AddRoute(url string) (string, error) {
+	url = strings.ToLower(url)
 	fragments, err := str.GetURLFragments(url)
 	if err != nil {
 		fmt.Println(err)
@@ -49,6 +51,7 @@ func (tree *Tree) AddRoute(url string) (string, error) {
 
 // GetRoute returns a route if it exists in the tree
 func (tree *Tree) GetRoute(url string) (string, error) {
+	url = strings.ToLower(url)
 	fragments, err := str.GetURLFragments(url)
 	if err != nil {
 		fmt.Println(err)
