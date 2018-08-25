@@ -1,6 +1,7 @@
 package api
 
 import (
+	"strings"
 	"fmt"
 	"net/http"
 	"errors"
@@ -17,7 +18,7 @@ type API struct {
 	endpoints map[string]config.Endpoint
 	server *http.Server
 	port int
-	handlers map[string]func(http.ResponseWriter, *http.Request)
+	handlers map[string]map[string]func(http.ResponseWriter, *http.Request)
 	routeTree *route.Tree
 }
 
@@ -36,7 +37,7 @@ func NewAPI (config *config.APIConfig) (*API, error) {
 	api.endpoints = config.Endpoints
 	api.port = config.HTTP.Port
 	api.server = server
-	api.handlers = make(map[string]func(http.ResponseWriter, *http.Request))
+	api.handlers = make(map[string]map[string]func(http.ResponseWriter, *http.Request))
 	api.routeTree = route.NewRouteTree()	
 
 	return api, nil
@@ -62,15 +63,15 @@ func (api *API) Register(dir string) error {
 	base := api.baseURL
 	for _, endpoint := range api.endpoints {
 		path := fmt.Sprintf("%s/%s", base, endpoint.Path)
-
-		registeredPath, err := api.routeTree.AddRoute(path)
-		if err != nil {
-			fmt.Println(err)
-			continue
+		registeredPath := api.ensureRouteRegistered(path)
+		file := endpoint.File
+		method := strings.ToUpper(endpoint.Method)
+		
+		if _, mapExists := api.handlers[method]; !mapExists {
+			api.handlers[method] = make(map[string]func(http.ResponseWriter, *http.Request))
 		}
 
-		file := endpoint.File
-		api.handlers[registeredPath] = func(w http.ResponseWriter, r *http.Request) {
+		api.handlers[method][registeredPath] = func(w http.ResponseWriter, r *http.Request) {
 			json, err := json.GetJSON(fmt.Sprintf("%s/%s/%s", apiDir, dir, file))
 			if err != nil {
 				fmt.Println(err)
@@ -81,6 +82,15 @@ func (api *API) Register(dir string) error {
 	go api.server.ListenAndServe()
 
 	return nil
+}
+
+func (api *API) ensureRouteRegistered(url string) string {
+	registeredPath, _ := api.routeTree.GetRoute(url)
+	if len(registeredPath) == 0 {
+		registeredPath, _ = api.routeTree.AddRoute(url)
+	}
+
+	return registeredPath
 }
 
 func (api *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -97,7 +107,8 @@ func (api *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if handler, ok := api.handlers[path]; ok {
+	method := strings.ToUpper(r.Method)
+	if handler, ok := api.handlers[method][path]; ok {
 		handler(w, r)
 		return
 	}

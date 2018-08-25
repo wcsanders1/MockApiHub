@@ -9,9 +9,16 @@ keyFile = ""
 [endpoints]
 
     [endpoints.getStudents]
-    path = "getStudents"
+    path = "students"
     file = "students.json"
+    method = "GET"
+
+    [endpoints.postStudents]
+    path = "students"
+    file = "studentsPost.json"
+    method = "POST"
 
     [endpoints.getGrades]
-    path = "getGrades"
+    path = "grades"
     file = "grades.json"
+    method = "GET"

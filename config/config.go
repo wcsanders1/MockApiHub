@@ -25,5 +25,6 @@ type (
 	Endpoint struct {
 		Path	string 
 		File	string
+		Method  string
 	}
 )
