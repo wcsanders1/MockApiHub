@@ -76,7 +76,7 @@ func (tree *Tree) getRouteByFragments(fragments []string) (string, error) {
 
 		if len(route) == 0 {
 			if len(remFrags) == 0 {
-				switch tree.routeType {
+				switch branch.routeType {
 				case complete:
 					return curFrag, nil
 				case incomplete:
@@ -97,7 +97,13 @@ func (tree *Tree) getRouteByFragments(fragments []string) (string, error) {
 		return "", notFoundError
 	}
 
-	return "", nil
+	for _, p := range params {
+		if route, err := tree.branches[p].getRouteByFragments(remFrags); err == nil {
+			return fmt.Sprintf("%s/%s", p, route), nil
+		}
+	}
+
+	return "", notFoundError
 }
 
 func (tree *Tree) getRouteParamsInBranch() []string {

@@ -56,3 +56,84 @@ func TestAddRoute(t *testing.T) {
 	assert.Equal(incomplete, routeTree.branches[frags[0]].routeType)
 	assert.Equal(complete, routeTree.branches[frags[0]].branches[frags[1]].routeType)
 }
+
+func TestGetRoute(t *testing.T) {
+	route1 := "test/route/again/and/again"
+	routeTree := NewRouteTree()
+	routeTree.AddRoute(route1)
+	result, err := routeTree.GetRoute(route1)
+
+	assert := assert.New(t)
+	assert.Nil(err)
+	assert.Equal(route1, result)
+
+	route2 := "test/route"
+	result, err = routeTree.GetRoute(route2)
+
+	assert.Error(err)
+	assert.Empty(result)
+	
+	routeTree.AddRoute(route2)
+
+	result, err = routeTree.GetRoute(route2)
+
+	assert.Nil(err)
+	assert.Equal(route2, result)
+
+	route3 := "test/route/anotherroute"
+
+	result, err = routeTree.GetRoute(route3)
+
+	assert.Error(err)
+	assert.Empty(result)
+
+	routeTree.AddRoute(route3)
+
+	result, err = routeTree.GetRoute(route3)
+
+	assert.Nil(err)
+	assert.Equal(route3, result)
+
+	result, err = routeTree.GetRoute(route1)
+	assert.Nil(err)
+	assert.Equal(route1, result)
+
+	result, err = routeTree.GetRoute(route2)
+	assert.Nil(err)
+	assert.Equal(route2, result)
+
+	result, err = routeTree.GetRoute(route3)
+	assert.Nil(err)
+	assert.Equal(route3, result)
+
+	_, err = routeTree.GetRoute("test")
+	assert.Error(err)
+
+	url := "another/43434/route"
+
+	_, err = routeTree.GetRoute(url)
+	assert.Error(err)
+
+	route4 := "another/:param/route"
+	routeTree.AddRoute(route4)
+
+	result, err = routeTree.GetRoute(url)
+	assert.Nil(err)
+	assert.Equal(route4, result)
+
+	url = "another/3/route"
+	result, err = routeTree.GetRoute(url)
+	assert.Nil(err)
+	assert.Equal(route4, result)
+
+	route5 := "another/param/route"
+	routeTree.AddRoute(route5)
+
+	result, err = routeTree.GetRoute(url)
+	assert.Nil(err)
+	assert.Equal(route4, result)
+
+	result, err = routeTree.GetRoute(route5)
+	assert.Nil(err)
+	assert.Equal(route5, result)
+}
