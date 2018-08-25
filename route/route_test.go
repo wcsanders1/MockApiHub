@@ -44,9 +44,11 @@ func TestAddRoute(t *testing.T) {
 	route := "test/route"
 	frags := strings.Split(route, "/")
 	routeTree := NewRouteTree()
-	routeTree.AddRoute(route)
+	registeredRoute, err := routeTree.AddRoute(route)
 
 	assert := assert.New(t)
+	assert.Nil(err)
+	assert.Equal(route, registeredRoute)
 	assert.Contains(routeTree.branches, frags[0])
 	assert.NotContains(routeTree.branches, frags[1])
 	assert.Contains(routeTree.branches[frags[0]].branches, frags[1])
@@ -55,6 +57,11 @@ func TestAddRoute(t *testing.T) {
 	assert.Equal(incomplete, routeTree.routeType)
 	assert.Equal(incomplete, routeTree.branches[frags[0]].routeType)
 	assert.Equal(complete, routeTree.branches[frags[0]].branches[frags[1]].routeType)
+
+	retry, err := routeTree.AddRoute(route)
+
+	assert.Error(err)
+	assert.Empty(retry)
 }
 
 func TestGetRoute(t *testing.T) {
@@ -125,15 +132,4 @@ func TestGetRoute(t *testing.T) {
 	result, err = routeTree.GetRoute(url)
 	assert.Nil(err)
 	assert.Equal(route4, result)
-
-	route5 := "another/param/route"
-	routeTree.AddRoute(route5)
-
-	result, err = routeTree.GetRoute(url)
-	assert.Nil(err)
-	assert.Equal(route4, result)
-
-	result, err = routeTree.GetRoute(route5)
-	assert.Nil(err)
-	assert.Equal(route5, result)
 }

@@ -34,6 +34,10 @@ func NewRouteTree() *Tree {
 
 // AddRoute adds a route to the tree
 func (tree *Tree) AddRoute(url string) (string, error) {
+	if existingRoute, _ := tree.GetRoute(url); len(existingRoute) > 0 {
+		return "", fmt.Errorf("route %s already registered", url)
+	}
+
 	url = strings.ToLower(url)
 	fragments, err := str.GetURLFragments(url)
 	if err != nil {
