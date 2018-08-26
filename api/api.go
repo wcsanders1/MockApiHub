@@ -63,15 +63,22 @@ func (api *API) Register(dir string) error {
 	base := api.baseURL
 	for _, endpoint := range api.endpoints {
 		path := fmt.Sprintf("%s/%s", base, endpoint.Path)
-		registeredPath := api.ensureRouteRegistered(path)
+		registeredRoute := api.ensureRouteRegistered(path)
 		file := endpoint.File
 		method := strings.ToUpper(endpoint.Method)
 		
-		if _, mapExists := api.handlers[method]; !mapExists {
+		if route, methodExists := api.handlers[method]; !methodExists {
 			api.handlers[method] = make(map[string]func(http.ResponseWriter, *http.Request))
-		}
+		} else {
+			if _, routeExists := route[registeredRoute]; routeExists {
+				fmt.Println(fmt.Sprintf("WARNING: the following route with method %s already exists: %s", 
+					method, registeredRoute))
 
-		api.handlers[method][registeredPath] = func(w http.ResponseWriter, r *http.Request) {
+				continue
+			}
+		}
+		
+		api.handlers[method][registeredRoute] = func(w http.ResponseWriter, r *http.Request) {
 			json, err := json.GetJSON(fmt.Sprintf("%s/%s/%s", apiDir, dir, file))
 			if err != nil {
 				fmt.Println(err)
@@ -85,12 +92,12 @@ func (api *API) Register(dir string) error {
 }
 
 func (api *API) ensureRouteRegistered(url string) string {
-	registeredPath, _ := api.routeTree.GetRoute(url)
-	if len(registeredPath) == 0 {
-		registeredPath, _ = api.routeTree.AddRoute(url)
+	registeredRoute, _ := api.routeTree.GetRoute(url)
+	if len(registeredRoute) == 0 {
+		registeredRoute, _ = api.routeTree.AddRoute(url)
 	}
 
-	return registeredPath
+	return registeredRoute
 }
 
 func (api *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
