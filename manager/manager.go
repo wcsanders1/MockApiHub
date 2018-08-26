@@ -115,6 +115,13 @@ func (mgr *Manager) loadMockAPIs() error {
 			return err
 		}
 
+		if mgr.apiByPortExists(apiConfig.HTTP.Port) {
+			fmt.Println(fmt.Sprintf("Trying to register %s api on port %d, but there is already an " +
+				"api registered on that port. Skipping.", file.Name(), apiConfig.HTTP.Port))
+			
+			continue
+		}
+
 		api, err := api.NewAPI(apiConfig)
 		if err != nil {
 			fmt.Println(err)
@@ -127,6 +134,16 @@ func (mgr *Manager) loadMockAPIs() error {
 	}
 
 	return nil
+}
+
+func (mgr *Manager) apiByPortExists(port int) bool {
+	for _, api := range mgr.apis {
+		if api.Port == port {
+			return true
+		}
+	}
+
+	return false
 }
 
 func getAPIConfig(file os.FileInfo) (*config.APIConfig, error) {
