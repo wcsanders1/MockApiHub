@@ -108,6 +108,7 @@ func (api *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			httpError, _ := err.(*route.HTTPError)
 			w.WriteHeader(httpError.Status)
 			w.Write([]byte(httpError.Msg))
+			return
 		default:
 			fmt.Println(err)
 			return
@@ -119,4 +120,7 @@ func (api *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		handler(w, r)
 		return
 	}
+
+	w.WriteHeader(http.StatusNotFound)
+	w.Write([]byte("endpoint not found"))
 }
