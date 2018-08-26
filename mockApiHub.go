@@ -8,7 +8,6 @@ import (
 
 	"github.com/BurntSushi/toml"
 )
-
 func main() {
 	var appConfig config.AppConfig
 	if _, err := toml.DecodeFile("app_config.toml", &appConfig); err != nil {
@@ -19,4 +18,3 @@ func main() {
 	mgr := manager.NewManager(&appConfig)
 	mgr.StartMockAPIHub()
 }
-
