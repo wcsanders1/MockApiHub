@@ -23,7 +23,10 @@ type Manager struct{
 	server *http.Server
 }
 
-const apiDir = "./api/apis"
+const (
+	apiDir = "./api/apis"
+	apiDirExt = "Api"
+) 
 
 // NewManager returns an instance of the Manager type
 func NewManager(config *config.AppConfig) *Manager {
@@ -48,7 +51,6 @@ func createManagerServer(config *config.HTTP) (*http.Server, error) {
 		Addr: str.GetPort(config.Port),
 		Handler: http.HandlerFunc(handler),
 	}
-
 	return server, nil
 }
 
@@ -132,7 +134,6 @@ func (mgr *Manager) loadMockAPIs() error {
 			mgr.apis[file.Name()] = api
 		}
 	}
-
 	return nil
 }
 
@@ -142,7 +143,6 @@ func (mgr *Manager) apiByPortExists(port int) bool {
 			return true
 		}
 	}
-
 	return false
 }
 
@@ -158,15 +158,14 @@ func getAPIConfig(file os.FileInfo) (*config.APIConfig, error) {
 		fmt.Println(err)
 		return nil, err
 	}
-
 	return apiConfig, nil	
 }
 
 func getAPIConfigFromDir(dir string) (*config.APIConfig, error) {
 	files, _ := ioutil.ReadDir(fmt.Sprintf("%s/%s", apiDir, dir))
 	for _, file := range files {
-		if (isAPIConfig(file)) {
-			apiConfig, err:= decodeAPIConfig(dir, file)
+		if (isAPIConfig(file.Name())) {
+			apiConfig, err:= decodeAPIConfig(dir, file.Name())
 			if err != nil {
 				fmt.Println(err)
 				return nil, err
@@ -177,8 +176,8 @@ func getAPIConfigFromDir(dir string) (*config.APIConfig, error) {
 	return nil, nil
 }
 
-func decodeAPIConfig(dir string, file os.FileInfo) (*config.APIConfig, error) {
-	path := fmt.Sprintf("%s/%s/%s", apiDir, dir, file.Name())
+func decodeAPIConfig(dir string, fileName string) (*config.APIConfig, error) {
+	path := fmt.Sprintf("%s/%s/%s", apiDir, dir, fileName)
 	var config config.APIConfig
 	if _, err := toml.DecodeFile(path, &config); err != nil {
 		fmt.Println(err)
@@ -188,10 +187,10 @@ func decodeAPIConfig(dir string, file os.FileInfo) (*config.APIConfig, error) {
 }
 
 func isAPI(dir string) bool {
-	return len(dir) > 3 && dir[len(dir)-3:] == "Api"
+	return len(dir) > 3 && dir[len(dir)-3:] == apiDirExt
 }
 
-func isAPIConfig(file os.FileInfo) bool {
-	ext := filepath.Ext(file.Name())
+func isAPIConfig(fileName string) bool {
+	ext := filepath.Ext(fileName)
 	return ext == ".toml"
 }
