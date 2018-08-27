@@ -17,7 +17,7 @@ type API struct {
 	baseURL string
 	endpoints map[string]config.Endpoint
 	server *http.Server
-	Port int
+	port int
 	handlers map[string]map[string]func(http.ResponseWriter, *http.Request)
 	routeTree *route.Tree
 }
@@ -35,12 +35,17 @@ func NewAPI (config *config.APIConfig) (*API, error) {
 
 	api.baseURL = config.BaseURL
 	api.endpoints = config.Endpoints
-	api.Port = config.HTTP.Port
+	api.port = config.HTTP.Port
 	api.server = server
 	api.handlers = make(map[string]map[string]func(http.ResponseWriter, *http.Request))
 	api.routeTree = route.NewRouteTree()	
 
 	return api, nil
+}
+
+// GetPort returns the API's port number
+func (api *API) GetPort() int {
+	return api.port
 }
 
 func createAPIServer(config *config.HTTP, api *API) (*http.Server, error) {
@@ -58,7 +63,7 @@ func createAPIServer(config *config.HTTP, api *API) (*http.Server, error) {
 
 // Register registers an api with the server
 func (api *API) Register(dir string) error {
-	fmt.Println("Registering ", dir, " on port ", str.GetPort(api.Port))
+	fmt.Println("Registering ", dir, " on port ", str.GetPort(api.port))
 
 	base := api.baseURL
 	for _, endpoint := range api.endpoints {

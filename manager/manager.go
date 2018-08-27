@@ -139,7 +139,7 @@ func (mgr *Manager) loadMockAPIs() error {
 
 func (mgr *Manager) apiByPortExists(port int) bool {
 	for _, api := range mgr.apis {
-		if api.Port == port {
+		if api.GetPort() == port {
 			return true
 		}
 	}
