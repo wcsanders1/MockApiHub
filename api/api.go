@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"errors"
+	"path"
 
 	"MockApiHub/str"
 	"MockApiHub/config"
@@ -106,7 +107,7 @@ func (api *API) ensureRouteRegistered(url string) string {
 }
 
 func (api *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	path, err := api.routeTree.GetRoute(r.URL.String()[1:])
+	path, err := api.routeTree.GetRoute(cleanURL(r.URL.String()))
 	if err != nil {
 		switch err.(type) {
 		case *route.HTTPError:
@@ -128,4 +129,12 @@ func (api *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusNotFound)
 	w.Write([]byte("endpoint not found"))
+}
+
+func cleanURL(url string) string {
+	if len(url) == 0 {
+		return ""
+	}
+
+	return path.Clean(url[1:])
 }
