@@ -44,7 +44,7 @@ func TestIsAPI(t *testing.T) {
 	assert.False(result)
 }
 
-func TestApiByPortExists( t *testing.T) {
+func TestApiByPortExists(t *testing.T) {
 	port := 4000
 	mgr := Manager {
 		apis: make(map[string]*api.API),

@@ -2,7 +2,6 @@ package manager
 
 import (
 	"net/http"
-	"io"	
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
@@ -21,6 +20,7 @@ type Manager struct{
 	apis map[string]*api.API
 	config *config.AppConfig
 	server *http.Server
+	hubAPIHandlers map[string]map[string]func(http.ResponseWriter, *http.Request)
 }
 
 const (
@@ -30,34 +30,33 @@ const (
 
 // NewManager returns an instance of the Manager type
 func NewManager(config *config.AppConfig) *Manager {
-	server, err := createManagerServer(&config.HTTP)
+	mgr := &Manager{}
+	server, err := createManagerServer(&config.HTTP, mgr)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	return &Manager{
-		config: config,
-		server: server,
-		apis: 	make(map[string]*api.API),
-	}
+	mgr.config = config
+	mgr.server = server
+	mgr.apis = make(map[string]*api.API)
+
+	return mgr
 }
 
-func createManagerServer(config *config.HTTP) (*http.Server, error) {
+func (mgr *Manager) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	
+}
+
+func createManagerServer(config *config.HTTP, mgr *Manager) (*http.Server, error) {
 	if config.Port == 0 {
 		return nil, errors.New("no port provided")
 	}
 
 	server := &http.Server {
-		Addr: str.GetPort(config.Port),
-		Handler: http.HandlerFunc(handler),
+		Addr: 	 str.GetPort(config.Port),
+		Handler: mgr,
 	}
 	return server, nil
-}
-
-func handler(w http.ResponseWriter, req *http.Request) {
-	if (req.Method == http.MethodGet) {
-		io.WriteString(w, "hi")
-	}		
 }
 
 // StartMockAPIHub registers the mock apis and serves them
