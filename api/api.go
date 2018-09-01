@@ -49,6 +49,16 @@ func (api *API) GetPort() int {
 	return api.port
 }
 
+// GetBaseURL returns the API's base URL
+func (api *API) GetBaseURL() string {
+	return api.baseURL
+}
+
+// GetEndpoints returns the API's endpoints
+func (api *API) GetEndpoints() map[string]config.Endpoint {
+	return api.endpoints
+}
+
 func createAPIServer(config *config.HTTP, api *API) (*http.Server, error) {
 	if config.Port == 0 {
 		return nil, errors.New("no port provided")
@@ -140,4 +150,3 @@ func (api *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotFound)
 	w.Write([]byte("endpoint not found"))
 }
-
