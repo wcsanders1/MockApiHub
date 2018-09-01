@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"os"
 	"errors"
+	"strings"
 
 	"MockApiHub/api"
 	"MockApiHub/config"
@@ -44,7 +45,22 @@ func NewManager(config *config.AppConfig) *Manager {
 }
 
 func (mgr *Manager) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	
+	method := strings.ToUpper(r.Method)
+	path := str.CleanURL(r.URL.String())
+
+	if (len(method) == 0 || len(path) == 0) {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("endpoint not found"))
+		return
+	}
+
+	if handler, exists := mgr.hubAPIHandlers[method][path]; exists {
+		handler(w, r)
+		return
+	}
+
+	w.WriteHeader(http.StatusNotFound)
+	w.Write([]byte("endpoint not found"))
 }
 
 func createManagerServer(config *config.HTTP, mgr *Manager) (*http.Server, error) {
@@ -66,6 +82,7 @@ func (mgr *Manager) StartMockAPIHub() error {
 		return err
 	}
 
+	mgr.registerHubAPIHandlers()
 	mgr.registerMockAPIs()
 	mgr.startHubServer()
 

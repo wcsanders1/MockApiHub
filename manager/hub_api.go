@@ -1,26 +1,40 @@
 package manager
 
 import (
+	"strings"
+	"fmt"
 	"net/http"
+
+	"MockApiHub/api"
 )
 
 const (
 	refreshAPISPath = "refreshAllAPIs"
 )
 
-// RefreshAPI clears all mock apis and reloads them
-func (mgr *Manager) RefreshAPI (w http.ResponseWriter, r *http.Request) {
-	
-	w.Write([]byte("refreshing (but not really)"))
+func (mgr *Manager) refreshAPI (w http.ResponseWriter, r *http.Request) {
+	for _, api := range mgr.apis {
+		if err := api.Shutdown(); err != nil {
+			fmt.Println(err)
+			panic(err)
+		}
+	}
+
+	mgr.apis = make(map[string]*api.API)
+	err := mgr.loadMockAPIs()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	mgr.registerMockAPIs()
+	w.Write([]byte("successfully refreshed mock apis"))
 }
 
-// RegisterHubAPIHandlers registers the hub API handlers
-func (mgr *Manager) RegisterHubAPIHandlers() error {
+func (mgr *Manager) registerHubAPIHandlers() {
 
 	mgr.hubAPIHandlers = make(map[string]map[string]func(http.ResponseWriter, *http.Request))
 	mgr.hubAPIHandlers[http.MethodPost] = make(map[string]func(http.ResponseWriter, *http.Request))
 
-	mgr.hubAPIHandlers[http.MethodPost][refreshAPISPath] = mgr.RefreshAPI
-
-	return nil
+	mgr.hubAPIHandlers[http.MethodPost][strings.ToLower(refreshAPISPath)] = mgr.refreshAPI
 }
