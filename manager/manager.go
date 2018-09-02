@@ -91,7 +91,9 @@ func (mgr *Manager) StartMockAPIHub() error {
 
 func (mgr *Manager) startHubServer() error {
 	if mgr.config.HTTP.UseTLS {
-		return mgr.startHubServerUsingTLS()
+		if err := mgr.startHubServerUsingTLS(); err != nil {
+			panic(err)
+		}
 	}
 	mgr.server.ListenAndServe()
 	
@@ -101,13 +103,15 @@ func (mgr *Manager) startHubServer() error {
 func (mgr *Manager) startHubServerUsingTLS() error {
 	certFile := mgr.config.HTTP.CertFile
 	keyFile := mgr.config.HTTP.KeyFile
-	if _, err := os.Stat(certFile); os.IsNotExist(err) {
+	
+	if _, err := os.Stat(certFile); err != nil {
 		return fmt.Errorf(fmt.Sprintf("%s cert file does not exist", certFile))
 	}
 
-	if _, err := os.Stat(keyFile); os.IsNotExist(err) {
+	if _, err := os.Stat(keyFile); err != nil {
 		return fmt.Errorf(fmt.Sprintf("%s key file does not exist", keyFile))
 	}
+	
 	return mgr.server.ListenAndServeTLS(certFile, keyFile)
 }
 
