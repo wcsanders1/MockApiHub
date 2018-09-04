@@ -18,9 +18,9 @@ type API struct {
 	baseURL string
 	endpoints map[string]config.Endpoint
 	server *http.Server
-	port int
 	handlers map[string]map[string]func(http.ResponseWriter, *http.Request)
 	routeTree *route.Tree
+	httpConfig config.HTTP
 }
 
 const apiDir = "./api/apis"
@@ -36,17 +36,17 @@ func NewAPI (config *config.APIConfig) (*API, error) {
 
 	api.baseURL = config.BaseURL
 	api.endpoints = config.Endpoints
-	api.port = config.HTTP.Port
 	api.server = server
 	api.handlers = make(map[string]map[string]func(http.ResponseWriter, *http.Request))
 	api.routeTree = route.NewRouteTree()	
+	api.httpConfig = config.HTTP
 
 	return api, nil
 }
 
 // GetPort returns the API's port number
 func (api *API) GetPort() int {
-	return api.port
+	return api.httpConfig.Port
 }
 
 // GetBaseURL returns the API's base URL
@@ -74,7 +74,7 @@ func createAPIServer(config *config.HTTP, api *API) (*http.Server, error) {
 
 // Register registers an api with the server
 func (api *API) Register(dir string) error {
-	fmt.Println("Registering ", dir, " on port ", str.GetPort(api.port))
+	fmt.Println("Registering ", dir, " on port ", str.GetPort(api.httpConfig.Port))
 
 	base := api.baseURL
 	for _, endpoint := range api.endpoints {
@@ -102,6 +102,7 @@ func (api *API) Register(dir string) error {
 			w.Write(json)
 		}
 	}
+	
 	go api.server.ListenAndServe()
 
 	return nil
@@ -122,7 +123,7 @@ func (api *API) Shutdown() error {
 		fmt.Println(err)
 		return err
 	}
-	fmt.Println(fmt.Sprintf("shut down server on port %d", api.port))
+	fmt.Println(fmt.Sprintf("shut down server on port %d", api.httpConfig.Port))
 	return nil
 }
 
