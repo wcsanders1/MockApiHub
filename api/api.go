@@ -102,10 +102,23 @@ func (api *API) Register(dir string) error {
 			w.Write(json)
 		}
 	}
+
+	if api.httpConfig.UseTLS {
+
+	}
 	
 	go api.server.ListenAndServe()
 
 	return nil
+}
+
+func getCertAndKeyFile(certPath string, keyPath string) (string, string, error) {
+	if (len(certPath) == 0 && len(keyPath) > 0) {
+		return "", "", errors.New("key path provided without cert path")
+	}
+	
+
+	return "", "", nil
 }
 
 func (api *API) ensureRouteRegistered(url string) string {
