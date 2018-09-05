@@ -73,7 +73,7 @@ func createAPIServer(config *config.HTTP, api *API) (*http.Server, error) {
 }
 
 // Register registers an api with the server
-func (api *API) Register(dir string) error {
+func (api *API) Register(dir, defaultCert, defaultKey string) error {
 	fmt.Println("Registering ", dir, " on port ", str.GetPort(api.httpConfig.Port))
 
 	base := api.baseURL
@@ -104,7 +104,13 @@ func (api *API) Register(dir string) error {
 	}
 
 	if api.httpConfig.UseTLS {
+		cert, key, err := api.getCertAndKeyFile(defaultCert, defaultKey)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
 
+		go api.server.ListenAndServeTLS(cert, key)
 	}
 	
 	go api.server.ListenAndServe()
@@ -112,13 +118,20 @@ func (api *API) Register(dir string) error {
 	return nil
 }
 
-func getCertAndKeyFile(certPath string, keyPath string) (string, string, error) {
-	if (len(certPath) == 0 && len(keyPath) > 0) {
-		return "", "", errors.New("key path provided without cert path")
+func (api *API) getCertAndKeyFile(defaultCert, defaultKey string) (string, string, error) {
+	if (len(api.httpConfig.CertFile) > 0 && len(api.httpConfig.KeyFile) > 0) {
+		return api.httpConfig.CertFile, api.httpConfig.KeyFile, nil
 	}
 	
+	if (len(api.httpConfig.CertFile) == 0 && len(api.httpConfig.KeyFile) > 0) {
+		return "", "", errors.New("key provided without cert")
+	}
+	
+	if (len(api.httpConfig.KeyFile) == 0 && len(api.httpConfig.CertFile) > 0) {
+		return "", "", errors.New("cert provided without key")
+	}
 
-	return "", "", nil
+	return defaultCert, defaultKey, nil
 }
 
 func (api *API) ensureRouteRegistered(url string) string {

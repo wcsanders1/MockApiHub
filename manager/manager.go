@@ -117,7 +117,7 @@ func (mgr *Manager) startHubServerUsingTLS() error {
 
 func (mgr *Manager) registerMockAPIs() {
 	for dir, api := range mgr.apis {
-		err := api.Register(dir)
+		err := api.Register(dir, mgr.config.HTTP.CertFile, mgr.config.HTTP.KeyFile)
 		if err != nil {
 			fmt.Println(err)
 		}
