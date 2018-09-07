@@ -60,7 +60,6 @@ func (mgr *Manager) showRegisteredMockAPIs (w http.ResponseWriter, r *http.Reque
 }
 
 func (mgr *Manager) registerHubAPIHandlers() {
-
 	mgr.hubAPIHandlers = make(map[string]map[string]func(http.ResponseWriter, *http.Request))
 	mgr.hubAPIHandlers[http.MethodPost] = make(map[string]func(http.ResponseWriter, *http.Request))
 	mgr.hubAPIHandlers[http.MethodGet] = make(map[string]func(http.ResponseWriter, *http.Request))

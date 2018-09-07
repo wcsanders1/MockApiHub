@@ -1,12 +1,12 @@
 package manager
 
 import (
-	"net/http"
+	"errors"
 	"fmt"
 	"io/ioutil"
-	"path/filepath"
+	"net/http"
 	"os"
-	"errors"
+	"path/filepath"
 	"strings"
 
 	"MockApiHub/api"
@@ -17,17 +17,17 @@ import (
 )
 
 // Manager coordinates and controls the apis
-type Manager struct{
-	apis map[string]*api.API
-	config *config.AppConfig
-	server *http.Server
+type Manager struct {
+	apis           map[string]*api.API
+	config         *config.AppConfig
+	server         *http.Server
 	hubAPIHandlers map[string]map[string]func(http.ResponseWriter, *http.Request)
 }
 
 const (
-	apiDir = "./api/apis"
+	apiDir    = "./api/apis"
 	apiDirExt = "Api"
-) 
+)
 
 // NewManager returns an instance of the Manager type
 func NewManager(config *config.AppConfig) *Manager {
@@ -48,7 +48,7 @@ func (mgr *Manager) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	method := strings.ToUpper(r.Method)
 	path := str.CleanURL(r.URL.String())
 
-	if (len(method) == 0 || len(path) == 0) {
+	if len(method) == 0 || len(path) == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("endpoint not found"))
 		return
@@ -68,8 +68,8 @@ func createManagerServer(config *config.HTTP, mgr *Manager) (*http.Server, error
 		return nil, errors.New("no port provided")
 	}
 
-	server := &http.Server {
-		Addr: 	 str.GetPort(config.Port),
+	server := &http.Server{
+		Addr:    str.GetPort(config.Port),
 		Handler: mgr,
 	}
 	return server, nil
@@ -96,14 +96,14 @@ func (mgr *Manager) startHubServer() error {
 		}
 	}
 	mgr.server.ListenAndServe()
-	
+
 	return nil
 }
 
 func (mgr *Manager) startHubServerUsingTLS() error {
 	certFile := mgr.config.HTTP.CertFile
 	keyFile := mgr.config.HTTP.KeyFile
-	
+
 	if _, err := os.Stat(certFile); err != nil {
 		return fmt.Errorf(fmt.Sprintf("%s cert file does not exist", certFile))
 	}
@@ -111,7 +111,7 @@ func (mgr *Manager) startHubServerUsingTLS() error {
 	if _, err := os.Stat(keyFile); err != nil {
 		return fmt.Errorf(fmt.Sprintf("%s key file does not exist", keyFile))
 	}
-	
+
 	return mgr.server.ListenAndServeTLS(certFile, keyFile)
 }
 
@@ -138,9 +138,9 @@ func (mgr *Manager) loadMockAPIs() error {
 		}
 
 		if mgr.apiByPortExists(apiConfig.HTTP.Port) {
-			fmt.Println(fmt.Sprintf("Trying to register %s api on port %d, but there is already an " +
+			fmt.Println(fmt.Sprintf("Trying to register %s api on port %d, but there is already an "+
 				"api registered on that port. Skipping.", file.Name(), apiConfig.HTTP.Port))
-			
+
 			continue
 		}
 
@@ -149,7 +149,7 @@ func (mgr *Manager) loadMockAPIs() error {
 			fmt.Println(err)
 			return err
 		}
-		
+
 		if api != nil {
 			mgr.apis[file.Name()] = api
 		}
@@ -167,10 +167,10 @@ func (mgr *Manager) apiByPortExists(port int) bool {
 }
 
 func getAPIConfig(file os.FileInfo) (*config.APIConfig, error) {
-	if (!file.IsDir() || !isAPI(file.Name())) {
+	if !file.IsDir() || !isAPI(file.Name()) {
 		return nil, nil
 	}
-	
+
 	dir := file.Name()
 	fmt.Println("Found the following mock api: ", dir)
 	apiConfig, err := getAPIConfigFromDir(dir)
@@ -178,14 +178,14 @@ func getAPIConfig(file os.FileInfo) (*config.APIConfig, error) {
 		fmt.Println(err)
 		return nil, err
 	}
-	return apiConfig, nil	
+	return apiConfig, nil
 }
 
 func getAPIConfigFromDir(dir string) (*config.APIConfig, error) {
 	files, _ := ioutil.ReadDir(fmt.Sprintf("%s/%s", apiDir, dir))
 	for _, file := range files {
-		if (isAPIConfig(file.Name())) {
-			apiConfig, err:= decodeAPIConfig(dir, file.Name())
+		if isAPIConfig(file.Name()) {
+			apiConfig, err := decodeAPIConfig(dir, file.Name())
 			if err != nil {
 				fmt.Println(err)
 				return nil, err
