@@ -12,6 +12,7 @@ import (
 	"MockApiHub/api"
 	"MockApiHub/config"
 	"MockApiHub/log"
+	"MockApiHub/reflect"
 	"MockApiHub/str"
 
 	"github.com/BurntSushi/toml"
@@ -33,53 +34,57 @@ const (
 )
 
 // NewManager returns an instance of the Manager type
-func NewManager(config *config.AppConfig) *Manager {
+func NewManager(config *config.AppConfig) (*Manager, error) {
 	mgr := &Manager{}
-	server, err := createManagerServer(&config.HTTP, mgr)
-	if err != nil {
-		fmt.Println(err)
-	}
-
 	logger := log.NewLogger(&config.Log)
 	mgr.log = logger.WithField("pkg", "manager")
+
+	server, err := createManagerServer(config.HTTP.Port, mgr)
+	if err != nil {
+		mgr.log.Panic(err)
+		return nil, err
+	}
+
 	mgr.config = config
 	mgr.server = server
 	mgr.apis = make(map[string]*api.API)
 
-	return mgr
+	return mgr, nil
 }
 
 func (mgr *Manager) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	method := strings.ToUpper(r.Method)
 	path := str.CleanURL(r.URL.String())
+	contextLogger := mgr.log.WithFields(logrus.Fields{
+		"method": method,
+		"path":   path,
+		"func":   reflect.GetFuncName(),
+	})
 
 	if len(method) == 0 || len(path) == 0 {
+		contextLogger.Warn("endpoint not found")
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("endpoint not found"))
 		return
 	}
 
 	if handler, exists := mgr.hubAPIHandlers[method][path]; exists {
+		contextLogger.Debug("endpoint exists")
 		handler(w, r)
 		return
 	}
-
-	mgr.log.WithFields(logrus.Fields{
-		"method": method,
-		"path":   path,
-	}).Warn("endpoint not found")
-
+	contextLogger.Warn("endpoint not found")
 	w.WriteHeader(http.StatusNotFound)
 	w.Write([]byte("endpoint not found"))
 }
 
-func createManagerServer(config *config.HTTP, mgr *Manager) (*http.Server, error) {
-	if config.Port == 0 {
+func createManagerServer(port int, mgr *Manager) (*http.Server, error) {
+	if port == 0 {
 		return nil, errors.New("no port provided")
 	}
 
 	server := &http.Server{
-		Addr:    str.GetPort(config.Port),
+		Addr:    str.GetPort(port),
 		Handler: mgr,
 	}
 	return server, nil
@@ -104,8 +109,9 @@ func (mgr *Manager) startHubServer() error {
 		if err := mgr.startHubServerUsingTLS(); err != nil {
 			panic(err)
 		}
+	} else {
+		mgr.server.ListenAndServe()
 	}
-	mgr.server.ListenAndServe()
 
 	return nil
 }

@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"os/signal"
 
 	"MockApiHub/config"
 	"MockApiHub/manager"
@@ -16,6 +18,23 @@ func main() {
 		return
 	}
 
-	mgr := manager.NewManager(&appConfig)
-	mgr.StartMockAPIHub()
+	mgr, err := manager.NewManager(&appConfig)
+	if err != nil {
+		panic(err)
+	}
+
+	shutdown := make(chan os.Signal)
+	signal.Notify(shutdown, os.Interrupt)
+
+	go func() {
+		err := mgr.StartMockAPIHub()
+		if err != nil {
+			fmt.Println(err)
+		}
+	}()
+
+	<-shutdown
+
+	// TODO: shut down the servers gracefully
+	fmt.Println("shutting down")
 }
