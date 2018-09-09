@@ -13,7 +13,7 @@ import (
 	"MockApiHub/api"
 	"MockApiHub/config"
 	"MockApiHub/log"
-	"MockApiHub/reflect"
+	"MockApiHub/ref"
 	"MockApiHub/str"
 
 	"github.com/BurntSushi/toml"
@@ -37,8 +37,7 @@ const (
 // NewManager returns an instance of the Manager type
 func NewManager(config *config.AppConfig) (*Manager, error) {
 	mgr := &Manager{}
-	logger := log.NewLogger(&config.Log)
-	mgr.log = logger.WithField(log.PkgField, "manager")
+	mgr.log = log.NewLogger(&config.Log, "manager")
 
 	server, err := createManagerServer(config.HTTP.Port, mgr)
 	if err != nil {
@@ -59,7 +58,7 @@ func (mgr *Manager) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	contextLogger := mgr.log.WithFields(logrus.Fields{
 		log.MethodField: method,
 		log.PathField:   path,
-		log.FuncField:   reflect.GetFuncName(),
+		log.FuncField:   ref.GetFuncName(),
 	})
 
 	if len(method) == 0 || len(path) == 0 {
@@ -87,7 +86,7 @@ func (mgr *Manager) StopMockAPIHub() {
 }
 
 func (mgr *Manager) shutdownMockAPIs() {
-	contextLogger := mgr.log.WithField(log.FuncField, reflect.GetFuncName())
+	contextLogger := mgr.log.WithField(log.FuncField, ref.GetFuncName())
 	for _, api := range mgr.apis {
 		contextLoggerAPI := contextLogger.WithFields(logrus.Fields{
 			"port":    api.GetPort(),
@@ -101,7 +100,7 @@ func (mgr *Manager) shutdownMockAPIs() {
 }
 
 func (mgr *Manager) shutdownHubServer() {
-	contextLogger := mgr.log.WithField(log.FuncField, reflect.GetFuncName())
+	contextLogger := mgr.log.WithField(log.FuncField, ref.GetFuncName())
 	if err := mgr.server.Shutdown(context.Background()); err != nil {
 		contextLogger.WithError(err).Panic("error shutting down API hub server")
 	}

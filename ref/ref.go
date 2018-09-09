@@ -1,6 +1,8 @@
-package reflect
+package ref
 
-import "runtime"
+import (
+	"runtime"
+)
 
 // GetFuncName returns the name of the calling function
 func GetFuncName() string {
