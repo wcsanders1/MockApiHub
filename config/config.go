@@ -4,6 +4,7 @@ type (
 	// AppConfig is application configuration
 	AppConfig struct {
 		HTTP HTTP
+		Log  Log
 	}
 
 	// APIConfig is configuration for an individual mock api
@@ -13,8 +14,8 @@ type (
 		Endpoints map[string]Endpoint
 	}
 
-	// LogConfig is configuration for logging
-	LogConfig struct {
+	// Log is configuration for logging
+	Log struct {
 		Filename       string
 		MaxFileSize    int
 		MaxFileBackups int

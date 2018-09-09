@@ -2,30 +2,20 @@ package log
 
 import (
 	"MockApiHub/config"
-	"fmt"
-	"os"
 
 	"github.com/sirupsen/logrus"
 	lumberjack "gopkg.in/natefinch/lumberjack.v2"
 )
 
 const (
-	defaultFilename       = "default"
+	defaultFilename       = "default.log"
 	defaultMaxFileSize    = 20
 	defaultMaxFileBackups = 20
 	defaultMaxFileDaysAge = 20
 )
 
 // NewLogger returns a new instance of a logger
-func NewLogger(config *config.LogConfig) (*logrus.Logger, error) {
-	logFile := getLogFilename(config.Filename)
-
-	file, err := os.OpenFile(logFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-
+func NewLogger(config *config.Log) *logrus.Logger {
 	log := logrus.New()
 	if config.FormatAsJSON {
 		log.SetFormatter(&logrus.JSONFormatter{
@@ -39,15 +29,14 @@ func NewLogger(config *config.LogConfig) (*logrus.Logger, error) {
 	}
 
 	rotate := &lumberjack.Logger{
-		Filename:   file.Name(),
+		Filename:   getLogFilename(config.Filename),
 		MaxSize:    getMaxFileSize(config.MaxFileSize),
 		MaxBackups: getMaxFileBackups(config.MaxFileBackups),
 		MaxAge:     getMaxFileDaysAge(config.MaxFileDaysAge),
 	}
 
 	log.SetOutput(rotate)
-
-	return log, nil
+	return log
 }
 
 func getLogFilename(filename string) string {

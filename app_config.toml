@@ -3,3 +3,8 @@ port = 5000
 useTLS = false
 certFile = ""
 keyFile = ""
+
+[log]
+fileName = "testLogs/mockApiHub/default.log"
+maxFileDaysAge = 3
+formatAsJSON = true

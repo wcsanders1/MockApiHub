@@ -1,32 +1,32 @@
 package api
 
 import (
-	"strings"
+	"context"
+	"errors"
 	"fmt"
 	"net/http"
-	"errors"
-	"context"
+	"strings"
 
-	"MockApiHub/str"
 	"MockApiHub/config"
 	"MockApiHub/json"
 	"MockApiHub/route"
+	"MockApiHub/str"
 )
 
 // API contains information for an API
 type API struct {
-	baseURL string
-	endpoints map[string]config.Endpoint
-	server *http.Server
-	handlers map[string]map[string]func(http.ResponseWriter, *http.Request)
-	routeTree *route.Tree
+	baseURL    string
+	endpoints  map[string]config.Endpoint
+	server     *http.Server
+	handlers   map[string]map[string]func(http.ResponseWriter, *http.Request)
+	routeTree  *route.Tree
 	httpConfig config.HTTP
 }
 
 const apiDir = "./api/apis"
 
 // NewAPI returns a new API
-func NewAPI (config *config.APIConfig) (*API, error) {
+func NewAPI(config *config.APIConfig) (*API, error) {
 	api := &API{}
 	server, err := createAPIServer(&config.HTTP, api)
 	if err != nil {
@@ -38,7 +38,7 @@ func NewAPI (config *config.APIConfig) (*API, error) {
 	api.endpoints = config.Endpoints
 	api.server = server
 	api.handlers = make(map[string]map[string]func(http.ResponseWriter, *http.Request))
-	api.routeTree = route.NewRouteTree()	
+	api.routeTree = route.NewRouteTree()
 	api.httpConfig = config.HTTP
 
 	return api, nil
@@ -63,9 +63,9 @@ func createAPIServer(config *config.HTTP, api *API) (*http.Server, error) {
 	if config.Port == 0 {
 		return nil, errors.New("no port provided")
 	}
-	
-	server := &http.Server {
-		Addr: str.GetPort(config.Port),
+
+	server := &http.Server{
+		Addr:    str.GetPort(config.Port),
 		Handler: api,
 	}
 
@@ -82,12 +82,12 @@ func (api *API) Register(dir, defaultCert, defaultKey string) error {
 		registeredRoute := api.ensureRouteRegistered(path)
 		file := endpoint.File
 		method := strings.ToUpper(endpoint.Method)
-		
+
 		if route, methodExists := api.handlers[method]; !methodExists {
 			api.handlers[method] = make(map[string]func(http.ResponseWriter, *http.Request))
 		} else {
 			if _, routeExists := route[registeredRoute]; routeExists {
-				fmt.Println(fmt.Sprintf("WARNING: the following route with method %s already exists: %s", 
+				fmt.Println(fmt.Sprintf("WARNING: the following route with method %s already exists: %s",
 					method, registeredRoute))
 
 				continue
@@ -112,22 +112,22 @@ func (api *API) Register(dir, defaultCert, defaultKey string) error {
 
 		go api.server.ListenAndServeTLS(cert, key)
 	}
-	
+
 	go api.server.ListenAndServe()
 
 	return nil
 }
 
 func (api *API) getCertAndKeyFile(defaultCert, defaultKey string) (string, string, error) {
-	if (len(api.httpConfig.CertFile) > 0 && len(api.httpConfig.KeyFile) > 0) {
+	if len(api.httpConfig.CertFile) > 0 && len(api.httpConfig.KeyFile) > 0 {
 		return api.httpConfig.CertFile, api.httpConfig.KeyFile, nil
 	}
-	
-	if (len(api.httpConfig.CertFile) == 0 && len(api.httpConfig.KeyFile) > 0) {
+
+	if len(api.httpConfig.CertFile) == 0 && len(api.httpConfig.KeyFile) > 0 {
 		return "", "", errors.New("key provided without cert")
 	}
-	
-	if (len(api.httpConfig.KeyFile) == 0 && len(api.httpConfig.CertFile) > 0) {
+
+	if len(api.httpConfig.KeyFile) == 0 && len(api.httpConfig.CertFile) > 0 {
 		return "", "", errors.New("cert provided without key")
 	}
 

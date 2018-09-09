@@ -11,9 +11,11 @@ import (
 
 	"MockApiHub/api"
 	"MockApiHub/config"
+	"MockApiHub/log"
 	"MockApiHub/str"
 
 	"github.com/BurntSushi/toml"
+	"github.com/sirupsen/logrus"
 )
 
 // Manager coordinates and controls the apis
@@ -22,6 +24,7 @@ type Manager struct {
 	config         *config.AppConfig
 	server         *http.Server
 	hubAPIHandlers map[string]map[string]func(http.ResponseWriter, *http.Request)
+	log            *logrus.Entry
 }
 
 const (
@@ -37,6 +40,8 @@ func NewManager(config *config.AppConfig) *Manager {
 		fmt.Println(err)
 	}
 
+	logger := log.NewLogger(&config.Log)
+	mgr.log = logger.WithField("pkg", "manager")
 	mgr.config = config
 	mgr.server = server
 	mgr.apis = make(map[string]*api.API)
@@ -58,6 +63,11 @@ func (mgr *Manager) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		handler(w, r)
 		return
 	}
+
+	mgr.log.WithFields(logrus.Fields{
+		"method": method,
+		"path":   path,
+	}).Warn("endpoint not found")
 
 	w.WriteHeader(http.StatusNotFound)
 	w.Write([]byte("endpoint not found"))
