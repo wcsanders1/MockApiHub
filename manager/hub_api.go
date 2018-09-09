@@ -1,19 +1,19 @@
 package manager
 
 import (
-	"strings"
+	"encoding/json"
 	"fmt"
 	"net/http"
-	"encoding/json"
+	"strings"
 
 	"MockApiHub/api"
 	"MockApiHub/config"
 )
 
 type apiDisplay struct {
-	BaseURL string
+	BaseURL   string
 	Endpoints map[string]config.Endpoint
-	Port int
+	Port      int
 }
 
 const (
@@ -21,14 +21,8 @@ const (
 	showAllAPIsPath = "show-all-registered-mock-apis"
 )
 
-func (mgr *Manager) refreshMockAPIs (w http.ResponseWriter, r *http.Request) {
-	for _, api := range mgr.apis {
-		if err := api.Shutdown(); err != nil {
-			fmt.Println(err)
-			panic(err)
-		}
-	}
-
+func (mgr *Manager) refreshMockAPIs(w http.ResponseWriter, r *http.Request) {
+	mgr.shutdownMockAPIs()
 	mgr.apis = make(map[string]*api.API)
 	err := mgr.loadMockAPIs()
 	if err != nil {
@@ -40,12 +34,12 @@ func (mgr *Manager) refreshMockAPIs (w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("successfully refreshed mock apis"))
 }
 
-func (mgr *Manager) showRegisteredMockAPIs (w http.ResponseWriter, r *http.Request) {
+func (mgr *Manager) showRegisteredMockAPIs(w http.ResponseWriter, r *http.Request) {
 	apis := make(map[string]apiDisplay)
 	for apiName, api := range mgr.apis {
 		apis[apiName] = apiDisplay{
-			BaseURL: api.GetBaseURL(),
-			Port: api.GetPort(),
+			BaseURL:   api.GetBaseURL(),
+			Port:      api.GetPort(),
 			Endpoints: api.GetEndpoints(),
 		}
 	}

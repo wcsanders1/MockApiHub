@@ -1,41 +1,40 @@
 package route
 
 import (
-	"strings"
-	"fmt"
 	"errors"
+	"fmt"
 	"net/http"
+	"strings"
 
 	"MockApiHub/str"
 )
 
 type (
 	routeType int
-	
+
 	// Tree contains routing for an API in a tree format
 	Tree struct {
-		routeType 	routeType
-		branches 	map[string]*Tree
+		routeType routeType
+		branches  map[string]*Tree
 	}
 
 	// HTTPError is the error type returned when an HTTP error occurs
 	HTTPError struct {
-		Msg 	string
-		Status 	int
+		Msg    string
+		Status int
 	}
 )
 
 const (
-	incomplete 	routeType = 0
-	complete   	routeType = 1
-	wildCard   	routeType = 2
-	notFoundMsg string = "route not found"
+	incomplete  routeType = 0
+	complete    routeType = 1
+	notFoundMsg string    = "route not found"
 )
 
 // NewHTTPError returns a reference to a NewHTTPError
 func NewHTTPError(msg string, status int) *HTTPError {
-	return &HTTPError {
-		Msg: 	fmt.Sprintf("msg: %s || status: %s", msg, http.StatusText(status)),
+	return &HTTPError{
+		Msg:    fmt.Sprintf("msg: %s || status: %s", msg, http.StatusText(status)),
 		Status: status,
 	}
 }
@@ -46,9 +45,9 @@ func (e *HTTPError) Error() string {
 
 // NewRouteTree returns a new instance of Tree
 func NewRouteTree() *Tree {
-	return &Tree {
-		routeType: 	incomplete,
-		branches: 	make(map[string]*Tree),
+	return &Tree{
+		routeType: incomplete,
+		branches:  make(map[string]*Tree),
 	}
 }
 
@@ -86,7 +85,7 @@ func (tree *Tree) GetRoute(url string) (string, error) {
 }
 
 func (tree *Tree) getRouteByFragments(fragments []string) (string, error) {
-	if (len(fragments) == 0) {
+	if len(fragments) == 0 {
 		return "", nil
 	}
 
@@ -96,7 +95,7 @@ func (tree *Tree) getRouteByFragments(fragments []string) (string, error) {
 
 	if branch, exists := tree.branches[curFrag]; exists {
 		route, err := branch.getRouteByFragments(remFrags)
-		
+
 		if err != nil {
 			return "", err
 		}
@@ -112,10 +111,10 @@ func (tree *Tree) getRouteByFragments(fragments []string) (string, error) {
 					return "", errors.New("problem finding route")
 				}
 			}
-			
+
 			return "", notFoundError
 		}
-		
+
 		return fmt.Sprintf("%s/%s", curFrag, route), nil
 	}
 
@@ -136,7 +135,7 @@ func (tree *Tree) getRouteByFragments(fragments []string) (string, error) {
 func (tree *Tree) getRouteParamsInBranch() []string {
 	var params []string
 	for k := range tree.branches {
-		if (string(k[0]) == ":") {
+		if string(k[0]) == ":" {
 			params = append(params, k)
 		}
 	}
@@ -155,7 +154,7 @@ func (tree *Tree) addRouteByFragments(fragments []string) error {
 	if branch, exists := tree.branches[curFrag]; exists {
 		return branch.addRouteToExistingBranch(remFrags)
 	}
-	
+
 	tree.branches[curFrag] = NewRouteTree()
 	if len(remFrags) > 0 {
 		return tree.branches[curFrag].addRouteToExistingBranch(remFrags)
@@ -168,11 +167,11 @@ func (tree *Tree) addRouteByFragments(fragments []string) error {
 
 func (tree *Tree) addRouteToExistingBranch(remFrags []string) error {
 	if len(remFrags) == 0 {
-		if (tree.routeType == complete) {
+		if tree.routeType == complete {
 			return errors.New("route already exists")
 		}
 		tree.routeType = complete
-		
+
 		return nil
 	}
 

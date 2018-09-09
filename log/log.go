@@ -12,6 +12,21 @@ const (
 	defaultMaxFileSize    = 20
 	defaultMaxFileBackups = 20
 	defaultMaxFileDaysAge = 20
+
+	// FuncField is the name of the log field denoting the name of the function doing the logging
+	FuncField = "func"
+
+	// PortField is the name of the log field denoting a server port number
+	PortField = "port"
+
+	// PkgField is the name of the log field denoting the name of the package doing the logging
+	PkgField = "pkg"
+
+	// MethodField is the name of the log field denoting the HTTP method name
+	MethodField = "method"
+
+	// PathField is the name of the log field denoting an HTTP path
+	PathField = "path"
 )
 
 // NewLogger returns a new instance of a logger

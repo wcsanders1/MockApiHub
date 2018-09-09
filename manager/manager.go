@@ -1,6 +1,7 @@
 package manager
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -37,7 +38,7 @@ const (
 func NewManager(config *config.AppConfig) (*Manager, error) {
 	mgr := &Manager{}
 	logger := log.NewLogger(&config.Log)
-	mgr.log = logger.WithField("pkg", "manager")
+	mgr.log = logger.WithField(log.PkgField, "manager")
 
 	server, err := createManagerServer(config.HTTP.Port, mgr)
 	if err != nil {
@@ -56,9 +57,9 @@ func (mgr *Manager) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	method := strings.ToUpper(r.Method)
 	path := str.CleanURL(r.URL.String())
 	contextLogger := mgr.log.WithFields(logrus.Fields{
-		"method": method,
-		"path":   path,
-		"func":   reflect.GetFuncName(),
+		log.MethodField: method,
+		log.PathField:   path,
+		log.FuncField:   reflect.GetFuncName(),
 	})
 
 	if len(method) == 0 || len(path) == 0 {
@@ -76,6 +77,35 @@ func (mgr *Manager) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	contextLogger.Warn("endpoint not found")
 	w.WriteHeader(http.StatusNotFound)
 	w.Write([]byte("endpoint not found"))
+}
+
+// StopMockAPIHub shuts down all mock API servers and the hub server,
+// and panics on error.
+func (mgr *Manager) StopMockAPIHub() {
+	mgr.shutdownMockAPIs()
+	mgr.shutdownHubServer()
+}
+
+func (mgr *Manager) shutdownMockAPIs() {
+	contextLogger := mgr.log.WithField(log.FuncField, reflect.GetFuncName())
+	for _, api := range mgr.apis {
+		contextLoggerAPI := contextLogger.WithFields(logrus.Fields{
+			"port":    api.GetPort(),
+			"baseUrl": api.GetBaseURL(),
+		})
+		contextLoggerAPI.Info("shutting down server")
+		if err := api.Shutdown(); err != nil {
+			contextLoggerAPI.WithError(err).Panic("error shutting down server")
+		}
+	}
+}
+
+func (mgr *Manager) shutdownHubServer() {
+	contextLogger := mgr.log.WithField(log.FuncField, reflect.GetFuncName())
+	if err := mgr.server.Shutdown(context.Background()); err != nil {
+		contextLogger.WithError(err).Panic("error shutting down API hub server")
+	}
+	contextLogger.Info("successfully shut down API hub server")
 }
 
 func createManagerServer(port int, mgr *Manager) (*http.Server, error) {

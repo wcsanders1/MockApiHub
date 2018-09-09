@@ -110,10 +110,16 @@ func (api *API) Register(dir, defaultCert, defaultKey string) error {
 			return err
 		}
 
-		go api.server.ListenAndServeTLS(cert, key)
+		go func() {
+			api.server.ListenAndServeTLS(cert, key)
+			defer api.Shutdown()
+		}()
 	}
 
-	go api.server.ListenAndServe()
+	go func() {
+		api.server.ListenAndServe()
+		defer api.Shutdown()
+	}()
 
 	return nil
 }

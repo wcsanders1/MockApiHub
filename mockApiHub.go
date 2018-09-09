@@ -34,7 +34,5 @@ func main() {
 	}()
 
 	<-shutdown
-
-	// TODO: shut down the servers gracefully
-	fmt.Println("shutting down")
+	mgr.StopMockAPIHub()
 }
