@@ -9,7 +9,7 @@ keyFile = ""
 [endpoints]
 
     [endpoints.getCustomers]
-    path = "customers/:id/funky"
+    path = "customers/:id/balances"
     file = "customers.json"
     method = "GET"
 
