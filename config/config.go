@@ -21,6 +21,7 @@ type (
 		MaxFileBackups int
 		MaxFileDaysAge int
 		FormatAsJSON   bool
+		Level          string
 	}
 
 	// HTTP contains information regarding server setup

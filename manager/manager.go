@@ -38,16 +38,25 @@ const (
 func NewManager(config *config.AppConfig) (*Manager, error) {
 	mgr := &Manager{}
 	mgr.log = log.NewLogger(&config.Log, "manager")
+	contextLogger := mgr.log.WithFields(logrus.Fields{
+		log.PortField:     config.HTTP.Port,
+		log.UseTLSField:   config.HTTP.UseTLS,
+		log.CertFileField: config.HTTP.CertFile,
+		log.KeyFileField:  config.HTTP.KeyFile,
+		log.FuncField:     ref.GetFuncName(),
+	})
 
+	contextLogger.Info("creating new manager")
 	server, err := createManagerServer(config.HTTP.Port, mgr)
 	if err != nil {
-		mgr.log.Panic(err)
+		mgr.log.WithError(err).Panic("error creating manager!")
 		return nil, err
 	}
 
 	mgr.config = config
 	mgr.server = server
 	mgr.apis = make(map[string]*api.API)
+	contextLogger.Info("successfully created new managert")
 
 	return mgr, nil
 }

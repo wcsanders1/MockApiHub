@@ -1,6 +1,8 @@
 package log
 
 import (
+	"strings"
+
 	"MockApiHub/config"
 
 	"github.com/sirupsen/logrus"
@@ -25,6 +27,15 @@ const (
 
 	// PathField is the name of the log field denoting an HTTP path
 	PathField = "path"
+
+	// UseTLSField is the name of the log field denoting whether a server is configured to use TLS
+	UseTLSField = "useTLS"
+
+	// CertFileField is the name of the log field denoting the configured path to a server's TLS certificate
+	CertFileField = "certFile"
+
+	// KeyFileField is the name of the log field denoting the configured path to a server's TLS key
+	KeyFileField = "keyFile"
 )
 
 // NewLogger returns a new instance of a logger
@@ -49,6 +60,7 @@ func NewLogger(config *config.Log, pkgName string) *logrus.Entry {
 	}
 
 	log.SetOutput(rotate)
+	log.SetLevel(getLogLevel(config.Level))
 	return log.WithField(pkgField, pkgName)
 }
 
@@ -78,4 +90,24 @@ func getMaxFileDaysAge(maxFileDaysAge int) int {
 		return defaultMaxFileDaysAge
 	}
 	return maxFileDaysAge
+}
+
+func getLogLevel(level string) logrus.Level {
+	lowerCaseLevel := strings.ToLower(level)
+	switch lowerCaseLevel {
+	case "debug":
+		return logrus.DebugLevel
+	case "info":
+		return logrus.InfoLevel
+	case "warn":
+		return logrus.WarnLevel
+	case "error":
+		return logrus.ErrorLevel
+	case "fatal":
+		return logrus.FatalLevel
+	case "panic":
+		return logrus.PanicLevel
+	default:
+		return logrus.DebugLevel
+	}
 }
