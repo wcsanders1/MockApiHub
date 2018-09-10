@@ -8,6 +8,8 @@ import (
 
 	"MockApiHub/api"
 	"MockApiHub/config"
+	"MockApiHub/log"
+	"MockApiHub/ref"
 )
 
 type apiDisplay struct {
@@ -22,6 +24,9 @@ const (
 )
 
 func (mgr *Manager) refreshMockAPIs(w http.ResponseWriter, r *http.Request) {
+	contextLogger := mgr.log.WithField(log.FuncField, ref.GetFuncName())
+	contextLogger.Debug("refreshing all mock APIs")
+
 	mgr.shutdownMockAPIs()
 	mgr.apis = make(map[string]*api.API)
 	err := mgr.loadMockAPIs()
@@ -31,10 +36,14 @@ func (mgr *Manager) refreshMockAPIs(w http.ResponseWriter, r *http.Request) {
 	}
 
 	mgr.registerMockAPIs()
-	w.Write([]byte("successfully refreshed mock apis"))
+	msg := "successfully refreshed mock apis"
+	w.Write([]byte(msg))
+	contextLogger.Debug(msg)
 }
 
 func (mgr *Manager) showRegisteredMockAPIs(w http.ResponseWriter, r *http.Request) {
+	contextLogger := mgr.log.WithField(log.FuncField, ref.GetFuncName())
+	contextLogger.Debug("showing all registered mock APIs")
 	apis := make(map[string]apiDisplay)
 	for apiName, api := range mgr.apis {
 		apis[apiName] = apiDisplay{
@@ -51,13 +60,19 @@ func (mgr *Manager) showRegisteredMockAPIs(w http.ResponseWriter, r *http.Reques
 	}
 
 	w.Write(apisJSON)
+	contextLogger.WithField("registeredAPIs", apisJSON).Debug("successfully showed all registered mock APIs")
 }
 
 func (mgr *Manager) registerHubAPIHandlers() {
+	contextLogger := mgr.log.WithField(log.FuncField, ref.GetFuncName())
+	contextLogger.Debug("registering hub API handlers")
+
 	mgr.hubAPIHandlers = make(map[string]map[string]func(http.ResponseWriter, *http.Request))
 	mgr.hubAPIHandlers[http.MethodPost] = make(map[string]func(http.ResponseWriter, *http.Request))
 	mgr.hubAPIHandlers[http.MethodGet] = make(map[string]func(http.ResponseWriter, *http.Request))
 
 	mgr.hubAPIHandlers[http.MethodPost][strings.ToLower(refreshAPIsPath)] = mgr.refreshMockAPIs
 	mgr.hubAPIHandlers[http.MethodGet][strings.ToLower(showAllAPIsPath)] = mgr.showRegisteredMockAPIs
+
+	contextLogger.Debug("successfully registered hub API handlers")
 }

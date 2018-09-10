@@ -37,4 +37,4 @@ Adding mock APIs is easy. To do so, follow these steps:
 
 If you change or add a mock API, make the change to `api/apis`, then send a `POST` request to the main server, configured by default to listen on port 5000, with the following path: `refresh-all-mock-apis`.
 
-To see all registered mock APIs, send this `POST` request to the main server: `show-all-registered-mock-apis`.
+To see all registered mock APIs, send this `GET` request to the main server: `show-all-registered-mock-apis`.

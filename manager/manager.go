@@ -56,9 +56,32 @@ func NewManager(config *config.AppConfig) (*Manager, error) {
 	mgr.config = config
 	mgr.server = server
 	mgr.apis = make(map[string]*api.API)
-	contextLogger.Info("successfully created new managert")
-
+	contextLogger.Info("successfully created new manager")
 	return mgr, nil
+}
+
+// StartMockAPIHub registers the mock apis and serves them
+func (mgr *Manager) StartMockAPIHub() error {
+	contextLogger := mgr.log.WithField(log.FuncField, ref.GetFuncName())
+
+	err := mgr.loadMockAPIs()
+	if err != nil {
+		contextLogger.WithError(err).Error("error loading mock APIs")
+		return err
+	}
+
+	mgr.registerHubAPIHandlers()
+	mgr.registerMockAPIs()
+	mgr.startHubServer()
+
+	return nil
+}
+
+// StopMockAPIHub shuts down all mock API servers and the hub server,
+// and panics on error.
+func (mgr *Manager) StopMockAPIHub() {
+	mgr.shutdownMockAPIs()
+	mgr.shutdownHubServer()
 }
 
 func (mgr *Manager) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -82,16 +105,10 @@ func (mgr *Manager) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		handler(w, r)
 		return
 	}
+
 	contextLogger.Warn("endpoint not found")
 	w.WriteHeader(http.StatusNotFound)
 	w.Write([]byte("endpoint not found"))
-}
-
-// StopMockAPIHub shuts down all mock API servers and the hub server,
-// and panics on error.
-func (mgr *Manager) StopMockAPIHub() {
-	mgr.shutdownMockAPIs()
-	mgr.shutdownHubServer()
 }
 
 func (mgr *Manager) shutdownMockAPIs() {
@@ -126,20 +143,6 @@ func createManagerServer(port int, mgr *Manager) (*http.Server, error) {
 		Handler: mgr,
 	}
 	return server, nil
-}
-
-// StartMockAPIHub registers the mock apis and serves them
-func (mgr *Manager) StartMockAPIHub() error {
-	err := mgr.loadMockAPIs()
-	if err != nil {
-		return err
-	}
-
-	mgr.registerHubAPIHandlers()
-	mgr.registerMockAPIs()
-	mgr.startHubServer()
-
-	return nil
 }
 
 func (mgr *Manager) startHubServer() error {
