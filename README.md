@@ -35,6 +35,6 @@ Adding mock APIs is easy. To do so, follow these steps:
 * To configure the API, follow the examples in the example config files in the repo.
 * Note: If you want a route to have a parameter, add `:` to the route fragment. For example, the `getCustomers` endpoint in the `customersApi` example is configured as follows: `customers/:id/balances`. This means that the endpoint could be hit with the following URL: `http://localhost:5001/customersapi/customers/12345/balances`, where `12345` is the `id`.
 
-If you change or add a mock API, make the change to `api/apis`, then send a request to the main server, configured by default to listen on port 5000, with the following path: `refresh-all-mock-apis`.
+If you change or add a mock API, make the change to `api/apis`, then send a `POST` request to the main server, configured by default to listen on port 5000, with the following path: `refresh-all-mock-apis`.
 
-To see all registered mock APIs, send this request to the main server: `show-all-registered-mock-apis`.
+To see all registered mock APIs, send this `POST` request to the main server: `show-all-registered-mock-apis`.
