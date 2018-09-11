@@ -30,6 +30,7 @@ func main() {
 		err := mgr.StartMockAPIHub()
 		if err != nil {
 			fmt.Println(err)
+			panic(err)
 		}
 	}()
 

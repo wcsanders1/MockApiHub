@@ -49,7 +49,7 @@ func NewManager(config *config.AppConfig) (*Manager, error) {
 	contextLogger.Info("creating new manager")
 	server, err := createManagerServer(config.HTTP.Port, mgr)
 	if err != nil {
-		mgr.log.WithError(err).Panic("error creating manager!")
+		contextLogger.WithError(err).Error("error creating manager")
 		return nil, err
 	}
 
@@ -63,25 +63,43 @@ func NewManager(config *config.AppConfig) (*Manager, error) {
 // StartMockAPIHub registers the mock apis and serves them
 func (mgr *Manager) StartMockAPIHub() error {
 	contextLogger := mgr.log.WithField(log.FuncField, ref.GetFuncName())
+	contextLogger.Debug("starting mock API hub")
 
-	err := mgr.loadMockAPIs()
-	if err != nil {
+	if err := mgr.loadMockAPIs(); err != nil {
 		contextLogger.WithError(err).Error("error loading mock APIs")
 		return err
 	}
 
 	mgr.registerHubAPIHandlers()
-	mgr.registerMockAPIs()
-	mgr.startHubServer()
 
+	if err := mgr.registerMockAPIs(); err != nil {
+		contextLogger.WithError(err).Error("error registering mock APIs")
+		return err
+	}
+
+	if err := mgr.startHubServer(); err != nil {
+		contextLogger.WithError(err).Error("error starting hub server")
+		return err
+	}
+
+	contextLogger.Debug("successfully started mock API hub")
 	return nil
 }
 
 // StopMockAPIHub shuts down all mock API servers and the hub server,
 // and panics on error.
 func (mgr *Manager) StopMockAPIHub() {
+	contextLogger := mgr.log.WithField(log.FuncField, ref.GetFuncName())
+	contextLogger.Debug("stopping mock API hub")
+
 	mgr.shutdownMockAPIs()
-	mgr.shutdownHubServer()
+
+	if err := mgr.shutdownHubServer(); err != nil {
+		contextLogger.WithError(err).Panic("error shutting down hub server")
+		return
+	}
+
+	contextLogger.Debug("successfully stopped mock API hub")
 }
 
 func (mgr *Manager) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -101,7 +119,7 @@ func (mgr *Manager) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if handler, exists := mgr.hubAPIHandlers[method][path]; exists {
-		contextLogger.Debug("endpoint exists")
+		contextLogger.Debug("endpoint hit")
 		handler(w, r)
 		return
 	}
@@ -113,45 +131,52 @@ func (mgr *Manager) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func (mgr *Manager) shutdownMockAPIs() {
 	contextLogger := mgr.log.WithField(log.FuncField, ref.GetFuncName())
+	contextLogger.Debug("shutting down mock APIs")
+
 	for _, api := range mgr.apis {
 		contextLoggerAPI := contextLogger.WithFields(logrus.Fields{
-			"port":    api.GetPort(),
-			"baseUrl": api.GetBaseURL(),
+			log.PortField:    api.GetPort(),
+			log.BaseURLField: api.GetBaseURL(),
 		})
-		contextLoggerAPI.Info("shutting down server")
+		contextLoggerAPI.Info("shutting down mock API")
 		if err := api.Shutdown(); err != nil {
-			contextLoggerAPI.WithError(err).Panic("error shutting down server")
+			contextLoggerAPI.WithError(err).Error("error shutting down mock API")
+			continue
 		}
+		contextLogger.Info("successfully shut down mock API")
 	}
+
+	contextLogger.Debug("finished shutting down mock APIs")
 }
 
-func (mgr *Manager) shutdownHubServer() {
+func (mgr *Manager) shutdownHubServer() error {
 	contextLogger := mgr.log.WithField(log.FuncField, ref.GetFuncName())
+	contextLogger.Debug("shutting down hub server")
+
 	if err := mgr.server.Shutdown(context.Background()); err != nil {
-		contextLogger.WithError(err).Panic("error shutting down API hub server")
-	}
-	contextLogger.Info("successfully shut down API hub server")
-}
-
-func createManagerServer(port int, mgr *Manager) (*http.Server, error) {
-	if port == 0 {
-		return nil, errors.New("no port provided")
+		contextLogger.WithError(err).Error("error shutting down hub server")
+		return err
 	}
 
-	server := &http.Server{
-		Addr:    str.GetPort(port),
-		Handler: mgr,
-	}
-	return server, nil
+	contextLogger.Info("successfully shut down hub server")
+	return nil
 }
 
 func (mgr *Manager) startHubServer() error {
+	contextLogger := mgr.log.WithField(log.FuncField, ref.GetFuncName())
+
 	if mgr.config.HTTP.UseTLS {
+		contextLogger.Debug("starting hub server using TLS")
 		if err := mgr.startHubServerUsingTLS(); err != nil {
-			panic(err)
+			contextLogger.WithError(err).Error("error starting hub server using TLS")
+			return err
 		}
 	} else {
-		mgr.server.ListenAndServe()
+		contextLogger.Debug("starting hub server not using TLS")
+		if err := mgr.server.ListenAndServe(); err != nil {
+			contextLogger.WithError(err).Error("error starting hub server not using TLS")
+			return err
+		}
 	}
 
 	return nil
@@ -160,25 +185,40 @@ func (mgr *Manager) startHubServer() error {
 func (mgr *Manager) startHubServerUsingTLS() error {
 	certFile := mgr.config.HTTP.CertFile
 	keyFile := mgr.config.HTTP.KeyFile
+	contextLogger := mgr.log.WithFields(logrus.Fields{
+		log.CertFileField: certFile,
+		log.KeyFileField:  keyFile,
+		log.FuncField:     ref.GetFuncName(),
+	})
+	contextLogger.Debug("starting hub server using TLS")
 
 	if _, err := os.Stat(certFile); err != nil {
-		return fmt.Errorf(fmt.Sprintf("%s cert file does not exist", certFile))
+		contextLogger.WithError(err).Error("error starting hub server using TLS -- cert file does not exist")
+		return err
 	}
 
 	if _, err := os.Stat(keyFile); err != nil {
-		return fmt.Errorf(fmt.Sprintf("%s key file does not exist", keyFile))
+		contextLogger.WithError(err).Error("error starting hub server using TLS -- key file does not exist")
+		return err
 	}
 
-	return mgr.server.ListenAndServeTLS(certFile, keyFile)
+	if err := mgr.server.ListenAndServeTLS(certFile, keyFile); err != nil {
+		contextLogger.WithError(err).Error("error starting hub server using TLS")
+		return err
+	}
+
+	return nil
 }
 
-func (mgr *Manager) registerMockAPIs() {
+func (mgr *Manager) registerMockAPIs() error {
 	for dir, api := range mgr.apis {
 		err := api.Register(dir, mgr.config.HTTP.CertFile, mgr.config.HTTP.KeyFile)
 		if err != nil {
-			fmt.Println(err)
+			return err
 		}
 	}
+
+	return nil
 }
 
 func (mgr *Manager) loadMockAPIs() error {
@@ -221,6 +261,18 @@ func (mgr *Manager) apiByPortExists(port int) bool {
 		}
 	}
 	return false
+}
+
+func createManagerServer(port int, mgr *Manager) (*http.Server, error) {
+	if port == 0 {
+		return nil, errors.New("no port provided")
+	}
+
+	server := &http.Server{
+		Addr:    str.GetPort(port),
+		Handler: mgr,
+	}
+	return server, nil
 }
 
 func getAPIConfig(file os.FileInfo) (*config.APIConfig, error) {

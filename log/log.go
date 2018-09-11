@@ -36,6 +36,9 @@ const (
 
 	// KeyFileField is the name of the log field denoting the configured path to a server's TLS key
 	KeyFileField = "keyFile"
+
+	// BaseURLField is the name of the log field denoting the base URL of an API
+	BaseURLField = "baseURL"
 )
 
 // NewLogger returns a new instance of a logger
