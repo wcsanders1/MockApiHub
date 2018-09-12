@@ -71,11 +71,7 @@ func (mgr *Manager) StartMockAPIHub() error {
 	}
 
 	mgr.registerHubAPIHandlers()
-
-	if err := mgr.registerMockAPIs(); err != nil {
-		contextLogger.WithError(err).Error("error registering mock APIs")
-		return err
-	}
+	mgr.registerMockAPIs()
 
 	if err := mgr.startHubServer(); err != nil {
 		contextLogger.WithError(err).Error("error starting hub server")
@@ -210,47 +206,72 @@ func (mgr *Manager) startHubServerUsingTLS() error {
 	return nil
 }
 
-func (mgr *Manager) registerMockAPIs() error {
+func (mgr *Manager) registerMockAPIs() {
+	contextLogger := mgr.log.WithField(log.FuncField, ref.GetFuncName())
+
 	for dir, api := range mgr.apis {
-		err := api.Register(dir, mgr.config.HTTP.CertFile, mgr.config.HTTP.KeyFile)
-		if err != nil {
-			return err
+		contextLoggerAPI := contextLogger.WithFields(logrus.Fields{
+			log.BaseURLField: api.GetBaseURL(),
+			log.PortField:    api.GetPort(),
+		})
+		contextLoggerAPI.Debug("registering mock API")
+		if err := api.Register(dir, mgr.config.HTTP.CertFile, mgr.config.HTTP.KeyFile); err != nil {
+			contextLoggerAPI.WithError(err).Error("error registering mock API -- moving on to next mock API")
+			continue
 		}
 	}
-
-	return nil
 }
 
 func (mgr *Manager) loadMockAPIs() error {
+	contextLogger := mgr.log.WithFields(logrus.Fields{
+		log.FuncField: ref.GetFuncName(),
+		"apiDir":      apiDir,
+	})
+	contextLogger.Debug("loading mock APIs")
+
 	files, err := ioutil.ReadDir(apiDir)
 	if err != nil {
+		contextLogger.WithError(err).Error("error reading API directory")
 		return err
 	}
 
 	for _, file := range files {
+		contextLoggerFile := contextLogger.WithField("file", file.Name())
+
 		apiConfig, err := getAPIConfig(file)
 		if err != nil {
-			fmt.Println(err)
-			return err
+			contextLoggerFile.WithError(err).Error("error getting API config from file -- moving on to next mock API file")
+			continue
 		}
 
-		if mgr.apiByPortExists(apiConfig.HTTP.Port) {
-			fmt.Println(fmt.Sprintf("Trying to register %s api on port %d, but there is already an "+
-				"api registered on that port. Skipping.", file.Name(), apiConfig.HTTP.Port))
+		contextLoggerFileAPI := contextLoggerFile.WithFields(logrus.Fields{
+			log.BaseURLField:  apiConfig.BaseURL,
+			log.UseTLSField:   apiConfig.HTTP.UseTLS,
+			log.CertFileField: apiConfig.HTTP.CertFile,
+			log.KeyFileField:  apiConfig.HTTP.KeyFile,
+			log.PortField:     apiConfig.HTTP.Port,
+		})
 
+		if mgr.apiByPortExists(apiConfig.HTTP.Port) {
+			contextLoggerFileAPI.Warn("a mock API is already registered on this port -- moving on to next mock API")
 			continue
 		}
 
 		api, err := api.NewAPI(apiConfig)
 		if err != nil {
-			fmt.Println(err)
-			return err
+			contextLoggerFileAPI.WithError(err).Error("error creating mock API -- moving on to next mock API")
+			continue
 		}
 
 		if api != nil {
+			contextLoggerFileAPI.Info("successfully registered mock API")
 			mgr.apis[file.Name()] = api
+			continue
 		}
+
+		contextLoggerFileAPI.Warn("unable to register mock API")
 	}
+	contextLogger.Debug("finished registering mock APIs")
 	return nil
 }
 
