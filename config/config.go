@@ -12,6 +12,7 @@ type (
 		HTTP      HTTP
 		BaseURL   string
 		Endpoints map[string]Endpoint
+		Log       Log
 	}
 
 	// Log is configuration for logging

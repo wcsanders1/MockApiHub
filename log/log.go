@@ -39,6 +39,12 @@ const (
 
 	// BaseURLField is the name of the log field denoting the base URL of an API
 	BaseURLField = "baseURL"
+
+	// RouteField is the name of the log field denoting a registered route in an API
+	RouteField = "route"
+
+	// FileField is the name of the log field denoting a file that a mock API route will serve
+	FileField = "file"
 )
 
 // NewLogger returns a new instance of a logger

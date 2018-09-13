@@ -302,10 +302,8 @@ func getAPIConfig(file os.FileInfo) (*config.APIConfig, error) {
 	}
 
 	dir := file.Name()
-	fmt.Println("Found the following mock api: ", dir)
 	apiConfig, err := getAPIConfigFromDir(dir)
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 	return apiConfig, nil
@@ -317,7 +315,6 @@ func getAPIConfigFromDir(dir string) (*config.APIConfig, error) {
 		if isAPIConfig(file.Name()) {
 			apiConfig, err := decodeAPIConfig(dir, file.Name())
 			if err != nil {
-				fmt.Println(err)
 				return nil, err
 			}
 			return apiConfig, nil
@@ -330,7 +327,6 @@ func decodeAPIConfig(dir string, fileName string) (*config.APIConfig, error) {
 	path := fmt.Sprintf("%s/%s/%s", apiDir, dir, fileName)
 	var config config.APIConfig
 	if _, err := toml.DecodeFile(path, &config); err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 	return &config, nil

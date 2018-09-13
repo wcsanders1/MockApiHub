@@ -2,7 +2,6 @@ package manager
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -29,9 +28,8 @@ func (mgr *Manager) refreshMockAPIs(w http.ResponseWriter, r *http.Request) {
 
 	mgr.shutdownMockAPIs()
 	mgr.apis = make(map[string]*api.API)
-	err := mgr.loadMockAPIs()
-	if err != nil {
-		fmt.Println(err)
+	if err := mgr.loadMockAPIs(); err != nil {
+		contextLogger.WithError(err).Error("error loading mock APIs")
 		return
 	}
 
@@ -44,6 +42,7 @@ func (mgr *Manager) refreshMockAPIs(w http.ResponseWriter, r *http.Request) {
 func (mgr *Manager) showRegisteredMockAPIs(w http.ResponseWriter, r *http.Request) {
 	contextLogger := mgr.log.WithField(log.FuncField, ref.GetFuncName())
 	contextLogger.Debug("showing all registered mock APIs")
+
 	apis := make(map[string]apiDisplay)
 	for apiName, api := range mgr.apis {
 		apis[apiName] = apiDisplay{
@@ -55,7 +54,7 @@ func (mgr *Manager) showRegisteredMockAPIs(w http.ResponseWriter, r *http.Reques
 
 	apisJSON, err := json.Marshal(apis)
 	if err != nil {
-		fmt.Println(err)
+		contextLogger.WithError(err).Error("error displaying mock APIs")
 		return
 	}
 

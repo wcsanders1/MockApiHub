@@ -1,5 +1,10 @@
 baseUrl = "customersApi"
 
+[log]
+fileName = "testLogs/customersApi/default.log"
+maxFileDaysAge = 3
+formatAsJSON = true
+
 [http]
 port = 5001
 useTLS = false
