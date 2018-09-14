@@ -37,6 +37,12 @@ const (
 	// KeyFileField is the name of the log field denoting the configured path to a server's TLS key
 	KeyFileField = "keyFile"
 
+	// DefaultCertFileField is the name of the log field denoting the default cert file
+	DefaultCertFileField = "defaultCertFile"
+
+	// DefaultKeyFileField is the name of the log field denoting the default key file
+	DefaultKeyFileField = "defaultKeyFile"
+
 	// BaseURLField is the name of the log field denoting the base URL of an API
 	BaseURLField = "baseURL"
 
@@ -45,6 +51,9 @@ const (
 
 	// FileField is the name of the log field denoting a file that a mock API route will serve
 	FileField = "file"
+
+	// APIDirField is the name of the log field denoting the directory a mock API is in
+	APIDirField = "apiDir"
 )
 
 // NewLogger returns a new instance of a logger

@@ -33,15 +33,14 @@ const apiDir = "./api/apis"
 // NewAPI returns a new API
 func NewAPI(config *config.APIConfig) (*API, error) {
 	api := &API{}
-	api.log = log.NewLogger(&config.Log, "api")
-	contextLogger := api.log.WithFields(logrus.Fields{
-		log.FuncField:     ref.GetFuncName(),
+	api.log = log.NewLogger(&config.Log, "api").WithFields(logrus.Fields{
 		log.BaseURLField:  config.BaseURL,
 		log.PortField:     config.HTTP.Port,
 		log.UseTLSField:   config.HTTP.UseTLS,
 		log.CertFileField: config.HTTP.CertFile,
 		log.KeyFileField:  config.HTTP.KeyFile,
 	})
+	contextLogger := api.log.WithField(log.FuncField, ref.GetFuncName())
 
 	server, err := createAPIServer(&config.HTTP, api)
 	if err != nil {
@@ -63,12 +62,10 @@ func NewAPI(config *config.APIConfig) (*API, error) {
 // Register registers an api with the server
 func (api *API) Register(dir, defaultCert, defaultKey string) error {
 	contextLogger := api.log.WithFields(logrus.Fields{
-		log.FuncField:     ref.GetFuncName(),
-		log.BaseURLField:  api.baseURL,
-		log.PortField:     api.httpConfig.Port,
-		log.UseTLSField:   api.httpConfig.UseTLS,
-		log.CertFileField: api.httpConfig.CertFile,
-		log.KeyFileField:  api.httpConfig.KeyFile,
+		log.FuncField:            ref.GetFuncName(),
+		log.DefaultCertFileField: defaultCert,
+		log.DefaultKeyFileField:  defaultKey,
+		log.APIDirField:          dir,
 	})
 	contextLogger.Debug("registering API")
 
@@ -98,41 +95,53 @@ func (api *API) Register(dir, defaultCert, defaultKey string) error {
 		api.handlers[method][registeredRoute] = func(w http.ResponseWriter, r *http.Request) {
 			json, err := json.GetJSON(fmt.Sprintf("%s/%s/%s", apiDir, dir, file))
 			if err != nil {
-				fmt.Println(err)
+				contextLoggerEndpoint.WithError(err).Error("error serving from this endpoint")
 			}
 			w.Write(json)
 		}
 	}
 
+	var err error
 	if api.httpConfig.UseTLS {
 		cert, key, err := api.getCertAndKeyFile(defaultCert, defaultKey)
 		if err != nil {
-			fmt.Println(err)
+			contextLogger.WithError(err).Error("error getting TLS cert and key")
 			return err
 		}
 
-		go func() {
-			api.server.ListenAndServeTLS(cert, key)
+		go func() error {
+			if err = api.server.ListenAndServeTLS(cert, key); err != nil {
+				contextLogger.WithError(err).Error("error starting mock API with TLS")
+				return err
+			}
 			defer api.Shutdown()
+			return nil
 		}()
 		return nil
 	}
 
-	go func() {
-		api.server.ListenAndServe()
+	go func() error {
+		if err = api.server.ListenAndServe(); err != nil {
+			contextLogger.WithError(err).Error("error starting mock API")
+			return err
+		}
 		defer api.Shutdown()
+		return nil
 	}()
 
-	return nil
+	return err
 }
 
 // Shutdown shutsdown the server
 func (api *API) Shutdown() error {
+	contextLogger := api.log.WithField(log.FuncField, ref.GetFuncName())
+
 	if err := api.server.Shutdown(context.Background()); err != nil {
-		fmt.Println(err)
+		contextLogger.WithError(err).Error("error shutting down mock API")
 		return err
 	}
-	fmt.Println(fmt.Sprintf("shut down server on port %d", api.httpConfig.Port))
+
+	contextLogger.Info("successfully shut down mock API")
 	return nil
 }
 

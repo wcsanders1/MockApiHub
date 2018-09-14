@@ -37,16 +37,15 @@ const (
 // NewManager returns an instance of the Manager type
 func NewManager(config *config.AppConfig) (*Manager, error) {
 	mgr := &Manager{}
-	mgr.log = log.NewLogger(&config.Log, "manager")
-	contextLogger := mgr.log.WithFields(logrus.Fields{
+	mgr.log = log.NewLogger(&config.Log, "manager").WithFields(logrus.Fields{
 		log.PortField:     config.HTTP.Port,
 		log.UseTLSField:   config.HTTP.UseTLS,
 		log.CertFileField: config.HTTP.CertFile,
 		log.KeyFileField:  config.HTTP.KeyFile,
-		log.FuncField:     ref.GetFuncName(),
 	})
-
+	contextLogger := mgr.log.WithField(log.FuncField, ref.GetFuncName())
 	contextLogger.Info("creating new manager")
+
 	server, err := createManagerServer(config.HTTP.Port, mgr)
 	if err != nil {
 		contextLogger.WithError(err).Error("error creating manager")
