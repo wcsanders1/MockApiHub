@@ -59,7 +59,7 @@ func (mgr *Manager) showRegisteredMockAPIs(w http.ResponseWriter, r *http.Reques
 	}
 
 	w.Write(apisJSON)
-	contextLogger.WithField("registeredAPIs", apisJSON).Debug("successfully showed all registered mock APIs")
+	contextLogger.WithField("registeredAPIs", apis).Debug("successfully showed all registered mock APIs")
 }
 
 func (mgr *Manager) registerHubAPIHandlers() {

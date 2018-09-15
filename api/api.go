@@ -197,19 +197,6 @@ func (api *API) GetEndpoints() map[string]config.Endpoint {
 	return api.endpoints
 }
 
-func createAPIServer(config *config.HTTP, api *API) (*http.Server, error) {
-	if config.Port == 0 {
-		return nil, errors.New("no port provided")
-	}
-
-	server := &http.Server{
-		Addr:    str.GetPort(config.Port),
-		Handler: api,
-	}
-
-	return server, nil
-}
-
 func (api *API) getCertAndKeyFile(defaultCert, defaultKey string) (string, string, error) {
 	if len(api.httpConfig.CertFile) > 0 && len(api.httpConfig.KeyFile) > 0 {
 		return api.httpConfig.CertFile, api.httpConfig.KeyFile, nil
@@ -233,4 +220,17 @@ func (api *API) ensureRouteRegistered(url string) string {
 	}
 
 	return registeredRoute
+}
+
+func createAPIServer(config *config.HTTP, api *API) (*http.Server, error) {
+	if config.Port == 0 {
+		return nil, errors.New("no port provided")
+	}
+
+	server := &http.Server{
+		Addr:    str.GetPort(config.Port),
+		Handler: api,
+	}
+
+	return server, nil
 }
