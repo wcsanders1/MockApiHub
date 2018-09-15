@@ -5,6 +5,7 @@ certFile = ""
 keyFile = ""
 
 [log]
+loggingEnabled = false
 fileName = "testLogs/mockApiHub/default.log"
 maxFileDaysAge = 3
 formatAsJSON = true

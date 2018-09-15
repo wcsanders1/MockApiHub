@@ -1,6 +1,7 @@
 package log
 
 import (
+	"io/ioutil"
 	"strings"
 
 	"MockApiHub/config"
@@ -62,6 +63,12 @@ const (
 // NewLogger returns a new instance of a logger
 func NewLogger(config *config.Log, pkgName string) *logrus.Entry {
 	log := logrus.New()
+
+	if !config.LoggingEnabled {
+		log.Out = ioutil.Discard
+		return log.WithField("", "")
+	}
+
 	if config.FormatAsJSON {
 		log.SetFormatter(&logrus.JSONFormatter{
 			TimestampFormat: "2006-01-02 15:04:05",

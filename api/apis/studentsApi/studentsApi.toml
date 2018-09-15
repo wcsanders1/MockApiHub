@@ -1,6 +1,7 @@
 baseUrl = "studentsApi/:districtNumber"
 
 [log]
+loggingEnabled = false
 fileName = "testLogs/studentsApi/default.log"
 maxFileDaysAge = 3
 formatAsJSON = true

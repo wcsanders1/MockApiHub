@@ -17,6 +17,7 @@ type (
 
 	// Log is configuration for logging
 	Log struct {
+		LoggingEnabled bool
 		Filename       string
 		MaxFileSize    int
 		MaxFileBackups int

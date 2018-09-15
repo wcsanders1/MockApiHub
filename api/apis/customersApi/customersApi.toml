@@ -1,6 +1,7 @@
 baseUrl = "customersApi"
 
 [log]
+loggingEnabled = true
 fileName = "testLogs/customersApi/default.log"
 maxFileDaysAge = 3
 formatAsJSON = true
