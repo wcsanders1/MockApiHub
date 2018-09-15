@@ -54,6 +54,9 @@ const (
 
 	// APIDirField is the name of the log field denoting the directory a mock API is in
 	APIDirField = "apiDir"
+
+	// APINameField is the name of the log field denoting the name of a mock API
+	APINameField = "mockAPIName"
 )
 
 // NewLogger returns a new instance of a logger
@@ -62,6 +65,7 @@ func NewLogger(config *config.Log, pkgName string) *logrus.Entry {
 	if config.FormatAsJSON {
 		log.SetFormatter(&logrus.JSONFormatter{
 			TimestampFormat: "2006-01-02 15:04:05",
+			PrettyPrint:     config.PrettyJSON,
 		})
 	} else {
 		log.SetFormatter(&logrus.TextFormatter{

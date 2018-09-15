@@ -23,6 +23,7 @@ type (
 		MaxFileDaysAge int
 		FormatAsJSON   bool
 		Level          string
+		PrettyJSON     bool
 	}
 
 	// HTTP contains information regarding server setup

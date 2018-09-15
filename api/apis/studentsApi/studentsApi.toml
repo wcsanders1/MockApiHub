@@ -4,6 +4,7 @@ baseUrl = "studentsApi/:districtNumber"
 fileName = "testLogs/studentsApi/default.log"
 maxFileDaysAge = 3
 formatAsJSON = true
+prettyJSON = true
 
 [http]
 port = 5002

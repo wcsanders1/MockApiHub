@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"MockApiHub/config"
 	"MockApiHub/json"
@@ -97,6 +98,7 @@ func (api *API) Register(dir, defaultCert, defaultKey string) error {
 			if err != nil {
 				contextLoggerEndpoint.WithError(err).Error("error serving from this endpoint")
 			}
+			contextLoggerEndpoint.Debug("successfully retrieved JSON; serving it")
 			w.Write(json)
 		}
 	}
@@ -121,8 +123,8 @@ func (api *API) Register(dir, defaultCert, defaultKey string) error {
 	}
 
 	go func() error {
-		if err = api.server.ListenAndServe(); err != nil {
-			contextLogger.WithError(err).Error("error starting mock API")
+		if err = api.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			contextLogger.WithError(err).Error("mock API server error")
 			return err
 		}
 		defer api.Shutdown()
@@ -135,8 +137,10 @@ func (api *API) Register(dir, defaultCert, defaultKey string) error {
 // Shutdown shutsdown the server
 func (api *API) Shutdown() error {
 	contextLogger := api.log.WithField(log.FuncField, ref.GetFuncName())
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
-	if err := api.server.Shutdown(context.Background()); err != nil {
+	if err := api.server.Shutdown(ctx); err != nil {
 		contextLogger.WithError(err).Error("error shutting down mock API")
 		return err
 	}
@@ -147,25 +151,33 @@ func (api *API) Shutdown() error {
 
 func (api *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	path, err := api.routeTree.GetRoute(str.CleanURL(r.URL.String()))
+	contextLogger := api.log.WithFields(logrus.Fields{
+		log.FuncField: ref.GetFuncName(),
+		log.PathField: path,
+	})
+
 	if err != nil {
 		switch err.(type) {
 		case *route.HTTPError:
 			httpError, _ := err.(*route.HTTPError)
+			contextLogger.WithError(httpError).Error("server error")
 			w.WriteHeader(httpError.Status)
 			w.Write([]byte(httpError.Msg))
 			return
 		default:
-			fmt.Println(err)
+			contextLogger.WithError(err).Error("server error")
 			return
 		}
 	}
 
 	method := strings.ToUpper(r.Method)
 	if handler, exists := api.handlers[method][path]; exists {
+		contextLogger.Debug("handler exists for this path")
 		handler(w, r)
 		return
 	}
 
+	contextLogger.Warn("endpoint not found")
 	w.WriteHeader(http.StatusNotFound)
 	w.Write([]byte("endpoint not found"))
 }

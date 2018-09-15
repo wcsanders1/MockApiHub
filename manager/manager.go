@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"MockApiHub/api"
 	"MockApiHub/config"
@@ -128,17 +129,18 @@ func (mgr *Manager) shutdownMockAPIs() {
 	contextLogger := mgr.log.WithField(log.FuncField, ref.GetFuncName())
 	contextLogger.Debug("shutting down mock APIs")
 
-	for _, api := range mgr.apis {
+	for apiName, api := range mgr.apis {
 		contextLoggerAPI := contextLogger.WithFields(logrus.Fields{
 			log.PortField:    api.GetPort(),
 			log.BaseURLField: api.GetBaseURL(),
+			log.APINameField: apiName,
 		})
 		contextLoggerAPI.Info("shutting down mock API")
 		if err := api.Shutdown(); err != nil {
 			contextLoggerAPI.WithError(err).Error("error shutting down mock API")
 			continue
 		}
-		contextLogger.Info("successfully shut down mock API")
+		contextLoggerAPI.Info("successfully shut down mock API")
 	}
 
 	contextLogger.Debug("finished shutting down mock APIs")
@@ -148,7 +150,10 @@ func (mgr *Manager) shutdownHubServer() error {
 	contextLogger := mgr.log.WithField(log.FuncField, ref.GetFuncName())
 	contextLogger.Debug("shutting down hub server")
 
-	if err := mgr.server.Shutdown(context.Background()); err != nil {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := mgr.server.Shutdown(ctx); err != nil {
 		contextLogger.WithError(err).Error("error shutting down hub server")
 		return err
 	}
@@ -163,13 +168,13 @@ func (mgr *Manager) startHubServer() error {
 	if mgr.config.HTTP.UseTLS {
 		contextLogger.Debug("starting hub server using TLS")
 		if err := mgr.startHubServerUsingTLS(); err != nil {
-			contextLogger.WithError(err).Error("error starting hub server using TLS")
+			contextLogger.WithError(err).Error("hub server error; using TLS")
 			return err
 		}
 	} else {
 		contextLogger.Debug("starting hub server not using TLS")
-		if err := mgr.server.ListenAndServe(); err != nil {
-			contextLogger.WithError(err).Error("error starting hub server not using TLS")
+		if err := mgr.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			contextLogger.WithError(err).Error("hub server error; not using TLS")
 			return err
 		}
 	}
@@ -197,7 +202,7 @@ func (mgr *Manager) startHubServerUsingTLS() error {
 		return err
 	}
 
-	if err := mgr.server.ListenAndServeTLS(certFile, keyFile); err != nil {
+	if err := mgr.server.ListenAndServeTLS(certFile, keyFile); err != nil && err != http.ErrServerClosed {
 		contextLogger.WithError(err).Error("error starting hub server using TLS")
 		return err
 	}

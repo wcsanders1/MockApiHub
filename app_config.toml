@@ -8,3 +8,4 @@ keyFile = ""
 fileName = "testLogs/mockApiHub/default.log"
 maxFileDaysAge = 3
 formatAsJSON = true
+prettyJSON = true
