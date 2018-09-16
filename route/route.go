@@ -59,7 +59,7 @@ func (tree *Tree) AddRoute(url string) (string, error) {
 	}
 
 	url = strings.ToLower(url)
-	if existingRoute, _ := tree.GetRoute(url); len(existingRoute) > 0 {
+	if existingRoute, _, _ := tree.GetRoute(url); len(existingRoute) > 0 {
 		return "", fmt.Errorf("route %s already registered", url)
 	}
 
@@ -72,7 +72,7 @@ func (tree *Tree) AddRoute(url string) (string, error) {
 		return "", err
 	}
 
-	route, err := tree.GetRoute(url)
+	route, _, err := tree.GetRoute(url)
 	if err != nil {
 		return "", err
 	}
@@ -81,24 +81,24 @@ func (tree *Tree) AddRoute(url string) (string, error) {
 }
 
 // GetRoute returns a route if it exists in the tree
-func (tree *Tree) GetRoute(url string) (string, error) {
+func (tree *Tree) GetRoute(url string) (string, map[string]string, error) {
 	url = strings.ToLower(url)
 	fragments, err := str.GetURLFragments(url)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 
-	route, err := tree.getRouteByFragments(fragments)
+	route, params, err := tree.getRouteByFragments(fragments, make(map[string]string))
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 
-	return path.Clean(route), nil
+	return path.Clean(route), params, nil
 }
 
-func (tree *Tree) getRouteByFragments(fragments []string) (string, error) {
+func (tree *Tree) getRouteByFragments(fragments []string, params map[string]string) (string, map[string]string, error) {
 	if len(fragments) == 0 {
-		return "", nil
+		return "", params, nil
 	}
 
 	curFrag := fragments[0]
@@ -106,42 +106,43 @@ func (tree *Tree) getRouteByFragments(fragments []string) (string, error) {
 	notFoundError := NewHTTPError(notFoundMsg, http.StatusNotFound)
 
 	if branch, exists := tree.branches[curFrag]; exists {
-		route, err := branch.getRouteByFragments(remFrags)
+		route, params, err := branch.getRouteByFragments(remFrags, params)
 
 		if err != nil {
-			return "", err
+			return "", params, err
 		}
 
 		if len(route) == 0 {
 			if len(remFrags) == 0 {
 				switch branch.routeType {
 				case complete:
-					return curFrag, nil
+					return curFrag, params, nil
 				case incomplete:
-					return "", notFoundError
+					return "", params, notFoundError
 				default:
-					return "", errors.New("problem finding route")
+					return "", params, errors.New("problem finding route")
 				}
 			}
 
-			return "", notFoundError
+			return "", params, notFoundError
 		}
 
-		return fmt.Sprintf("%s/%s", curFrag, route), nil
+		return fmt.Sprintf("%s/%s", curFrag, route), params, nil
 	}
 
-	params := tree.getRouteParamsInBranch()
-	if len(params) == 0 {
-		return "", notFoundError
+	newParams := tree.getRouteParamsInBranch()
+	if len(newParams) == 0 {
+		return "", params, notFoundError
 	}
 
-	for _, p := range params {
-		if route, err := tree.branches[p].getRouteByFragments(remFrags); err == nil {
-			return fmt.Sprintf("%s/%s", p, route), nil
+	for _, p := range newParams {
+		if route, params, err := tree.branches[p].getRouteByFragments(remFrags, params); err == nil {
+			params[p] = curFrag
+			return fmt.Sprintf("%s/%s", p, route), params, nil
 		}
 	}
 
-	return "", notFoundError
+	return "", params, notFoundError
 }
 
 func (tree *Tree) getRouteParamsInBranch() []string {

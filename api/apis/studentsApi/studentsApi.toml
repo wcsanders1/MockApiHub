@@ -1,7 +1,7 @@
 baseUrl = "studentsApi/:districtNumber"
 
 [log]
-loggingEnabled = false
+loggingEnabled = true
 fileName = "testLogs/studentsApi/default.log"
 maxFileDaysAge = 3
 formatAsJSON = true
@@ -31,6 +31,6 @@ keyFile = ""
     method = "POST"
 
     [endpoints.getGrades]
-    path = "grades"
+    path = ":id/:test/"
     file = "grades.json"
     method = "GET"

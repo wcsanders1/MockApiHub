@@ -151,10 +151,11 @@ func (api *API) Shutdown() error {
 }
 
 func (api *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	path, err := api.routeTree.GetRoute(str.CleanURL(r.URL.String()))
+	path, params, err := api.routeTree.GetRoute(str.CleanURL(r.URL.String()))
 	contextLogger := api.log.WithFields(logrus.Fields{
 		log.FuncField: ref.GetFuncName(),
 		log.PathField: path,
+		"params":      params,
 	})
 
 	if err != nil {
@@ -216,7 +217,7 @@ func (api *API) getCertAndKeyFile(defaultCert, defaultKey string) (string, strin
 
 func (api *API) ensureRouteRegistered(url string) string {
 	url = path.Clean(url)
-	registeredRoute, _ := api.routeTree.GetRoute(url)
+	registeredRoute, _, _ := api.routeTree.GetRoute(url)
 	if len(registeredRoute) == 0 {
 		registeredRoute, _ = api.routeTree.AddRoute(url)
 	}
