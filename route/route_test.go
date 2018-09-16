@@ -1,9 +1,9 @@
 package route
 
 import (
+	"fmt"
 	"strings"
 	"testing"
-	"fmt"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -20,12 +20,12 @@ func TestAddRouteToExistingBranch(t *testing.T) {
 	assert.NotNil(r1)
 	assert.Error(r1)
 
-	r2 := routeTree.addRouteToExistingBranch(frags[:len(frags) - 1])
+	r2 := routeTree.addRouteToExistingBranch(frags[:len(frags)-1])
 
 	assert.Nil(r2)
 	assert.Equal(complete, routeTree.branches[frags[0]].routeType)
 
-	r3 := routeTree.addRouteToExistingBranch(frags[:len(frags) - 1])
+	r3 := routeTree.addRouteToExistingBranch(frags[:len(frags)-1])
 
 	assert.Error(r3)
 
@@ -79,7 +79,7 @@ func TestGetRoute(t *testing.T) {
 
 	assert.Error(err)
 	assert.Empty(result)
-	
+
 	routeTree.AddRoute(route2)
 
 	result, err = routeTree.GetRoute(route2)
@@ -132,4 +132,20 @@ func TestGetRoute(t *testing.T) {
 	result, err = routeTree.GetRoute(url)
 	assert.Nil(err)
 	assert.Equal(route4, result)
+
+	route5 := "param/at/:end"
+	routeTree.AddRoute(route5)
+
+	url = "param/at/4325"
+	result, err = routeTree.GetRoute(url)
+	assert.Nil(err)
+	assert.Equal(route5, result)
+
+	route6 := ":id/:another_id"
+	routeTree.AddRoute(route6)
+
+	url = "blah/blah"
+	result, err = routeTree.GetRoute(url)
+	assert.Nil(err)
+	assert.Equal(route6, result)
 }

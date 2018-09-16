@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"path"
 	"strings"
 
 	"MockApiHub/str"
@@ -71,7 +72,12 @@ func (tree *Tree) AddRoute(url string) (string, error) {
 		return "", err
 	}
 
-	return tree.GetRoute(url)
+	route, err := tree.GetRoute(url)
+	if err != nil {
+		return "", err
+	}
+
+	return path.Clean(route), nil
 }
 
 // GetRoute returns a route if it exists in the tree
@@ -82,7 +88,12 @@ func (tree *Tree) GetRoute(url string) (string, error) {
 		return "", err
 	}
 
-	return tree.getRouteByFragments(fragments)
+	route, err := tree.getRouteByFragments(fragments)
+	if err != nil {
+		return "", err
+	}
+
+	return path.Clean(route), nil
 }
 
 func (tree *Tree) getRouteByFragments(fragments []string) (string, error) {
