@@ -32,3 +32,12 @@ func CleanURL(url string) string {
 	urlLower := strings.ToLower(url)
 	return path.Clean(urlLower[1:])
 }
+
+// RemoveColonFromParam removes the colon from a route parameter so it looks nice when logged
+func RemoveColonFromParam(param string) string {
+	if len(param) == 0 {
+		return ""
+	}
+
+	return param[1:]
+}

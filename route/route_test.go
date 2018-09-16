@@ -134,13 +134,15 @@ func TestGetRoute(t *testing.T) {
 	result, params, err = routeTree.GetRoute(url)
 	assert.Nil(err)
 	assert.Equal(route4, result)
-	assert.Contains(params, ":param")
+	assert.Contains(params, "param")
+	assert.Equal("43434", params["param"])
 
 	url = "another/3/route"
 	result, params, err = routeTree.GetRoute(url)
 	assert.Nil(err)
 	assert.Equal(route4, result)
-	assert.Contains(params, ":param")
+	assert.Contains(params, "param")
+	assert.Equal("3", params["param"])
 
 	route5 := "param/at/:end"
 	routeTree.AddRoute(route5)
@@ -149,7 +151,8 @@ func TestGetRoute(t *testing.T) {
 	result, params, err = routeTree.GetRoute(url)
 	assert.Nil(err)
 	assert.Equal(route5, result)
-	assert.Contains(params, ":end")
+	assert.Contains(params, "end")
+	assert.Equal("4325", params["end"])
 
 	route6 := ":id/:another_id"
 	routeTree.AddRoute(route6)
@@ -158,5 +161,6 @@ func TestGetRoute(t *testing.T) {
 	result, params, err = routeTree.GetRoute(url)
 	assert.Nil(err)
 	assert.Equal(route6, result)
-	assert.Contains(params, ":another_id")
+	assert.Contains(params, "another_id")
+	assert.Equal("blah", params["another_id"])
 }

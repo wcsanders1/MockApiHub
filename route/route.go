@@ -137,7 +137,8 @@ func (tree *Tree) getRouteByFragments(fragments []string, params map[string]stri
 
 	for _, p := range newParams {
 		if route, params, err := tree.branches[p].getRouteByFragments(remFrags, params); err == nil {
-			params[p] = curFrag
+			param := str.RemoveColonFromParam(p)
+			params[param] = curFrag
 			return fmt.Sprintf("%s/%s", p, route), params, nil
 		}
 	}
