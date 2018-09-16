@@ -302,7 +302,7 @@ func createManagerServer(port int, mgr *Manager) (*http.Server, error) {
 
 func getAPIConfig(file os.FileInfo) (*config.APIConfig, error) {
 	if !file.IsDir() || !isAPI(file.Name()) {
-		return nil, nil
+		return nil, errors.New("not a mock API directory")
 	}
 
 	dir := file.Name()
