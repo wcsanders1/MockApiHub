@@ -58,6 +58,9 @@ const (
 
 	// APINameField is the name of the log field denoting the name of a mock API
 	APINameField = "mockAPIName"
+
+	// EndpointNameField is the name of the log field denoting the name of an endpoint
+	EndpointNameField = "endpointName"
 )
 
 // NewLogger returns a new instance of a logger

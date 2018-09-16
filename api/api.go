@@ -71,16 +71,17 @@ func (api *API) Register(dir, defaultCert, defaultKey string) error {
 	contextLogger.Debug("registering API")
 
 	base := api.baseURL
-	for _, endpoint := range api.endpoints {
+	for endpointName, endpoint := range api.endpoints {
 		path := fmt.Sprintf("%s/%s", base, endpoint.Path)
 		registeredRoute := api.ensureRouteRegistered(path)
 		file := endpoint.File
 		method := strings.ToUpper(endpoint.Method)
 		contextLoggerEndpoint := contextLogger.WithFields(logrus.Fields{
-			log.PathField:   path,
-			log.RouteField:  registeredRoute,
-			log.FileField:   file,
-			log.MethodField: method,
+			log.PathField:         path,
+			log.RouteField:        registeredRoute,
+			log.FileField:         file,
+			log.MethodField:       method,
+			log.EndpointNameField: endpointName,
 		})
 
 		contextLoggerEndpoint.Debug("registering endpoint")
@@ -89,6 +90,7 @@ func (api *API) Register(dir, defaultCert, defaultKey string) error {
 		} else {
 			if _, routeExists := route[registeredRoute]; routeExists {
 				contextLoggerEndpoint.Warn("endpoint already exists, moving on to next endpoint...")
+				delete(api.endpoints, endpointName)
 				continue
 			}
 		}
@@ -116,7 +118,6 @@ func (api *API) Register(dir, defaultCert, defaultKey string) error {
 				contextLogger.WithError(err).Error("error starting mock API with TLS")
 				return err
 			}
-			defer api.Shutdown()
 			return nil
 		}()
 		return nil
@@ -127,7 +128,6 @@ func (api *API) Register(dir, defaultCert, defaultKey string) error {
 			contextLogger.WithError(err).Error("mock API server error")
 			return err
 		}
-		defer api.Shutdown()
 		return nil
 	}()
 

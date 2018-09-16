@@ -257,25 +257,25 @@ func (mgr *Manager) loadMockAPIs() error {
 		})
 
 		if mgr.apiByPortExists(apiConfig.HTTP.Port) {
-			contextLoggerFileAPI.Warn("a mock API is already registered on this port -- moving on to next mock API")
+			contextLoggerFileAPI.Warn("a mock API is already loaded on this port -- moving on to next mock API")
 			continue
 		}
 
 		api, err := api.NewAPI(apiConfig)
 		if err != nil {
-			contextLoggerFileAPI.WithError(err).Error("error creating mock API -- moving on to next mock API")
+			contextLoggerFileAPI.WithError(err).Error("error loading mock API -- moving on to next mock API")
 			continue
 		}
 
 		if api != nil {
-			contextLoggerFileAPI.Info("successfully registered mock API")
+			contextLoggerFileAPI.Info("successfully loaded mock API")
 			mgr.apis[file.Name()] = api
 			continue
 		}
 
-		contextLoggerFileAPI.Warn("unable to register mock API")
+		contextLoggerFileAPI.Warn("unable to load mock API")
 	}
-	contextLogger.Debug("finished registering mock APIs")
+	contextLogger.Debug("finished loading mock APIs")
 	return nil
 }
 

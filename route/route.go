@@ -57,11 +57,11 @@ func (tree *Tree) AddRoute(url string) (string, error) {
 		return "", errors.New("no url provided")
 	}
 
+	url = strings.ToLower(url)
 	if existingRoute, _ := tree.GetRoute(url); len(existingRoute) > 0 {
 		return "", fmt.Errorf("route %s already registered", url)
 	}
 
-	url = strings.ToLower(url)
 	fragments, err := str.GetURLFragments(url)
 	if err != nil {
 		return "", err
@@ -136,6 +136,9 @@ func (tree *Tree) getRouteByFragments(fragments []string) (string, error) {
 func (tree *Tree) getRouteParamsInBranch() []string {
 	var params []string
 	for k := range tree.branches {
+		if len(k) == 0 {
+			return params
+		}
 		if string(k[0]) == ":" {
 			params = append(params, k)
 		}
