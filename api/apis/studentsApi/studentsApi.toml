@@ -20,6 +20,11 @@ keyFile = ""
     file = "students.json"
     method = "GET"
 
+    [endpoints.getNothing]
+    path = ""
+    file = "students.json"
+    method = "GET"
+
     [endpoints.postStudents]
     path = "students"
     file = "studentsPost.json"

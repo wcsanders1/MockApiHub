@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"path"
 	"strings"
 	"time"
 
@@ -214,6 +215,7 @@ func (api *API) getCertAndKeyFile(defaultCert, defaultKey string) (string, strin
 }
 
 func (api *API) ensureRouteRegistered(url string) string {
+	url = path.Clean(url)
 	registeredRoute, _ := api.routeTree.GetRoute(url)
 	if len(registeredRoute) == 0 {
 		registeredRoute, _ = api.routeTree.AddRoute(url)

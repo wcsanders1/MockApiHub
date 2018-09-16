@@ -25,6 +25,11 @@ keyFile = ""
     file = "accounts.json"
     method = "GET"
 
+    [endpoints.getNothing]
+    path = ""
+    file = "accounts.json"
+    method = "GET"
+
     [endpoints.getCustomerItems]
     path = "customers/:id/items"
     file = "items.json"
