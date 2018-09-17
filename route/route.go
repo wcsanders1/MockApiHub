@@ -52,6 +52,17 @@ func NewRouteTree() *Tree {
 	}
 }
 
+// TODO: FINISH THIS; IT DOESN'T WORK YET
+func duplicateParamsExist(fragments []string) bool {
+	var params []string
+	for _, frag := range fragments {
+		if str.IsParam(frag) {
+			params = append(params, frag)
+		}
+	}
+	return false
+}
+
 // AddRoute adds a route to the tree
 func (tree *Tree) AddRoute(url string) (string, error) {
 	if len(url) == 0 {
