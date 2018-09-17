@@ -41,3 +41,16 @@ func RemoveColonFromParam(param string) string {
 
 	return param[1:]
 }
+
+// IsParam returns true if the string passed to it is a route parameter
+func IsParam(routeFrag string) bool {
+	if len(routeFrag) == 0 {
+		return false
+	}
+
+	if string(routeFrag[0]) == ":" {
+		return true
+	}
+
+	return false
+}

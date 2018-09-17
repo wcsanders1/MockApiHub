@@ -32,3 +32,12 @@ func TestRemoveColonFromParam(t *testing.T) {
 	assert := assert.New(t)
 	assert.Equal("id", niceParam)
 }
+
+func TestIsParam(t *testing.T) {
+	param := ":id"
+	nonParam := "id"
+
+	assert := assert.New(t)
+	assert.True(IsParam(param))
+	assert.False(IsParam(nonParam))
+}

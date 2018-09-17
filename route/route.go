@@ -152,7 +152,7 @@ func (tree *Tree) getRouteParamsInBranch() []string {
 		if len(k) == 0 {
 			return params
 		}
-		if string(k[0]) == ":" {
+		if str.IsParam(k) {
 			params = append(params, k)
 		}
 	}
