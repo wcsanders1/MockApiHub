@@ -23,7 +23,7 @@ func GetURLFragments(url string) ([]string, error) {
 	return frags, nil
 }
 
-// CleanURL returns a URL in lowercase without a trailing or preceeding slash
+// CleanURL returns a URL in lowercase without a trailing or preceding slash
 func CleanURL(url string) string {
 	if len(url) == 0 {
 		return ""
