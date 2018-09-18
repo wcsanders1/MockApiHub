@@ -1,3 +1,5 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/wcsanders1/MockApiHub)](https://goreportcard.com/report/github.com/wcsanders1/MockApiHub)
+
 # MockApiHub
 
 This server allows you to create a collection of mock APIs.
