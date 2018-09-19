@@ -1,11 +1,11 @@
 package json
 
 import (
-	"os"
-	"fmt"
-	"io/ioutil"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"io/ioutil"
+	"os"
 )
 
 // GetJSON returns a []byte of valid JSON from a file
@@ -17,14 +17,14 @@ func GetJSON(filePath string) ([]byte, error) {
 	}
 
 	defer jsonFile.Close()
-	
+
 	bytes, err := ioutil.ReadAll(jsonFile)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
 	}
 
-	if (!isValidJSON(bytes)) {
+	if !isValidJSON(bytes) {
 		return nil, errors.New("invalid JSON")
 	}
 

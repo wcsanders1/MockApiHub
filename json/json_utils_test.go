@@ -2,6 +2,7 @@ package json
 
 import (
 	"testing"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -10,11 +11,11 @@ func TestIsValidJSON(t *testing.T) {
 							"JSON": "good",
 							"test": "good"
 					   }`)
-	badJSON :=  []byte(`{
+	badJSON := []byte(`{
 						    "JSON": "bad,
 						    "test": "good"
 						}`)
-	
+
 	result := isValidJSON(goodJSON)
 
 	assert := assert.New(t)

@@ -2,6 +2,7 @@ package manager
 
 import (
 	"testing"
+
 	"github.com/stretchr/testify/assert"
 
 	"MockApiHub/api"
@@ -46,12 +47,12 @@ func TestIsAPI(t *testing.T) {
 
 func TestApiByPortExists(t *testing.T) {
 	port := 4000
-	mgr := Manager {
+	mgr := Manager{
 		apis: make(map[string]*api.API),
 	}
 
-	cfg := &config.APIConfig {
-		HTTP: config.HTTP {
+	cfg := &config.APIConfig{
+		HTTP: config.HTTP{
 			Port: port,
 		},
 	}
