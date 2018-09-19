@@ -87,6 +87,7 @@ func TestGetRoute(t *testing.T) {
 
 	assert.Error(err)
 	assert.Empty(result)
+	assert.Empty(params)
 
 	routeTree.AddRoute(route2)
 
@@ -134,6 +135,7 @@ func TestGetRoute(t *testing.T) {
 
 	_, params, err = routeTree.GetRoute(url)
 	assert.Error(err)
+	assert.Empty(params)
 
 	route4 := "another/:param/route"
 	routeTree.AddRoute(route4)
