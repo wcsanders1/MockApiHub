@@ -77,7 +77,7 @@ func (api *API) Register(dir, defaultCert, defaultKey string) error {
 		registeredRoute := api.ensureRouteRegistered(path)
 		file := endpoint.File
 		method := strings.ToUpper(endpoint.Method)
-		contextLoggerEndpoint := contextLogger.WithFields(logrus.Fields{
+		contextLoggerEndpoint := api.log.WithFields(logrus.Fields{
 			log.PathField:         path,
 			log.RouteField:        registeredRoute,
 			log.FileField:         file,
