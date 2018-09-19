@@ -1,6 +1,7 @@
 package route
 
 import (
+	"MockApiHub/str"
 	"fmt"
 	"strings"
 	"testing"
@@ -62,6 +63,12 @@ func TestAddRoute(t *testing.T) {
 
 	assert.Error(err)
 	assert.Empty(retry)
+
+	dupParamRoute := "test/:param/customers/:param"
+	dupResult, err := routeTree.AddRoute(dupParamRoute)
+
+	assert.Error(err)
+	assert.Empty(dupResult)
 }
 
 func TestGetRoute(t *testing.T) {
@@ -163,4 +170,19 @@ func TestGetRoute(t *testing.T) {
 	assert.Equal(route6, result)
 	assert.Contains(params, "another_id")
 	assert.Equal("blah", params["another_id"])
+}
+
+func TestDuplicateParamsExist(t *testing.T) {
+	noDups := "no/dup/:params/here"
+	noDupFrags, _ := str.GetURLFragments(noDups)
+	result := duplicateParamsExist(noDupFrags)
+
+	assert := assert.New(t)
+	assert.False(result)
+
+	dups := "dup/:params/:params/here"
+	dupFrags, _ := str.GetURLFragments(dups)
+	result = duplicateParamsExist(dupFrags)
+
+	assert.True(result)
 }

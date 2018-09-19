@@ -7,6 +7,7 @@ import (
 	"path"
 	"strings"
 
+	"MockApiHub/query"
 	"MockApiHub/str"
 )
 
@@ -52,17 +53,6 @@ func NewRouteTree() *Tree {
 	}
 }
 
-// TODO: FINISH THIS; IT DOESN'T WORK YET
-func duplicateParamsExist(fragments []string) bool {
-	var params []string
-	for _, frag := range fragments {
-		if str.IsParam(frag) {
-			params = append(params, frag)
-		}
-	}
-	return false
-}
-
 // AddRoute adds a route to the tree
 func (tree *Tree) AddRoute(url string) (string, error) {
 	if len(url) == 0 {
@@ -79,6 +69,10 @@ func (tree *Tree) AddRoute(url string) (string, error) {
 		return "", err
 	}
 
+	if duplicateParamsExist(fragments) {
+		return "", fmt.Errorf("route has duplicate parameters: %v", fragments)
+	}
+
 	if err := tree.addRouteByFragments(fragments); err != nil {
 		return "", err
 	}
@@ -87,7 +81,6 @@ func (tree *Tree) AddRoute(url string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
 	return path.Clean(route), nil
 }
 
@@ -103,7 +96,6 @@ func (tree *Tree) GetRoute(url string) (string, map[string]string, error) {
 	if err != nil {
 		return "", nil, err
 	}
-
 	return path.Clean(route), params, nil
 }
 
@@ -134,10 +126,8 @@ func (tree *Tree) getRouteByFragments(fragments []string, params map[string]stri
 					return "", params, errors.New("problem finding route")
 				}
 			}
-
 			return "", params, notFoundError
 		}
-
 		return fmt.Sprintf("%s/%s", curFrag, route), params, nil
 	}
 
@@ -153,7 +143,6 @@ func (tree *Tree) getRouteByFragments(fragments []string, params map[string]stri
 			return fmt.Sprintf("%s/%s", p, route), params, nil
 		}
 	}
-
 	return "", params, notFoundError
 }
 
@@ -167,7 +156,6 @@ func (tree *Tree) getRouteParamsInBranch() []string {
 			params = append(params, k)
 		}
 	}
-
 	return params
 }
 
@@ -204,4 +192,17 @@ func (tree *Tree) addRouteToExistingBranch(remFrags []string) error {
 	}
 
 	return tree.addRouteByFragments(remFrags)
+}
+
+func duplicateParamsExist(fragments []string) bool {
+	var params []string
+	for _, frag := range fragments {
+		if str.IsParam(frag) {
+			if query.ArrayContains(frag, params) {
+				return true
+			}
+			params = append(params, frag)
+		}
+	}
+	return false
 }
