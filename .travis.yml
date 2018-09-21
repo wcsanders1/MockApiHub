@@ -4,6 +4,10 @@ go:
   - "1.10.x"
   - master
 
+before_install:
+  - go get -u github.com/kardianos/govendor
+  - govendor sync
+
 script:
   - go test ./...
 
