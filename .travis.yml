@@ -1,9 +1,10 @@
 language: go
 
-go:
-  - "1.10.x"
+matrixc:
+  include:
+  - go: "1.10.x"
     script: go test -v ./...
-  - "1.11.x"
+  - go: "1.11.x"
     script: go test -v -mod=vendor ./...
 
 before_install:
