@@ -2,14 +2,18 @@ language: go
 
 go:
   - "1.10.x"
-  - master
+    script: go test -v ./...
+  - "1.11.x"
+    script: go test -v -mod=vendor ./...
 
 before_install:
   - go get -u github.com/kardianos/govendor
   - govendor sync
 
-script:
-  - go test ./...
+env:
+  - GO11MODULE=on
+
+install: true
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
