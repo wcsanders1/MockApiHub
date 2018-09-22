@@ -11,15 +11,12 @@ import (
 
 	"github.com/wcsanders1/MockApiHub/config"
 	"github.com/wcsanders1/MockApiHub/json"
-
 	"github.com/wcsanders1/MockApiHub/log"
-
 	"github.com/wcsanders1/MockApiHub/ref"
 	"github.com/wcsanders1/MockApiHub/route"
 	"github.com/wcsanders1/MockApiHub/str"
 
 	"github.com/sirupsen/logrus"
-	// "MockApiHub/log"
 )
 
 // API contains information for an API
