@@ -3,6 +3,60 @@
 	"ignore": "test",
 	"package": [
 		{
+			"checksumSHA1": "yWqbmkUn+0gSHsxslrBjB10qPAI=",
+			"path": "MockApiHub/api",
+			"revision": "1bdbb1e0af66e27bdd73fe52a0cc7a980ba2471f",
+			"revisionTime": "2018-09-21T11:22:05Z"
+		},
+		{
+			"checksumSHA1": "j/6FEeKZ4jpKWyiS7sG9eAHt+qQ=",
+			"path": "MockApiHub/config",
+			"revision": "1bdbb1e0af66e27bdd73fe52a0cc7a980ba2471f",
+			"revisionTime": "2018-09-21T11:22:05Z"
+		},
+		{
+			"checksumSHA1": "w3BaghXhJS4Yh6vHkLhVjdJi7E4=",
+			"path": "MockApiHub/json",
+			"revision": "1bdbb1e0af66e27bdd73fe52a0cc7a980ba2471f",
+			"revisionTime": "2018-09-21T11:22:05Z"
+		},
+		{
+			"checksumSHA1": "aQCFgMTBTsDIia6Bu49t8pXZgcg=",
+			"path": "MockApiHub/log",
+			"revision": "1bdbb1e0af66e27bdd73fe52a0cc7a980ba2471f",
+			"revisionTime": "2018-09-21T11:22:05Z"
+		},
+		{
+			"checksumSHA1": "mZHF0mIu0nMhzsmztKMpvI5q1Ls=",
+			"path": "MockApiHub/manager",
+			"revision": "1bdbb1e0af66e27bdd73fe52a0cc7a980ba2471f",
+			"revisionTime": "2018-09-21T11:22:05Z"
+		},
+		{
+			"checksumSHA1": "qTCy2N1V+wR6rqUBa4hp7kjkO8Y=",
+			"path": "MockApiHub/query",
+			"revision": "1bdbb1e0af66e27bdd73fe52a0cc7a980ba2471f",
+			"revisionTime": "2018-09-21T11:22:05Z"
+		},
+		{
+			"checksumSHA1": "d8thvr5eGlgbDAO0fvfhRoO2qm0=",
+			"path": "MockApiHub/ref",
+			"revision": "1bdbb1e0af66e27bdd73fe52a0cc7a980ba2471f",
+			"revisionTime": "2018-09-21T11:22:05Z"
+		},
+		{
+			"checksumSHA1": "IDpxbM3q/au5HvpPcpFtqbCtRHA=",
+			"path": "MockApiHub/route",
+			"revision": "1bdbb1e0af66e27bdd73fe52a0cc7a980ba2471f",
+			"revisionTime": "2018-09-21T11:22:05Z"
+		},
+		{
+			"checksumSHA1": "nx88CCVo1+XyFTn1fG+zVLGwgCU=",
+			"path": "MockApiHub/str",
+			"revision": "1bdbb1e0af66e27bdd73fe52a0cc7a980ba2471f",
+			"revisionTime": "2018-09-21T11:22:05Z"
+		},
+		{
 			"checksumSHA1": "Pc2ORQp+VY3Un/dkh4QwLC7R6lE=",
 			"path": "github.com/BurntSushi/toml",
 			"revision": "a368813c5e648fee92e5f6c30e3944ff9d5e8895",
