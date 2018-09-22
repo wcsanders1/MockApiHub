@@ -11,14 +11,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/MockApiHub/api"
-	"github.com/MockApiHub/config"
+	"github.com/wcsanders1/MockApiHub/api"
+	"github.com/wcsanders1/MockApiHub/config"
 
 	"github.com/wcsanders1/MockApiHub/log"
 
 	// "MockApiHub/log"
-	"github.com/MockApiHub/ref"
-	"github.com/MockApiHub/str"
+	"github.com/wcsanders1/MockApiHub/ref"
+	"github.com/wcsanders1/MockApiHub/str"
 
 	"github.com/BurntSushi/toml"
 	"github.com/sirupsen/logrus"
