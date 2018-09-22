@@ -13,7 +13,10 @@ import (
 
 	"MockApiHub/api"
 	"MockApiHub/config"
-	"MockApiHub/log"
+
+	"github.com/wcsanders1/MockApiHub/log"
+
+	// "MockApiHub/log"
 	"MockApiHub/ref"
 	"MockApiHub/str"
 
