@@ -1,10 +1,11 @@
 package route
 
 import (
-	"MockApiHub/str"
 	"fmt"
 	"strings"
 	"testing"
+
+	"github.com/MockApiHub/str"
 
 	"github.com/stretchr/testify/assert"
 )

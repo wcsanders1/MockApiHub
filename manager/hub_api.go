@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"strings"
 
-	"MockApiHub/api"
-	"MockApiHub/config"
-	"MockApiHub/log"
-	"MockApiHub/ref"
+	"github.com/MockApiHub/api"
+	"github.com/MockApiHub/config"
+	"github.com/MockApiHub/log"
+	"github.com/MockApiHub/ref"
 )
 
 type apiDisplay struct {

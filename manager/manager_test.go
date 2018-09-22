@@ -5,8 +5,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"MockApiHub/api"
-	"MockApiHub/config"
+	"github.com/MockApiHub/api"
+	"github.com/MockApiHub/config"
 )
 
 func TestIsAPIConfig(t *testing.T) {

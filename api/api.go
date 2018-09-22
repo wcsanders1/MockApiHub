@@ -9,17 +9,17 @@ import (
 	"strings"
 	"time"
 
-	"MockApiHub/config"
-	"MockApiHub/json"
+	"github.com/MockApiHub/config"
+	"github.com/MockApiHub/json"
 
 	"github.com/wcsanders1/MockApiHub/log"
 
-	// "MockApiHub/log"
-	"MockApiHub/ref"
-	"MockApiHub/route"
-	"MockApiHub/str"
+	"github.com/MockApiHub/ref"
+	"github.com/MockApiHub/route"
+	"github.com/MockApiHub/str"
 
 	"github.com/sirupsen/logrus"
+	// "MockApiHub/log"
 )
 
 // API contains information for an API
