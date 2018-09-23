@@ -3,47 +3,47 @@
 	"ignore": "test",
 	"package": [
 		{
-			"checksumSHA1": "E28wYFTSrIqdPRdlBkoIgTPYZn8=",
+			"checksumSHA1": "GO/YqkgTZRVLCeeWFONiNLrudN8=",
 			"origin": "github.com/wcsanders1/MockApiHub/api",
 			"path": "MockApiHub/api",
 			"revision": "6da687d106150327fb88640b516188071225a96d",
 			"revisionTime": "2018-09-22T21:38:11Z"
 		},
 		{
-			"checksumSHA1": "lusR8bhBIHLYgsFoVg2o+Ic40zs=",
+			"checksumSHA1": "51FS6ZO3bT8VM3uyz/WT3kblprA=",
 			"origin": "github.com/wcsanders1/MockApiHub/log",
 			"path": "MockApiHub/log",
 			"revision": "6da687d106150327fb88640b516188071225a96d",
 			"revisionTime": "2018-09-22T21:38:11Z"
 		},
 		{
-			"checksumSHA1": "rcoUTEGR7KVr963l6P1rlMaYCzA=",
+			"checksumSHA1": "Pc2ORQp+VY3Un/dkh4QwLC7R6lE=",
 			"path": "github.com/BurntSushi/toml",
 			"revision": "a368813c5e648fee92e5f6c30e3944ff9d5e8895",
 			"revisionTime": "2017-06-26T11:06:00Z"
 		},
 		{
-			"checksumSHA1": "Lps/+JqMRVlrXgO/+cazYcfsglg=",
+			"checksumSHA1": "dvabztWVQX8f6oMLRyv4dLH+TGY=",
 			"origin": "github.com/stretchr/testify/vendor/github.com/davecgh/go-spew/spew",
 			"path": "github.com/davecgh/go-spew/spew",
 			"revision": "f35b8ab0b5a2cef36673838d662e249dd9c94686",
 			"revisionTime": "2018-05-06T18:05:49Z"
 		},
 		{
-			"checksumSHA1": "R3yk3OJzuq4MVfVGX5AhkkYv1ko=",
+			"checksumSHA1": "LuFv4/jlrmFNnDb/5SCSEPAM9vU=",
 			"origin": "github.com/stretchr/testify/vendor/github.com/pmezard/go-difflib/difflib",
 			"path": "github.com/pmezard/go-difflib/difflib",
 			"revision": "f35b8ab0b5a2cef36673838d662e249dd9c94686",
 			"revisionTime": "2018-05-06T18:05:49Z"
 		},
 		{
-			"checksumSHA1": "vUkCXzz1g+JkC28QaurRU/Q+whI=",
+			"checksumSHA1": "mVse81rphxcTRDHBRG1fZnfwJ8w=",
 			"path": "github.com/sirupsen/logrus",
 			"revision": "f3df9aeffda7c12bd9f5a03f9251d75d35993165",
 			"revisionTime": "2018-09-08T09:18:16Z"
 		},
 		{
-			"checksumSHA1": "zUU/5ngbbNgOmi63Y5njMPI4BDo=",
+			"checksumSHA1": "c6pbpF7eowwO59phRTpF8cQ80Z0=",
 			"path": "github.com/stretchr/testify/assert",
 			"revision": "f35b8ab0b5a2cef36673838d662e249dd9c94686",
 			"revisionTime": "2018-05-06T18:05:49Z"
@@ -67,7 +67,7 @@
 			"revisionTime": "2018-09-07T20:16:59Z"
 		},
 		{
-			"checksumSHA1": "2FnVZ1894IO0AC4WA2UCvzlGOTQ=",
+			"checksumSHA1": "TM3Neoy1xRAKyZYMGzKc41sDFW4=",
 			"path": "gopkg.in/natefinch/lumberjack.v2",
 			"revision": "a96e63847dc3c67d17befa69c303767e2f84e54f",
 			"revisionTime": "2017-05-31T16:03:50Z"
