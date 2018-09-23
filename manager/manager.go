@@ -12,10 +12,11 @@ import (
 	"time"
 
 	"MockApiHub/api"
-	"MockApiHub/config"
 	"MockApiHub/log"
-	"MockApiHub/ref"
-	"MockApiHub/str"
+
+	"github.com/wcsanders1/MockApiHub/config"
+	"github.com/wcsanders1/MockApiHub/ref"
+	"github.com/wcsanders1/MockApiHub/str"
 
 	"github.com/BurntSushi/toml"
 	"github.com/sirupsen/logrus"

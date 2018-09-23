@@ -10,58 +10,9 @@
 			"revisionTime": "2018-09-22T21:38:11Z"
 		},
 		{
-			"checksumSHA1": "bzT/bcuuYAL/TfDHui7NWDz74LU=",
-			"origin": "github.com/wcsanders1/MockApiHub/config",
-			"path": "MockApiHub/config",
-			"revision": "6da687d106150327fb88640b516188071225a96d",
-			"revisionTime": "2018-09-22T21:38:11Z"
-		},
-		{
-			"checksumSHA1": "WB+rUB2OEbwkZzS6qUA+dx4cieY=",
-			"origin": "github.com/wcsanders1/MockApiHub/json",
-			"path": "MockApiHub/json",
-			"revision": "6da687d106150327fb88640b516188071225a96d",
-			"revisionTime": "2018-09-22T21:38:11Z"
-		},
-		{
 			"checksumSHA1": "lusR8bhBIHLYgsFoVg2o+Ic40zs=",
 			"origin": "github.com/wcsanders1/MockApiHub/log",
 			"path": "MockApiHub/log",
-			"revision": "6da687d106150327fb88640b516188071225a96d",
-			"revisionTime": "2018-09-22T21:38:11Z"
-		},
-		{
-			"checksumSHA1": "XR3dMcqBhOOp+RruHmIgtEpN1CM=",
-			"origin": "github.com/wcsanders1/MockApiHub/manager",
-			"path": "MockApiHub/manager",
-			"revision": "6da687d106150327fb88640b516188071225a96d",
-			"revisionTime": "2018-09-22T21:38:11Z"
-		},
-		{
-			"checksumSHA1": "yH8AKyPh+XUCSDTlP35dhFmHp+w=",
-			"origin": "github.com/wcsanders1/MockApiHub/query",
-			"path": "MockApiHub/query",
-			"revision": "6da687d106150327fb88640b516188071225a96d",
-			"revisionTime": "2018-09-22T21:38:11Z"
-		},
-		{
-			"checksumSHA1": "qdTnxOvgKADL7NPuGRTIHl7corA=",
-			"origin": "github.com/wcsanders1/MockApiHub/ref",
-			"path": "MockApiHub/ref",
-			"revision": "6da687d106150327fb88640b516188071225a96d",
-			"revisionTime": "2018-09-22T21:38:11Z"
-		},
-		{
-			"checksumSHA1": "zvVNwrHK2M9GmPTVzI70eP15v6s=",
-			"origin": "github.com/wcsanders1/MockApiHub/route",
-			"path": "MockApiHub/route",
-			"revision": "6da687d106150327fb88640b516188071225a96d",
-			"revisionTime": "2018-09-22T21:38:11Z"
-		},
-		{
-			"checksumSHA1": "oKSs1ihIKab485Mj2dpMOQ5Updw=",
-			"origin": "github.com/wcsanders1/MockApiHub/str",
-			"path": "MockApiHub/str",
 			"revision": "6da687d106150327fb88640b516188071225a96d",
 			"revisionTime": "2018-09-22T21:38:11Z"
 		},

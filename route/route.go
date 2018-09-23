@@ -7,8 +7,8 @@ import (
 	"path"
 	"strings"
 
-	"MockApiHub/query"
-	"MockApiHub/str"
+	"github.com/wcsanders1/MockApiHub/query"
+	"github.com/wcsanders1/MockApiHub/str"
 )
 
 type (
