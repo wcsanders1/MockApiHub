@@ -6,10 +6,9 @@ import (
 	"strings"
 
 	"MockApiHub/api"
+	"MockApiHub/config"
 	"MockApiHub/log"
-
-	"github.com/wcsanders1/MockApiHub/config"
-	"github.com/wcsanders1/MockApiHub/ref"
+	"MockApiHub/ref"
 )
 
 type apiDisplay struct {

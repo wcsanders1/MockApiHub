@@ -3,50 +3,99 @@
 	"ignore": "test",
 	"package": [
 		{
-			"checksumSHA1": "Ar8enCfIlUtqpU1JD8yHFmmWTP0=",
+			"checksumSHA1": "E28wYFTSrIqdPRdlBkoIgTPYZn8=",
+			"origin": "github.com/wcsanders1/MockApiHub/api",
+			"path": "MockApiHub/api",
+			"revision": "6da687d106150327fb88640b516188071225a96d",
+			"revisionTime": "2018-09-22T21:38:11Z"
+		},
+		{
+			"checksumSHA1": "bzT/bcuuYAL/TfDHui7NWDz74LU=",
+			"origin": "github.com/wcsanders1/MockApiHub/config",
+			"path": "MockApiHub/config",
+			"revision": "6da687d106150327fb88640b516188071225a96d",
+			"revisionTime": "2018-09-22T21:38:11Z"
+		},
+		{
+			"checksumSHA1": "WB+rUB2OEbwkZzS6qUA+dx4cieY=",
+			"origin": "github.com/wcsanders1/MockApiHub/json",
+			"path": "MockApiHub/json",
+			"revision": "6da687d106150327fb88640b516188071225a96d",
+			"revisionTime": "2018-09-22T21:38:11Z"
+		},
+		{
+			"checksumSHA1": "lusR8bhBIHLYgsFoVg2o+Ic40zs=",
 			"origin": "github.com/wcsanders1/MockApiHub/log",
 			"path": "MockApiHub/log",
 			"revision": "6da687d106150327fb88640b516188071225a96d",
 			"revisionTime": "2018-09-22T21:38:11Z"
 		},
 		{
-			"checksumSHA1": "Pc2ORQp+VY3Un/dkh4QwLC7R6lE=",
+			"checksumSHA1": "XR3dMcqBhOOp+RruHmIgtEpN1CM=",
+			"origin": "github.com/wcsanders1/MockApiHub/manager",
+			"path": "MockApiHub/manager",
+			"revision": "6da687d106150327fb88640b516188071225a96d",
+			"revisionTime": "2018-09-22T21:38:11Z"
+		},
+		{
+			"checksumSHA1": "yH8AKyPh+XUCSDTlP35dhFmHp+w=",
+			"origin": "github.com/wcsanders1/MockApiHub/query",
+			"path": "MockApiHub/query",
+			"revision": "6da687d106150327fb88640b516188071225a96d",
+			"revisionTime": "2018-09-22T21:38:11Z"
+		},
+		{
+			"checksumSHA1": "qdTnxOvgKADL7NPuGRTIHl7corA=",
+			"origin": "github.com/wcsanders1/MockApiHub/ref",
+			"path": "MockApiHub/ref",
+			"revision": "6da687d106150327fb88640b516188071225a96d",
+			"revisionTime": "2018-09-22T21:38:11Z"
+		},
+		{
+			"checksumSHA1": "zvVNwrHK2M9GmPTVzI70eP15v6s=",
+			"origin": "github.com/wcsanders1/MockApiHub/route",
+			"path": "MockApiHub/route",
+			"revision": "6da687d106150327fb88640b516188071225a96d",
+			"revisionTime": "2018-09-22T21:38:11Z"
+		},
+		{
+			"checksumSHA1": "oKSs1ihIKab485Mj2dpMOQ5Updw=",
+			"origin": "github.com/wcsanders1/MockApiHub/str",
+			"path": "MockApiHub/str",
+			"revision": "6da687d106150327fb88640b516188071225a96d",
+			"revisionTime": "2018-09-22T21:38:11Z"
+		},
+		{
+			"checksumSHA1": "rcoUTEGR7KVr963l6P1rlMaYCzA=",
 			"path": "github.com/BurntSushi/toml",
 			"revision": "a368813c5e648fee92e5f6c30e3944ff9d5e8895",
 			"revisionTime": "2017-06-26T11:06:00Z"
 		},
 		{
-			"checksumSHA1": "dvabztWVQX8f6oMLRyv4dLH+TGY=",
+			"checksumSHA1": "Lps/+JqMRVlrXgO/+cazYcfsglg=",
 			"origin": "github.com/stretchr/testify/vendor/github.com/davecgh/go-spew/spew",
 			"path": "github.com/davecgh/go-spew/spew",
 			"revision": "f35b8ab0b5a2cef36673838d662e249dd9c94686",
 			"revisionTime": "2018-05-06T18:05:49Z"
 		},
 		{
-			"checksumSHA1": "LuFv4/jlrmFNnDb/5SCSEPAM9vU=",
+			"checksumSHA1": "R3yk3OJzuq4MVfVGX5AhkkYv1ko=",
 			"origin": "github.com/stretchr/testify/vendor/github.com/pmezard/go-difflib/difflib",
 			"path": "github.com/pmezard/go-difflib/difflib",
 			"revision": "f35b8ab0b5a2cef36673838d662e249dd9c94686",
 			"revisionTime": "2018-05-06T18:05:49Z"
 		},
 		{
-			"checksumSHA1": "mVse81rphxcTRDHBRG1fZnfwJ8w=",
+			"checksumSHA1": "vUkCXzz1g+JkC28QaurRU/Q+whI=",
 			"path": "github.com/sirupsen/logrus",
 			"revision": "f3df9aeffda7c12bd9f5a03f9251d75d35993165",
 			"revisionTime": "2018-09-08T09:18:16Z"
 		},
 		{
-			"checksumSHA1": "c6pbpF7eowwO59phRTpF8cQ80Z0=",
+			"checksumSHA1": "zUU/5ngbbNgOmi63Y5njMPI4BDo=",
 			"path": "github.com/stretchr/testify/assert",
 			"revision": "f35b8ab0b5a2cef36673838d662e249dd9c94686",
 			"revisionTime": "2018-05-06T18:05:49Z"
-		},
-		{
-			"checksumSHA1": "NGu2VhSJGAVYkNKhZe3+vf/K5ZY=",
-			"origin": "github.com/wcsanders1/MockApiHub/api",
-			"path": "MockApiHub/api",
-			"revision": "6da687d106150327fb88640b516188071225a96d",
-			"revisionTime": "2018-09-22T21:38:11Z"
 		},
 		{
 			"checksumSHA1": "BGm8lKZmvJbf/YOJLeL1rw2WVjA=",
@@ -67,7 +116,7 @@
 			"revisionTime": "2018-09-07T20:16:59Z"
 		},
 		{
-			"checksumSHA1": "TM3Neoy1xRAKyZYMGzKc41sDFW4=",
+			"checksumSHA1": "2FnVZ1894IO0AC4WA2UCvzlGOTQ=",
 			"path": "gopkg.in/natefinch/lumberjack.v2",
 			"revision": "a96e63847dc3c67d17befa69c303767e2f84e54f",
 			"revisionTime": "2017-05-31T16:03:50Z"

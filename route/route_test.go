@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/wcsanders1/MockApiHub/str"
+	"MockApiHub/str"
 
 	"github.com/stretchr/testify/assert"
 )

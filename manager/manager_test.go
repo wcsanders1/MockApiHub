@@ -3,11 +3,10 @@ package manager
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-
 	"MockApiHub/api"
+	"MockApiHub/config"
 
-	"github.com/wcsanders1/MockApiHub/config"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestIsAPIConfig(t *testing.T) {
