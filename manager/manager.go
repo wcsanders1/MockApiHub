@@ -12,9 +12,9 @@ import (
 	"time"
 
 	"MockApiHub/api"
-	"MockApiHub/config"
 	"MockApiHub/log"
 
+	"github.com/wcsanders1/MockApiHub/config"
 	"github.com/wcsanders1/MockApiHub/ref"
 	"github.com/wcsanders1/MockApiHub/str"
 
