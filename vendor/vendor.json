@@ -36,8 +36,8 @@
 		},
 		{
 			"checksumSHA1": "Ar8enCfIlUtqpU1JD8yHFmmWTP0=",
-			"path": "github.com/wcsanders1/MockApiHub/log",
-			"origin": "MockApiHub/log",
+			"origin": "github.com/wcsanders1/MockApiHub/log",
+			"path": "MockApiHub/log",
 			"revision": "6da687d106150327fb88640b516188071225a96d",
 			"revisionTime": "2018-09-22T21:38:11Z"
 		},
