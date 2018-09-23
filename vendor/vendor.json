@@ -10,6 +10,13 @@
 			"revisionTime": "2018-09-22T21:38:11Z"
 		},
 		{
+			"checksumSHA1": "bzT/bcuuYAL/TfDHui7NWDz74LU=",
+			"origin": "github.com/wcsanders1/MockApiHub/config",
+			"path": "MockApiHub/config",
+			"revision": "2a9ce3d2608b9b2ba6f51aa3e34e6f9b2c3b6fc8",
+			"revisionTime": "2018-09-23T19:59:22Z"
+		},
+		{
 			"checksumSHA1": "lusR8bhBIHLYgsFoVg2o+Ic40zs=",
 			"origin": "github.com/wcsanders1/MockApiHub/log",
 			"path": "MockApiHub/log",

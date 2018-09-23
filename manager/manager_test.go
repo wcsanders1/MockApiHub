@@ -4,8 +4,7 @@ import (
 	"testing"
 
 	"MockApiHub/api"
-
-	"github.com/wcsanders1/MockApiHub/config"
+	"MockApiHub/config"
 
 	"github.com/stretchr/testify/assert"
 )

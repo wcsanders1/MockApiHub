@@ -9,9 +9,9 @@ import (
 	"strings"
 	"time"
 
+	"MockApiHub/config"
 	"MockApiHub/log"
 
-	"github.com/wcsanders1/MockApiHub/config"
 	"github.com/wcsanders1/MockApiHub/json"
 	"github.com/wcsanders1/MockApiHub/ref"
 	"github.com/wcsanders1/MockApiHub/route"

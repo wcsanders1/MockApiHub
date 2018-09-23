@@ -5,7 +5,8 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/wcsanders1/MockApiHub/config"
+	"MockApiHub/config"
+
 	"github.com/wcsanders1/MockApiHub/manager"
 
 	"github.com/BurntSushi/toml"
