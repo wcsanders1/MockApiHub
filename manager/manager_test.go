@@ -3,7 +3,7 @@ package manager
 import (
 	"testing"
 
-	"MockApiHub/api"
+	"github.com/wcsanders1/MockApiHub/api"
 
 	"github.com/wcsanders1/MockApiHub/config"
 
