@@ -5,7 +5,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/wcsanders1/MockApiHub/api"
+	"MockApiHub/api"
+
 	"github.com/wcsanders1/MockApiHub/config"
 )
 
