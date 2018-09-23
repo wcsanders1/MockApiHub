@@ -3,12 +3,6 @@
 	"ignore": "test",
 	"package": [
 		{
-			"checksumSHA1": "lusR8bhBIHLYgsFoVg2o+Ic40zs=",
-			"path": "MockApiHub/log",
-			"revision": "24270ea60a46271e2572a1f54d78bb725ce6a350",
-			"revisionTime": "2018-09-23T18:58:03Z"
-		},
-		{
 			"checksumSHA1": "Pc2ORQp+VY3Un/dkh4QwLC7R6lE=",
 			"path": "github.com/BurntSushi/toml",
 			"revision": "a368813c5e648fee92e5f6c30e3944ff9d5e8895",
@@ -39,6 +33,12 @@
 			"path": "github.com/stretchr/testify/assert",
 			"revision": "f35b8ab0b5a2cef36673838d662e249dd9c94686",
 			"revisionTime": "2018-05-06T18:05:49Z"
+		},
+		{
+			"checksumSHA1": "Ar8enCfIlUtqpU1JD8yHFmmWTP0=",
+			"path": "github.com/wcsanders1/MockApiHub/log",
+			"revision": "6da687d106150327fb88640b516188071225a96d",
+			"revisionTime": "2018-09-22T21:38:11Z"
 		},
 		{
 			"checksumSHA1": "BGm8lKZmvJbf/YOJLeL1rw2WVjA=",
