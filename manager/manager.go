@@ -12,9 +12,8 @@ import (
 	"time"
 
 	"github.com/wcsanders1/MockApiHub/api"
-	"github.com/wcsanders1/MockApiHub/log"
-
 	"github.com/wcsanders1/MockApiHub/config"
+	"github.com/wcsanders1/MockApiHub/log"
 	"github.com/wcsanders1/MockApiHub/ref"
 	"github.com/wcsanders1/MockApiHub/str"
 
