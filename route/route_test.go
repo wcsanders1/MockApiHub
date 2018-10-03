@@ -10,36 +10,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAddRouteToExistingBranch(t *testing.T) {
-	route := "test/route"
-	frags := strings.Split(route, "/")
-	routeTree := NewRouteTree()
-	routeTree.AddRoute(route)
-
-	r1 := routeTree.addRouteToExistingBranch(frags)
+func TestNewRouteTree(t *testing.T) {
+	result := NewRouteTree()
 
 	assert := assert.New(t)
-	assert.NotNil(r1)
-	assert.Error(r1)
-
-	r2 := routeTree.addRouteToExistingBranch(frags[:len(frags)-1])
-
-	assert.Nil(r2)
-	assert.Equal(complete, routeTree.branches[frags[0]].routeType)
-
-	r3 := routeTree.addRouteToExistingBranch(frags[:len(frags)-1])
-
-	assert.Error(r3)
-
-	newRoute := fmt.Sprintf("%s/new", route)
-	newFrags := strings.Split(newRoute, "/")
-
-	r4 := routeTree.addRouteByFragments(newFrags)
-
-	assert.Nil(r4)
-	subTree := routeTree.branches[newFrags[0]].branches[newFrags[1]].branches[newFrags[2]]
-
-	assert.Equal(complete, subTree.routeType)
+	assert.Equal(incomplete, result.routeType)
+	assert.NotNil(result.branches)
 }
 
 func TestAddRoute(t *testing.T) {
@@ -173,6 +149,38 @@ func TestGetRoute(t *testing.T) {
 	assert.Equal(route6, result)
 	assert.Contains(params, "another_id")
 	assert.Equal("blah", params["another_id"])
+}
+
+func TestAddRouteToExistingBranch(t *testing.T) {
+	route := "test/route"
+	frags := strings.Split(route, "/")
+	routeTree := NewRouteTree()
+	routeTree.AddRoute(route)
+
+	r1 := routeTree.addRouteToExistingBranch(frags)
+
+	assert := assert.New(t)
+	assert.NotNil(r1)
+	assert.Error(r1)
+
+	r2 := routeTree.addRouteToExistingBranch(frags[:len(frags)-1])
+
+	assert.Nil(r2)
+	assert.Equal(complete, routeTree.branches[frags[0]].routeType)
+
+	r3 := routeTree.addRouteToExistingBranch(frags[:len(frags)-1])
+
+	assert.Error(r3)
+
+	newRoute := fmt.Sprintf("%s/new", route)
+	newFrags := strings.Split(newRoute, "/")
+
+	r4 := routeTree.addRouteByFragments(newFrags)
+
+	assert.Nil(r4)
+	subTree := routeTree.branches[newFrags[0]].branches[newFrags[1]].branches[newFrags[2]]
+
+	assert.Equal(complete, subTree.routeType)
 }
 
 func TestDuplicateParamsExist(t *testing.T) {
