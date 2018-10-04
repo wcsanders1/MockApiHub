@@ -46,6 +46,13 @@ func TestAddRoute(t *testing.T) {
 
 	assert.Error(err)
 	assert.Empty(dupResult)
+
+	emptyURL := ""
+	emptyResult, err := routeTree.AddRoute(emptyURL)
+
+	assert.Empty(emptyResult)
+	assert.NotEmpty(err)
+	assert.Error(err)
 }
 
 func TestGetRoute(t *testing.T) {
