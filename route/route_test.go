@@ -156,6 +156,14 @@ func TestGetRoute(t *testing.T) {
 	assert.Equal(route6, result)
 	assert.Contains(params, "another_id")
 	assert.Equal("blah", params["another_id"])
+
+	emptyURL := ""
+	emptyResult, params, err := routeTree.GetRoute(emptyURL)
+
+	assert.Empty(emptyResult)
+	assert.Nil(params)
+	assert.NotNil(err)
+	assert.Error(err)
 }
 
 func TestAddRouteToExistingBranch(t *testing.T) {
@@ -188,6 +196,15 @@ func TestAddRouteToExistingBranch(t *testing.T) {
 	subTree := routeTree.branches[newFrags[0]].branches[newFrags[1]].branches[newFrags[2]]
 
 	assert.Equal(complete, subTree.routeType)
+}
+
+func TestAddRouteByFragments(t *testing.T) {
+	var frags []string
+	routeTree := NewRouteTree()
+	err := routeTree.addRouteByFragments(frags)
+
+	assert := assert.New(t)
+	assert.Nil(err)
 }
 
 func TestDuplicateParamsExist(t *testing.T) {

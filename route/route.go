@@ -64,10 +64,7 @@ func (tree *Tree) AddRoute(url string) (string, error) {
 		return "", fmt.Errorf("route %s already registered", url)
 	}
 
-	fragments, err := str.GetURLFragments(url)
-	if err != nil {
-		return "", err
-	}
+	fragments, _ := str.GetURLFragments(url)
 
 	if duplicateParamsExist(fragments) {
 		return "", fmt.Errorf("route has duplicate parameters: %v", fragments)
