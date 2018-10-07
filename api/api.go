@@ -9,10 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/wcsanders1/MockApiHub/log"
-
 	"github.com/wcsanders1/MockApiHub/config"
 	"github.com/wcsanders1/MockApiHub/json"
+	"github.com/wcsanders1/MockApiHub/log"
 	"github.com/wcsanders1/MockApiHub/ref"
 	"github.com/wcsanders1/MockApiHub/route"
 	"github.com/wcsanders1/MockApiHub/str"
@@ -152,11 +151,12 @@ func (api *API) Shutdown() error {
 }
 
 func (api *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	path, params, err := api.routeTree.GetRoute(str.CleanURL(r.URL.String()))
+	path, params, err := api.routeTree.GetRoute(str.CleanURL(r.URL.Path))
 	contextLogger := api.log.WithFields(logrus.Fields{
 		log.FuncField: ref.GetFuncName(),
 		log.PathField: path,
 		"params":      params,
+		"query":       r.URL.Query(),
 	})
 
 	if err != nil {
