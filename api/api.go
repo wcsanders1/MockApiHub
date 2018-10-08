@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/wcsanders1/MockApiHub/config"
+	"github.com/wcsanders1/MockApiHub/file"
 	"github.com/wcsanders1/MockApiHub/json"
 	"github.com/wcsanders1/MockApiHub/log"
 	"github.com/wcsanders1/MockApiHub/ref"
@@ -28,6 +29,7 @@ type API struct {
 	routeTree  *route.Tree
 	httpConfig config.HTTP
 	log        *logrus.Entry
+	file       file.IBasicOps
 }
 
 const apiDir = "./api/apis"
@@ -56,6 +58,7 @@ func NewAPI(config *config.APIConfig) (*API, error) {
 	api.handlers = make(map[string]map[string]func(http.ResponseWriter, *http.Request))
 	api.routeTree = route.NewRouteTree()
 	api.httpConfig = config.HTTP
+	api.file = &file.BasicOps{}
 
 	contextLogger.Info("successfully created mock API")
 	return api, nil
@@ -97,7 +100,7 @@ func (api *API) Register(dir, defaultCert, defaultKey string) error {
 		}
 
 		api.handlers[method][registeredRoute] = func(w http.ResponseWriter, r *http.Request) {
-			json, err := json.GetJSON(fmt.Sprintf("%s/%s/%s", apiDir, dir, file))
+			json, err := json.GetJSON(fmt.Sprintf("%s/%s/%s", apiDir, dir, file), api.file)
 			if err != nil {
 				contextLoggerEndpoint.WithError(err).Error("error serving from this endpoint")
 			}

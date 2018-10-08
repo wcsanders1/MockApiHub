@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
-	"os"
+
+	"github.com/wcsanders1/MockApiHub/file"
 )
 
 // GetJSON returns a []byte of valid JSON from a file
-func GetJSON(filePath string) ([]byte, error) {
-	jsonFile, err := os.Open(filePath)
+func GetJSON(filePath string, file file.IBasicOps) ([]byte, error) {
+	jsonFile, err := file.Open(filePath)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -18,7 +18,7 @@ func GetJSON(filePath string) ([]byte, error) {
 
 	defer jsonFile.Close()
 
-	bytes, err := ioutil.ReadAll(jsonFile)
+	bytes, err := file.ReadAll(jsonFile)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
