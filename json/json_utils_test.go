@@ -5,9 +5,12 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
-type fakeBasicOps struct{}
+type fakeBasicOps struct {
+	mock.Mock
+}
 
 var goodJSON = []byte(`{
 	"JSON": "good",
@@ -18,17 +21,28 @@ var badJSON = []byte(`{
 	"test": "good"
 }`)
 
-func (ops *fakeBasicOps) Open(file string) (*os.File, error) {
-	return os.NewFile(1, "fakefile"), nil
-}
-
 func (ops *fakeBasicOps) ReadAll(file *os.File) ([]byte, error) {
-	return goodJSON, nil
+	args := ops.Called(file)
+	return args.Get(0).([]byte), args.Error(1)
 }
 
-// TODO: Finish this
-func TestGetJSON(t *testing.T) {
+func (ops *fakeBasicOps) Open(file string) (*os.File, error) {
+	args := ops.Called(file)
+	return args.Get(0).(*os.File), args.Error(1)
+}
 
+func TestGetJSON(t *testing.T) {
+	filePath := "testpath"
+	basicOps := new(fakeBasicOps)
+	basicOps.On("Open", mock.AnythingOfType("string")).Return(os.NewFile(1, "fakefile"), nil)
+	basicOps.On("ReadAll", mock.AnythingOfType("*os.File")).Return(goodJSON, nil)
+
+	result, err := GetJSON(filePath, basicOps)
+
+	assert := assert.New(t)
+	assert.NotNil(result)
+	assert.Nil(err)
+	basicOps.AssertCalled(t, "Open", filePath)
 }
 
 func TestIsValidJSON(t *testing.T) {
