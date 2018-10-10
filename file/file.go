@@ -10,6 +10,7 @@ type (
 	IBasicOps interface {
 		Open(string) (*os.File, error)
 		ReadAll(*os.File) ([]byte, error)
+		ReadDir(dir string) ([]os.FileInfo, error)
 	}
 
 	// BasicOps offers a real implementation of IBasicOpc
@@ -24,4 +25,9 @@ func (ops *BasicOps) Open(file string) (*os.File, error) {
 // ReadAll reads a file to its end
 func (ops *BasicOps) ReadAll(file *os.File) ([]byte, error) {
 	return ioutil.ReadAll(file)
+}
+
+// ReadDir reads a directory and returns an array of FileInfo
+func (ops *BasicOps) ReadDir(dir string) ([]os.FileInfo, error) {
+	return ioutil.ReadDir(dir)
 }

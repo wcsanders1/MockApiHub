@@ -32,6 +32,11 @@ func (ops *fakeBasicOps) Open(file string) (*os.File, error) {
 	return args.Get(0).(*os.File), args.Error(1)
 }
 
+func (ops *fakeBasicOps) ReadDir(dir string) ([]os.FileInfo, error) {
+	args := ops.Called(dir)
+	return args.Get(0).([]os.FileInfo), args.Error(1)
+}
+
 func TestGetJSON(t *testing.T) {
 	filePath := "testpath"
 	basicOpsPass := new(fakeBasicOps)

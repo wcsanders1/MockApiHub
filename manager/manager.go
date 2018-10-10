@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -236,7 +235,7 @@ func (mgr *Manager) loadMockAPIs() error {
 	})
 	contextLogger.Debug("loading mock APIs")
 
-	files, err := ioutil.ReadDir(apiDir)
+	files, err := mgr.file.ReadDir(apiDir)
 	if err != nil {
 		contextLogger.WithError(err).Error("error reading API directory")
 		return err
@@ -245,7 +244,7 @@ func (mgr *Manager) loadMockAPIs() error {
 	for _, file := range files {
 		contextLoggerFile := contextLogger.WithField("file", file.Name())
 
-		apiConfig, err := getAPIConfig(file)
+		apiConfig, err := mgr.getAPIConfig(file)
 		if err != nil {
 			contextLoggerFile.WithError(err).Error("error getting API config from file -- moving on to next mock API file")
 			continue
@@ -291,33 +290,21 @@ func (mgr *Manager) apiByPortExists(port int) bool {
 	return false
 }
 
-func createManagerServer(port int, mgr *Manager) (*http.Server, error) {
-	if port == 0 {
-		return nil, errors.New("no port provided")
-	}
-
-	server := &http.Server{
-		Addr:    str.GetPort(port),
-		Handler: mgr,
-	}
-	return server, nil
-}
-
-func getAPIConfig(file os.FileInfo) (*config.APIConfig, error) {
+func (mgr *Manager) getAPIConfig(file os.FileInfo) (*config.APIConfig, error) {
 	if !file.IsDir() || !isAPI(file.Name()) {
 		return nil, errors.New("not a mock API directory")
 	}
 
 	dir := file.Name()
-	apiConfig, err := getAPIConfigFromDir(dir)
+	apiConfig, err := mgr.getAPIConfigFromDir(dir)
 	if err != nil {
 		return nil, err
 	}
 	return apiConfig, nil
 }
 
-func getAPIConfigFromDir(dir string) (*config.APIConfig, error) {
-	files, _ := ioutil.ReadDir(fmt.Sprintf("%s/%s", apiDir, dir))
+func (mgr *Manager) getAPIConfigFromDir(dir string) (*config.APIConfig, error) {
+	files, _ := mgr.file.ReadDir(fmt.Sprintf("%s/%s", apiDir, dir))
 	for _, file := range files {
 		if isAPIConfig(file.Name()) {
 			apiConfig, err := decodeAPIConfig(dir, file.Name())
@@ -328,6 +315,18 @@ func getAPIConfigFromDir(dir string) (*config.APIConfig, error) {
 		}
 	}
 	return nil, nil
+}
+
+func createManagerServer(port int, mgr *Manager) (*http.Server, error) {
+	if port == 0 {
+		return nil, errors.New("no port provided")
+	}
+
+	server := &http.Server{
+		Addr:    str.GetPort(port),
+		Handler: mgr,
+	}
+	return server, nil
 }
 
 func decodeAPIConfig(dir string, fileName string) (*config.APIConfig, error) {
