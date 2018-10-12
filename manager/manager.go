@@ -17,7 +17,6 @@ import (
 	"github.com/wcsanders1/MockApiHub/ref"
 	"github.com/wcsanders1/MockApiHub/str"
 
-	"github.com/BurntSushi/toml"
 	"github.com/sirupsen/logrus"
 )
 
@@ -307,7 +306,7 @@ func (mgr *Manager) getAPIConfigFromDir(dir string) (*config.APIConfig, error) {
 	files, _ := mgr.file.ReadDir(fmt.Sprintf("%s/%s", apiDir, dir))
 	for _, file := range files {
 		if isAPIConfig(file.Name()) {
-			apiConfig, err := decodeAPIConfig(dir, file.Name())
+			apiConfig, err := mgr.decodeAPIConfig(dir, file.Name())
 			if err != nil {
 				return nil, err
 			}
@@ -315,6 +314,15 @@ func (mgr *Manager) getAPIConfigFromDir(dir string) (*config.APIConfig, error) {
 		}
 	}
 	return nil, nil
+}
+
+func (mgr *Manager) decodeAPIConfig(dir string, fileName string) (*config.APIConfig, error) {
+	path := fmt.Sprintf("%s/%s/%s", apiDir, dir, fileName)
+	var config config.APIConfig
+	if _, err := mgr.file.DecodeFile(path, &config); err != nil {
+		return nil, err
+	}
+	return &config, nil
 }
 
 func createManagerServer(port int, mgr *Manager) (*http.Server, error) {
@@ -327,15 +335,6 @@ func createManagerServer(port int, mgr *Manager) (*http.Server, error) {
 		Handler: mgr,
 	}
 	return server, nil
-}
-
-func decodeAPIConfig(dir string, fileName string) (*config.APIConfig, error) {
-	path := fmt.Sprintf("%s/%s/%s", apiDir, dir, fileName)
-	var config config.APIConfig
-	if _, err := toml.DecodeFile(path, &config); err != nil {
-		return nil, err
-	}
-	return &config, nil
 }
 
 func isAPI(dir string) bool {

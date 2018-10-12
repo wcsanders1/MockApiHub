@@ -4,6 +4,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/BurntSushi/toml"
+
 	"github.com/stretchr/testify/mock"
 )
 
@@ -18,6 +20,8 @@ type (
 		mock.Mock
 	}
 )
+
+//************************  IBasicOps ********************************************
 
 // ReadAll is a fake implementation of IBasicOps.ReadAll()
 func (ops *BasicOps) ReadAll(file *os.File) ([]byte, error) {
@@ -36,6 +40,16 @@ func (ops *BasicOps) ReadDir(dir string) ([]os.FileInfo, error) {
 	args := ops.Called(dir)
 	return args.Get(0).([]os.FileInfo), args.Error(1)
 }
+
+// DecodeFile is a fake implementation of IBasicOps.DecodeFile()
+func (ops *BasicOps) DecodeFile(file string, v interface{}) (toml.MetaData, error) {
+	args := ops.Called(file, v)
+	return args.Get(0).(toml.MetaData), args.Error(1)
+}
+
+//*********************************************************************************
+
+//************************  os.FileInfo *******************************************
 
 // Name is a fake implementation of os.FileInfo.Name()
 func (fi *FileInfo) Name() string {
@@ -72,3 +86,5 @@ func (fi *FileInfo) Sys() interface{} {
 	args := fi.Called()
 	return args.Get(0).(interface{})
 }
+
+//*********************************************************************************
