@@ -6,11 +6,23 @@ import (
 	"os"
 	"testing"
 
+	"github.com/wcsanders1/MockApiHub/file"
+
 	"github.com/BurntSushi/toml"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/wcsanders1/MockApiHub/fake"
 )
+
+func TestNewConfigManager(t *testing.T) {
+	result := NewConfigManager()
+
+	assert := assert.New(t)
+	assert.NotNil(result)
+	assert.IsType(&Manager{}, result)
+	assert.NotNil(result.file)
+	assert.IsType(&file.BasicOps{}, result.file)
+}
 
 func TestIsAPIConfig(t *testing.T) {
 	fileName := "test.toml"
