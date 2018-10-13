@@ -3,10 +3,8 @@ package manager
 import (
 	"context"
 	"errors"
-	"fmt"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -28,6 +26,7 @@ type Manager struct {
 	hubAPIHandlers map[string]map[string]func(http.ResponseWriter, *http.Request)
 	log            *logrus.Entry
 	file           file.IBasicOps
+	configManager  config.IManager
 }
 
 const (
@@ -36,27 +35,28 @@ const (
 )
 
 // NewManager returns an instance of the Manager type
-func NewManager(config *config.AppConfig) (*Manager, error) {
+func NewManager(appConfig *config.AppConfig) (*Manager, error) {
 	mgr := &Manager{}
-	mgr.log = log.NewLogger(&config.Log, "manager").WithFields(logrus.Fields{
-		log.PortField:     config.HTTP.Port,
-		log.UseTLSField:   config.HTTP.UseTLS,
-		log.CertFileField: config.HTTP.CertFile,
-		log.KeyFileField:  config.HTTP.KeyFile,
+	mgr.log = log.NewLogger(&appConfig.Log, "manager").WithFields(logrus.Fields{
+		log.PortField:     appConfig.HTTP.Port,
+		log.UseTLSField:   appConfig.HTTP.UseTLS,
+		log.CertFileField: appConfig.HTTP.CertFile,
+		log.KeyFileField:  appConfig.HTTP.KeyFile,
 	})
 	contextLogger := mgr.log.WithField(log.FuncField, ref.GetFuncName())
 	contextLogger.Info("creating new manager")
 
-	server, err := createManagerServer(config.HTTP.Port, mgr)
+	server, err := createManagerServer(appConfig.HTTP.Port, mgr)
 	if err != nil {
 		contextLogger.WithError(err).Error("error creating manager")
 		return nil, err
 	}
 
-	mgr.config = config
+	mgr.config = appConfig
 	mgr.server = server
 	mgr.apis = make(map[string]*api.API)
 	mgr.file = &file.BasicOps{}
+	mgr.configManager = config.NewConfigManager()
 	contextLogger.Info("successfully created new manager")
 	return mgr, nil
 }
@@ -243,7 +243,7 @@ func (mgr *Manager) loadMockAPIs() error {
 	for _, file := range files {
 		contextLoggerFile := contextLogger.WithField("file", file.Name())
 
-		apiConfig, err := mgr.getAPIConfig(file)
+		apiConfig, err := mgr.configManager.GetAPIConfig(file)
 		if err != nil {
 			contextLoggerFile.WithError(err).Error("error getting API config from file -- moving on to next mock API file")
 			continue
@@ -289,42 +289,6 @@ func (mgr *Manager) apiByPortExists(port int) bool {
 	return false
 }
 
-func (mgr *Manager) getAPIConfig(file os.FileInfo) (*config.APIConfig, error) {
-	if !file.IsDir() || !isAPI(file.Name()) {
-		return nil, errors.New("not a mock API directory")
-	}
-
-	dir := file.Name()
-	apiConfig, err := mgr.getAPIConfigFromDir(dir)
-	if err != nil {
-		return nil, err
-	}
-	return apiConfig, nil
-}
-
-func (mgr *Manager) getAPIConfigFromDir(dir string) (*config.APIConfig, error) {
-	files, _ := mgr.file.ReadDir(fmt.Sprintf("%s/%s", apiDir, dir))
-	for _, file := range files {
-		if isAPIConfig(file.Name()) {
-			apiConfig, err := mgr.decodeAPIConfig(dir, file.Name())
-			if err != nil {
-				return nil, err
-			}
-			return apiConfig, nil
-		}
-	}
-	return nil, nil
-}
-
-func (mgr *Manager) decodeAPIConfig(dir string, fileName string) (*config.APIConfig, error) {
-	path := fmt.Sprintf("%s/%s/%s", apiDir, dir, fileName)
-	var config config.APIConfig
-	if _, err := mgr.file.DecodeFile(path, &config); err != nil {
-		return nil, err
-	}
-	return &config, nil
-}
-
 func createManagerServer(port int, mgr *Manager) (*http.Server, error) {
 	if port == 0 {
 		return nil, errors.New("no port provided")
@@ -335,13 +299,4 @@ func createManagerServer(port int, mgr *Manager) (*http.Server, error) {
 		Handler: mgr,
 	}
 	return server, nil
-}
-
-func isAPI(dir string) bool {
-	return len(dir) > 3 && dir[len(dir)-3:] == apiDirExt
-}
-
-func isAPIConfig(fileName string) bool {
-	ext := filepath.Ext(fileName)
-	return ext == ".toml"
 }
