@@ -1,12 +1,15 @@
 package manager
 
 import (
+	"os"
 	"testing"
 
 	"github.com/wcsanders1/MockApiHub/api"
 	"github.com/wcsanders1/MockApiHub/config"
+	"github.com/wcsanders1/MockApiHub/fake"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestNewManager(t *testing.T) {
@@ -77,4 +80,33 @@ func TestApiByPortExists(t *testing.T) {
 	result2 := mgr.apiByPortExists(testPort)
 	assert.True(result2)
 	assert.Nil(err3)
+}
+
+func TestLoadMockAPIs(t *testing.T) {
+	fileInfoCollection := []os.FileInfo{}
+	fileInfoInner := new(fake.FileInfo)
+	fileInfoInner.On("Name").Return("testconfig.toml")
+	fileInfoCollection = append(fileInfoCollection, fileInfoInner)
+
+	basicOpsIsAPI := new(fake.BasicOps)
+	basicOpsIsAPI.On("ReadDir", mock.AnythingOfType("string")).Return(fileInfoCollection, nil)
+
+	testAPIConfig := &config.APIConfig{
+		HTTP: config.HTTP{
+			Port: 4000,
+		},
+	}
+	configManager := new(fake.ConfigManager)
+	configManager.On("GetAPIConfig", mock.AnythingOfType("*fake.FileInfo")).Return(testAPIConfig, nil)
+
+	mgr := Manager{
+		file:          basicOpsIsAPI,
+		configManager: configManager,
+		log:           fake.GetFakeLogger(),
+		apis:          make(map[string]*api.API),
+	}
+
+	err := mgr.loadMockAPIs()
+	assert := assert.New(t)
+	assert.Nil(err)
 }
