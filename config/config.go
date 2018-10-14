@@ -77,11 +77,11 @@ func NewConfigManager() *Manager {
 
 // GetAPIConfig gets a mock API configuration from the disk
 func (mgr *Manager) GetAPIConfig(fileInfo os.FileInfo) (*APIConfig, error) {
-	if !fileInfo.IsDir() || !isAPI(fileInfo.Name()) {
+	dir := fileInfo.Name()
+	if !fileInfo.IsDir() || !isAPI(dir) {
 		return nil, errors.New("not a mock API directory")
 	}
 
-	dir := fileInfo.Name()
 	apiConfig, err := mgr.getAPIConfigFromDir(dir)
 	if err != nil {
 		return nil, err
