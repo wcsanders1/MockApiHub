@@ -7,6 +7,7 @@ import (
 	"github.com/wcsanders1/MockApiHub/api"
 	"github.com/wcsanders1/MockApiHub/config"
 	"github.com/wcsanders1/MockApiHub/fake"
+	"github.com/wcsanders1/MockApiHub/log"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -96,13 +97,13 @@ func TestLoadMockAPIs(t *testing.T) {
 			Port: 4000,
 		},
 	}
-	configManager := new(fake.ConfigManager)
+	configManager := new(config.FakeManager)
 	configManager.On("GetAPIConfig", mock.AnythingOfType("*fake.FileInfo")).Return(testAPIConfig, nil)
 
 	mgr := Manager{
 		file:          basicOpsIsAPI,
 		configManager: configManager,
-		log:           fake.GetFakeLogger(),
+		log:           log.GetFakeLogger(),
 		apis:          make(map[string]*api.API),
 	}
 

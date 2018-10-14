@@ -6,12 +6,12 @@ import (
 	"os"
 	"testing"
 
+	"github.com/wcsanders1/MockApiHub/fake"
 	"github.com/wcsanders1/MockApiHub/file"
 
 	"github.com/BurntSushi/toml"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"github.com/wcsanders1/MockApiHub/fake"
 )
 
 func TestNewConfigManager(t *testing.T) {
