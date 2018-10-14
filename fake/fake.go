@@ -4,8 +4,11 @@ import (
 	"os"
 	"time"
 
-	"github.com/BurntSushi/toml"
+	"github.com/wcsanders1/MockApiHub/config"
+	"github.com/wcsanders1/MockApiHub/log"
 
+	"github.com/BurntSushi/toml"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -19,9 +22,22 @@ type (
 	FileInfo struct {
 		mock.Mock
 	}
+
+	// ConfigManager offers a fake, mockable implementation of config.IManger
+	ConfigManager struct {
+		mock.Mock
+	}
 )
 
-//************************  IBasicOps ********************************************
+// GetFakeLogger returns a logger that does not log anything
+func GetFakeLogger() *logrus.Entry {
+	config := config.Log{
+		LoggingEnabled: false,
+	}
+	return log.NewLogger(&config, "fake")
+}
+
+//************************  IBasicOps *********************************************
 
 // ReadAll is a fake implementation of IBasicOps.ReadAll()
 func (ops *BasicOps) ReadAll(file *os.File) ([]byte, error) {
@@ -85,6 +101,16 @@ func (fi *FileInfo) IsDir() bool {
 func (fi *FileInfo) Sys() interface{} {
 	args := fi.Called()
 	return args.Get(0).(interface{})
+}
+
+//*********************************************************************************
+
+//************************  IManager **********************************************
+
+// GetAPIConfig is a fake implementation of config.GetAPIConfig()
+func (mgr *ConfigManager) GetAPIConfig(file os.FileInfo) (*config.APIConfig, error) {
+	args := mgr.Called(file)
+	return args.Get(0).(*config.APIConfig), args.Error(1)
 }
 
 //*********************************************************************************
