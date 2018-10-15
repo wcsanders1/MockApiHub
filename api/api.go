@@ -20,17 +20,29 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// API contains information for an API
-type API struct {
-	baseURL    string
-	endpoints  map[string]config.Endpoint
-	server     *http.Server
-	handlers   map[string]map[string]func(http.ResponseWriter, *http.Request)
-	routeTree  *route.Tree
-	httpConfig config.HTTP
-	log        *logrus.Entry
-	file       file.IBasicOps
-}
+type (
+	// IAPI is an interface providing functionality to manage an API
+	IAPI interface {
+		Register(dir, defaultCert, defaultKey string) error
+		Shutdown() error
+		ServeHTTP(w http.ResponseWriter, r *http.Request)
+		GetPort() int
+		GetBaseURL() string
+		GetEndpoints() map[string]config.Endpoint
+	}
+
+	// API contains information for an API
+	API struct {
+		baseURL    string
+		endpoints  map[string]config.Endpoint
+		server     *http.Server
+		handlers   map[string]map[string]func(http.ResponseWriter, *http.Request)
+		routeTree  *route.Tree
+		httpConfig config.HTTP
+		log        *logrus.Entry
+		file       file.IBasicOps
+	}
+)
 
 const apiDir = "./api/apis"
 

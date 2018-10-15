@@ -1,6 +1,7 @@
 package manager
 
 import (
+	"errors"
 	"os"
 	"testing"
 
@@ -43,7 +44,7 @@ func TestApiByPortExists(t *testing.T) {
 	testPort := 4000
 
 	mgr := Manager{
-		apis: make(map[string]*api.API),
+		apis: make(map[string]api.IAPI),
 	}
 
 	firstAPIConfig := config.APIConfig{
@@ -104,10 +105,23 @@ func TestLoadMockAPIs(t *testing.T) {
 		file:          basicOpsIsAPI,
 		configManager: configManager,
 		log:           log.GetFakeLogger(),
-		apis:          make(map[string]*api.API),
+		apis:          make(map[string]api.IAPI),
 	}
 
 	err := mgr.loadMockAPIs()
 	assert := assert.New(t)
 	assert.Nil(err)
+
+	configManagerErr := new(config.FakeManager)
+	configManagerErr.On("GetAPIConfig", mock.AnythingOfType("*fake.FileInfo")).Return(testAPIConfig, errors.New(""))
+
+	mgrNoConfig := Manager{
+		file:          basicOpsIsAPI,
+		configManager: configManagerErr,
+		log:           log.GetFakeLogger(),
+		apis:          make(map[string]api.IAPI),
+	}
+
+	errNoConfig := mgrNoConfig.loadMockAPIs()
+	assert.Nil(errNoConfig)
 }

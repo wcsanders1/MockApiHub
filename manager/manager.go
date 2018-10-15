@@ -20,7 +20,7 @@ import (
 
 // Manager coordinates and controls the apis
 type Manager struct {
-	apis           map[string]*api.API
+	apis           map[string]api.IAPI
 	config         *config.AppConfig
 	server         *http.Server
 	hubAPIHandlers map[string]map[string]func(http.ResponseWriter, *http.Request)
@@ -54,7 +54,7 @@ func NewManager(appConfig *config.AppConfig) (*Manager, error) {
 
 	mgr.config = appConfig
 	mgr.server = server
-	mgr.apis = make(map[string]*api.API)
+	mgr.apis = make(map[string]api.IAPI)
 	mgr.file = &file.BasicOps{}
 	mgr.configManager = config.NewConfigManager()
 	contextLogger.Info("successfully created new manager")
