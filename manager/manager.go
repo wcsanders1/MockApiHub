@@ -273,8 +273,6 @@ func (mgr *Manager) loadMockAPIs() error {
 			mgr.apis[file.Name()] = api
 			continue
 		}
-
-		contextLoggerFileAPI.Warn("unable to load mock API")
 	}
 	contextLogger.Debug("finished loading mock APIs")
 	return nil

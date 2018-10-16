@@ -160,4 +160,25 @@ func TestLoadMockAPIs(t *testing.T) {
 	assert.Nil(errDupPort)
 	assert.Equal(1, len(mgrDupPort.apis))
 
+	testAPIConfigPortZero := &config.APIConfig{
+		HTTP: config.HTTP{
+			Port: 0,
+		},
+	}
+
+	configMgrPortZero := new(config.FakeManager)
+	configMgrPortZero.On("GetAPIConfig", mock.AnythingOfType("*fake.FileInfo")).Return(testAPIConfigPortZero, nil)
+	basicOpsPortZero := new(fake.BasicOps)
+	basicOpsPortZero.On("ReadDir", mock.AnythingOfType("string")).Return(fileInfoCollection, nil)
+
+	mgrPortZero := Manager{
+		file:          basicOpsPortZero,
+		configManager: configMgrPortZero,
+		log:           log.GetFakeLogger(),
+		apis:          make(map[string]api.IAPI),
+	}
+
+	errPortZero := mgrPortZero.loadMockAPIs()
+	assert.Nil(errPortZero)
+	assert.Empty(mgrPortZero.apis)
 }
