@@ -111,6 +111,7 @@ func TestLoadMockAPIs(t *testing.T) {
 	err := mgr.loadMockAPIs()
 	assert := assert.New(t)
 	assert.Nil(err)
+	configManager.AssertCalled(t, "GetAPIConfig", mock.AnythingOfType("*fake.FileInfo"))
 
 	configManagerErr := new(config.FakeManager)
 	configManagerErr.On("GetAPIConfig", mock.AnythingOfType("*fake.FileInfo")).Return(testAPIConfig, errors.New(""))
@@ -124,4 +125,39 @@ func TestLoadMockAPIs(t *testing.T) {
 
 	errNoConfig := mgrNoConfig.loadMockAPIs()
 	assert.Nil(errNoConfig)
+
+	basicOpsReadDirErr := new(fake.BasicOps)
+	basicOpsReadDirErr.On("ReadDir", mock.AnythingOfType("string")).Return([]os.FileInfo{}, errors.New(""))
+	configMgrReadDirErr := new(config.FakeManager)
+
+	mgrReadDirErr := Manager{
+		file:          basicOpsReadDirErr,
+		configManager: configMgrReadDirErr,
+		log:           log.GetFakeLogger(),
+	}
+
+	errReadDir := mgrReadDirErr.loadMockAPIs()
+	assert.Error(errReadDir)
+	configMgrReadDirErr.AssertNotCalled(t, "GetAPIConfig", mock.Anything)
+
+	configManagerDupPort := new(config.FakeManager)
+	configManagerDupPort.On("GetAPIConfig", mock.AnythingOfType("*fake.FileInfo")).Return(testAPIConfig, nil)
+	fileInfoInner2 := new(fake.FileInfo)
+	fileInfoInner2.On("Name").Return("testconfig2.toml")
+	fileInfoCollection = append(fileInfoCollection, fileInfoInner2)
+
+	basicOpsDupPort := new(fake.BasicOps)
+	basicOpsDupPort.On("ReadDir", mock.AnythingOfType("string")).Return(fileInfoCollection, nil)
+
+	mgrDupPort := Manager{
+		file:          basicOpsDupPort,
+		configManager: configManagerDupPort,
+		log:           log.GetFakeLogger(),
+		apis:          make(map[string]api.IAPI),
+	}
+
+	errDupPort := mgrDupPort.loadMockAPIs()
+	assert.Nil(errDupPort)
+	assert.Equal(1, len(mgrDupPort.apis))
+
 }
