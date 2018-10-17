@@ -222,7 +222,6 @@ func (mgr *Manager) registerMockAPIs() {
 		contextLoggerAPI.Debug("registering mock API")
 		if err := api.Register(dir, mgr.config.HTTP.CertFile, mgr.config.HTTP.KeyFile); err != nil {
 			contextLoggerAPI.WithError(err).Error("error registering mock API -- moving on to next mock API")
-			continue
 		}
 	}
 }

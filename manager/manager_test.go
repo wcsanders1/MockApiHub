@@ -182,3 +182,53 @@ func TestLoadMockAPIs(t *testing.T) {
 	assert.Nil(errPortZero)
 	assert.Empty(mgrPortZero.apis)
 }
+
+func TestRegisterMockAPIs(t *testing.T) {
+	baseURL := "baseURL"
+	port := 4000
+	certFile := "testCert"
+	keyFile := "testKey"
+	dir := "fakeAPI"
+	fakeAPI := new(api.FakeAPI)
+	fakeAPI.On("GetBaseURL").Return(baseURL)
+	fakeAPI.On("GetPort").Return(port)
+	fakeAPI.On("Register", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(nil)
+
+	apis := map[string]api.IAPI{
+		dir: fakeAPI,
+	}
+
+	fakeConfig := &config.AppConfig{
+		HTTP: config.HTTP{
+			CertFile: certFile,
+			KeyFile:  keyFile,
+		},
+	}
+
+	mgrNoErr := Manager{
+		apis:   apis,
+		config: fakeConfig,
+		log:    log.GetFakeLogger(),
+	}
+
+	mgrNoErr.registerMockAPIs()
+	fakeAPI.AssertCalled(t, "Register", dir, certFile, keyFile)
+
+	fakeAPIErr := new(api.FakeAPI)
+	fakeAPIErr.On("GetBaseURL").Return(baseURL)
+	fakeAPIErr.On("GetPort").Return(port)
+	fakeAPIErr.On("Register", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(errors.New(""))
+
+	apisErr := map[string]api.IAPI{
+		dir: fakeAPIErr,
+	}
+
+	mgrErr := Manager{
+		apis:   apisErr,
+		config: fakeConfig,
+		log:    log.GetFakeLogger(),
+	}
+
+	mgrErr.registerMockAPIs()
+	fakeAPIErr.AssertCalled(t, "Register", dir, certFile, keyFile)
+}
