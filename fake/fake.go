@@ -4,51 +4,15 @@ import (
 	"os"
 	"time"
 
-	"github.com/BurntSushi/toml"
 	"github.com/stretchr/testify/mock"
 )
 
 type (
-	// BasicOps offers a fake, mockable implementation of file.IBasicOps
-	BasicOps struct {
-		mock.Mock
-	}
-
 	// FileInfo offers a fake, mockable implementation of os.FileInfo
 	FileInfo struct {
 		mock.Mock
 	}
 )
-
-//************************  IBasicOps *********************************************
-
-// ReadAll is a fake implementation of IBasicOps.ReadAll()
-func (ops *BasicOps) ReadAll(file *os.File) ([]byte, error) {
-	args := ops.Called(file)
-	return args.Get(0).([]byte), args.Error(1)
-}
-
-// Open is a fake implementation of IBasicOps.Open()
-func (ops *BasicOps) Open(file string) (*os.File, error) {
-	args := ops.Called(file)
-	return args.Get(0).(*os.File), args.Error(1)
-}
-
-// ReadDir is a fake implementation of IBasicOps.ReadDir()
-func (ops *BasicOps) ReadDir(dir string) ([]os.FileInfo, error) {
-	args := ops.Called(dir)
-	return args.Get(0).([]os.FileInfo), args.Error(1)
-}
-
-// DecodeFile is a fake implementation of IBasicOps.DecodeFile()
-func (ops *BasicOps) DecodeFile(file string, v interface{}) (toml.MetaData, error) {
-	args := ops.Called(file, v)
-	return args.Get(0).(toml.MetaData), args.Error(1)
-}
-
-//*********************************************************************************
-
-//************************  os.FileInfo *******************************************
 
 // Name is a fake implementation of os.FileInfo.Name()
 func (fi *FileInfo) Name() string {
@@ -85,5 +49,3 @@ func (fi *FileInfo) Sys() interface{} {
 	args := fi.Called()
 	return args.Get(0).(interface{})
 }
-
-//*********************************************************************************
