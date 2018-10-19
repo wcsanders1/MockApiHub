@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/wcsanders1/MockApiHub/file"
+	"github.com/wcsanders1/MockApiHub/wrapper"
 )
 
 type (
@@ -59,7 +59,7 @@ type (
 
 	// Manager is a concrete implementation of IManager
 	Manager struct {
-		file file.IBasicOps
+		file wrapper.IFileOps
 	}
 )
 
@@ -71,7 +71,7 @@ const (
 // NewConfigManager returns a reference to a new Manager
 func NewConfigManager() *Manager {
 	return &Manager{
-		file: &file.BasicOps{},
+		file: &wrapper.FileOps{},
 	}
 }
 

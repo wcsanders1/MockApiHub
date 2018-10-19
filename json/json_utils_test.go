@@ -5,10 +5,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/wcsanders1/MockApiHub/file"
-
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/wcsanders1/MockApiHub/wrapper"
 )
 
 var goodJSON = []byte(`{
@@ -22,7 +21,7 @@ var badJSON = []byte(`{
 
 func TestGetJSON(t *testing.T) {
 	filePath := "testpath"
-	basicOpsPass := new(file.FakeBasicOps)
+	basicOpsPass := new(wrapper.FakeFileOps)
 	basicOpsPass.On("Open", mock.AnythingOfType("string")).Return(os.NewFile(1, "fakefile"), nil)
 	basicOpsPass.On("ReadAll", mock.AnythingOfType("*os.File")).Return(goodJSON, nil)
 
@@ -34,7 +33,7 @@ func TestGetJSON(t *testing.T) {
 	basicOpsPass.AssertCalled(t, "Open", filePath)
 	basicOpsPass.AssertCalled(t, "ReadAll", mock.AnythingOfType("*os.File"))
 
-	basicOpsOpenFail := new(file.FakeBasicOps)
+	basicOpsOpenFail := new(wrapper.FakeFileOps)
 	basicOpsOpenFail.On("Open", mock.AnythingOfType("string")).Return(os.NewFile(1, "fakefile"), errors.New(""))
 
 	result2, err2 := GetJSON(filePath, basicOpsOpenFail)
@@ -44,7 +43,7 @@ func TestGetJSON(t *testing.T) {
 	basicOpsOpenFail.AssertCalled(t, "Open", filePath)
 	basicOpsOpenFail.AssertNotCalled(t, "ReadAll", mock.AnythingOfType("*os.File"))
 
-	basicOpsReadAllFail := new(file.FakeBasicOps)
+	basicOpsReadAllFail := new(wrapper.FakeFileOps)
 	basicOpsReadAllFail.On("Open", mock.AnythingOfType("string")).Return(os.NewFile(1, "fakefile"), nil)
 	basicOpsReadAllFail.On("ReadAll", mock.AnythingOfType("*os.File")).Return(goodJSON, errors.New(""))
 
@@ -54,7 +53,7 @@ func TestGetJSON(t *testing.T) {
 	basicOpsReadAllFail.AssertCalled(t, "Open", filePath)
 	basicOpsReadAllFail.AssertCalled(t, "ReadAll", mock.AnythingOfType("*os.File"))
 
-	basicOpsBadJSON := new(file.FakeBasicOps)
+	basicOpsBadJSON := new(wrapper.FakeFileOps)
 	basicOpsBadJSON.On("Open", mock.AnythingOfType("string")).Return(os.NewFile(1, "fakefile"), nil)
 	basicOpsBadJSON.On("ReadAll", mock.AnythingOfType("*os.File")).Return(badJSON, nil)
 

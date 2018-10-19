@@ -5,11 +5,11 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/wcsanders1/MockApiHub/file"
+	"github.com/wcsanders1/MockApiHub/wrapper"
 )
 
 // GetJSON returns a []byte of valid JSON from a file
-func GetJSON(filePath string, file file.IBasicOps) ([]byte, error) {
+func GetJSON(filePath string, file wrapper.IFileOps) ([]byte, error) {
 	jsonFile, err := file.Open(filePath)
 	if err != nil {
 		fmt.Println(err)

@@ -8,8 +8,8 @@ import (
 	"github.com/wcsanders1/MockApiHub/api"
 	"github.com/wcsanders1/MockApiHub/config"
 	"github.com/wcsanders1/MockApiHub/fake"
-	"github.com/wcsanders1/MockApiHub/file"
 	"github.com/wcsanders1/MockApiHub/log"
+	"github.com/wcsanders1/MockApiHub/wrapper"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -91,7 +91,7 @@ func TestLoadMockAPIs(t *testing.T) {
 	fileInfoInner.On("Name").Return("testconfig.toml")
 	fileInfoCollection = append(fileInfoCollection, fileInfoInner)
 
-	basicOpsIsAPI := new(file.FakeBasicOps)
+	basicOpsIsAPI := new(wrapper.FakeFileOps)
 	basicOpsIsAPI.On("ReadDir", mock.AnythingOfType("string")).Return(fileInfoCollection, nil)
 
 	testAPIConfig := &config.APIConfig{
@@ -127,7 +127,7 @@ func TestLoadMockAPIs(t *testing.T) {
 	errNoConfig := mgrNoConfig.loadMockAPIs()
 	assert.Nil(errNoConfig)
 
-	basicOpsReadDirErr := new(file.FakeBasicOps)
+	basicOpsReadDirErr := new(wrapper.FakeFileOps)
 	basicOpsReadDirErr.On("ReadDir", mock.AnythingOfType("string")).Return([]os.FileInfo{}, errors.New(""))
 	configMgrReadDirErr := new(config.FakeManager)
 
@@ -147,7 +147,7 @@ func TestLoadMockAPIs(t *testing.T) {
 	fileInfoInner2.On("Name").Return("testconfig2.toml")
 	fileInfoCollection = append(fileInfoCollection, fileInfoInner2)
 
-	basicOpsDupPort := new(file.FakeBasicOps)
+	basicOpsDupPort := new(wrapper.FakeFileOps)
 	basicOpsDupPort.On("ReadDir", mock.AnythingOfType("string")).Return(fileInfoCollection, nil)
 
 	mgrDupPort := Manager{
@@ -169,7 +169,7 @@ func TestLoadMockAPIs(t *testing.T) {
 
 	configMgrPortZero := new(config.FakeManager)
 	configMgrPortZero.On("GetAPIConfig", mock.AnythingOfType("*fake.FileInfo")).Return(testAPIConfigPortZero, nil)
-	basicOpsPortZero := new(file.FakeBasicOps)
+	basicOpsPortZero := new(wrapper.FakeFileOps)
 	basicOpsPortZero.On("ReadDir", mock.AnythingOfType("string")).Return(fileInfoCollection, nil)
 
 	mgrPortZero := Manager{

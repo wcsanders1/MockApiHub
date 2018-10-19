@@ -10,10 +10,10 @@ import (
 
 	"github.com/wcsanders1/MockApiHub/api"
 	"github.com/wcsanders1/MockApiHub/config"
-	"github.com/wcsanders1/MockApiHub/file"
 	"github.com/wcsanders1/MockApiHub/log"
 	"github.com/wcsanders1/MockApiHub/ref"
 	"github.com/wcsanders1/MockApiHub/str"
+	"github.com/wcsanders1/MockApiHub/wrapper"
 
 	"github.com/sirupsen/logrus"
 )
@@ -25,7 +25,7 @@ type Manager struct {
 	server         *http.Server
 	hubAPIHandlers map[string]map[string]func(http.ResponseWriter, *http.Request)
 	log            *logrus.Entry
-	file           file.IBasicOps
+	file           wrapper.IFileOps
 	configManager  config.IManager
 }
 
@@ -55,7 +55,7 @@ func NewManager(appConfig *config.AppConfig) (*Manager, error) {
 	mgr.config = appConfig
 	mgr.server = server
 	mgr.apis = make(map[string]api.IAPI)
-	mgr.file = &file.BasicOps{}
+	mgr.file = &wrapper.FileOps{}
 	mgr.configManager = config.NewConfigManager()
 	contextLogger.Info("successfully created new manager")
 	return mgr, nil

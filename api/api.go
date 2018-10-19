@@ -10,12 +10,12 @@ import (
 	"time"
 
 	"github.com/wcsanders1/MockApiHub/config"
-	"github.com/wcsanders1/MockApiHub/file"
 	"github.com/wcsanders1/MockApiHub/json"
 	"github.com/wcsanders1/MockApiHub/log"
 	"github.com/wcsanders1/MockApiHub/ref"
 	"github.com/wcsanders1/MockApiHub/route"
 	"github.com/wcsanders1/MockApiHub/str"
+	"github.com/wcsanders1/MockApiHub/wrapper"
 
 	"github.com/sirupsen/logrus"
 )
@@ -40,7 +40,7 @@ type (
 		routeTree  *route.Tree
 		httpConfig config.HTTP
 		log        *logrus.Entry
-		file       file.IBasicOps
+		file       wrapper.IFileOps
 	}
 )
 
@@ -70,7 +70,7 @@ func NewAPI(config *config.APIConfig) (*API, error) {
 	api.handlers = make(map[string]map[string]func(http.ResponseWriter, *http.Request))
 	api.routeTree = route.NewRouteTree()
 	api.httpConfig = config.HTTP
-	api.file = &file.BasicOps{}
+	api.file = &wrapper.FileOps{}
 
 	contextLogger.Info("successfully created mock API")
 	return api, nil

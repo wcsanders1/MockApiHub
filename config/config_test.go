@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/wcsanders1/MockApiHub/fake"
-	"github.com/wcsanders1/MockApiHub/file"
+	"github.com/wcsanders1/MockApiHub/wrapper"
 
 	"github.com/BurntSushi/toml"
 	"github.com/stretchr/testify/assert"
@@ -21,7 +21,7 @@ func TestNewConfigManager(t *testing.T) {
 	assert.NotNil(result)
 	assert.IsType(&Manager{}, result)
 	assert.NotNil(result.file)
-	assert.IsType(&file.BasicOps{}, result.file)
+	assert.IsType(&wrapper.FileOps{}, result.file)
 }
 
 func TestIsAPIConfig(t *testing.T) {
@@ -61,7 +61,7 @@ func TestIsAPI(t *testing.T) {
 }
 
 func TestDecodeAPIConfig(t *testing.T) {
-	basicOpsPass := new(file.FakeBasicOps)
+	basicOpsPass := new(wrapper.FakeFileOps)
 	basicOpsPass.On("DecodeFile", mock.AnythingOfType("string"), mock.Anything).Return(toml.MetaData{}, nil)
 
 	mgrPass := Manager{
@@ -81,7 +81,7 @@ func TestDecodeAPIConfig(t *testing.T) {
 	assert.IsType(&APIConfig{}, result)
 	basicOpsPass.AssertCalled(t, "DecodeFile", path, mock.AnythingOfType("*config.APIConfig"))
 
-	basicOpsFail := new(file.FakeBasicOps)
+	basicOpsFail := new(wrapper.FakeFileOps)
 	basicOpsFail.On("DecodeFile", mock.AnythingOfType("string"), mock.Anything).Return(toml.MetaData{}, errors.New(""))
 
 	mgrFail := Manager{
@@ -107,7 +107,7 @@ func TestGetAPIConfig(t *testing.T) {
 	fileInfoInner.On("Name").Return("testconfig.toml")
 	fileInfoCollection = append(fileInfoCollection, fileInfoInner)
 
-	basicOpsIsAPI := new(file.FakeBasicOps)
+	basicOpsIsAPI := new(wrapper.FakeFileOps)
 	basicOpsIsAPI.On("ReadDir", mock.AnythingOfType("string")).Return(fileInfoCollection, nil)
 	basicOpsIsAPI.On("DecodeFile", mock.AnythingOfType("string"), mock.Anything).Return(toml.MetaData{}, nil)
 
@@ -125,7 +125,7 @@ func TestGetAPIConfig(t *testing.T) {
 	fileInfoNotAPI.On("IsDir").Return(true)
 	fileInfoNotAPI.On("Name").Return("mockApiNot")
 
-	basicOpsNotAPI := new(file.FakeBasicOps)
+	basicOpsNotAPI := new(wrapper.FakeFileOps)
 	basicOpsNotAPI.On("ReadDir", mock.AnythingOfType("string")).Return(fileInfoCollection, nil)
 	basicOpsNotAPI.On("DecodeFile", mock.AnythingOfType("string"), mock.Anything).Return(toml.MetaData{}, nil)
 
@@ -139,7 +139,7 @@ func TestGetAPIConfig(t *testing.T) {
 	basicOpsNotAPI.AssertNotCalled(t, "ReadDir", mock.AnythingOfType("string"))
 	basicOpsNotAPI.AssertNotCalled(t, "DecodeFile", mock.AnythingOfType("string"), mock.Anything)
 
-	basicOpsDecodeErr := new(file.FakeBasicOps)
+	basicOpsDecodeErr := new(wrapper.FakeFileOps)
 	basicOpsDecodeErr.On("ReadDir", mock.AnythingOfType("string")).Return(fileInfoCollection, nil)
 	basicOpsDecodeErr.On("DecodeFile", mock.AnythingOfType("string"), mock.Anything).Return(toml.MetaData{}, errors.New(""))
 
@@ -162,7 +162,7 @@ func TestGetAPIConfigFromDir(t *testing.T) {
 	fileInfoPass.On("Name").Return("testconfig.toml")
 	fileInfo = append(fileInfo, fileInfoPass)
 
-	basicOpsPass := new(file.FakeBasicOps)
+	basicOpsPass := new(wrapper.FakeFileOps)
 	basicOpsPass.On("ReadDir", mock.AnythingOfType("string")).Return(fileInfo, nil)
 	basicOpsPass.On("DecodeFile", mock.AnythingOfType("string"), mock.Anything).Return(toml.MetaData{}, nil)
 
@@ -183,7 +183,7 @@ func TestGetAPIConfigFromDir(t *testing.T) {
 	fileInfoNil.On("Name").Return("testconfig.not")
 	fileInfoNotAPIConfig = append(fileInfoNotAPIConfig, fileInfoNil)
 
-	basicOpsNil := new(file.FakeBasicOps)
+	basicOpsNil := new(wrapper.FakeFileOps)
 	basicOpsNil.On("ReadDir", mock.AnythingOfType("string")).Return(fileInfoNotAPIConfig, nil)
 	basicOpsNil.On("DecodeFile", mock.AnythingOfType("string"), mock.Anything).Return(toml.MetaData{}, nil)
 
@@ -196,7 +196,7 @@ func TestGetAPIConfigFromDir(t *testing.T) {
 	assert.Nil(result2)
 	basicOpsNil.AssertCalled(t, "ReadDir", expectedDir)
 
-	basicOpsErr := new(file.FakeBasicOps)
+	basicOpsErr := new(wrapper.FakeFileOps)
 	basicOpsErr.On("ReadDir", mock.AnythingOfType("string")).Return(fileInfo, nil)
 	basicOpsErr.On("DecodeFile", mock.AnythingOfType("string"), mock.Anything).Return(toml.MetaData{}, errors.New(""))
 
