@@ -35,7 +35,7 @@ type (
 	API struct {
 		baseURL    string
 		endpoints  map[string]config.Endpoint
-		server     *http.Server
+		server     wrapper.IServerOps
 		handlers   map[string]map[string]func(http.ResponseWriter, *http.Request)
 		routeTree  *route.Tree
 		httpConfig config.HTTP
@@ -64,7 +64,7 @@ func NewAPI(config *config.APIConfig) (*API, error) {
 		return nil, err
 	}
 
-	api.server = server
+	api.server = wrapper.NewServerOps(server)
 	api.baseURL = config.BaseURL
 	api.endpoints = config.Endpoints
 	api.handlers = make(map[string]map[string]func(http.ResponseWriter, *http.Request))

@@ -22,7 +22,7 @@ import (
 type Manager struct {
 	apis           map[string]api.IAPI
 	config         *config.AppConfig
-	server         *http.Server
+	server         wrapper.IServerOps
 	hubAPIHandlers map[string]map[string]func(http.ResponseWriter, *http.Request)
 	log            *logrus.Entry
 	file           wrapper.IFileOps
@@ -53,7 +53,7 @@ func NewManager(appConfig *config.AppConfig) (*Manager, error) {
 	}
 
 	mgr.config = appConfig
-	mgr.server = server
+	mgr.server = wrapper.NewServerOps(server)
 	mgr.apis = make(map[string]api.IAPI)
 	mgr.file = &wrapper.FileOps{}
 	mgr.configManager = config.NewConfigManager()
