@@ -237,6 +237,8 @@ func TestRegisterMockAPIs(t *testing.T) {
 func TestStartHubServerUsingTLS(t *testing.T) {
 	certFile := "testCertFile"
 	keyFile := "testKeyFile"
+	fakeLogger := log.GetFakeLogger()
+	assert := assert.New(t)
 
 	basicFileOpsNoErr := new(wrapper.FakeFileOps)
 	basicFileOpsNoErr.On("Stat", mock.AnythingOfType("string")).Return(new(fake.FileInfo), nil)
@@ -253,15 +255,68 @@ func TestStartHubServerUsingTLS(t *testing.T) {
 
 	mgrNoErr := Manager{
 		config: fakeConfig,
-		log:    log.GetFakeLogger(),
+		log:    fakeLogger,
 		file:   basicFileOpsNoErr,
 		server: fakeServerNoErr,
 	}
 
 	resultNoErr := mgrNoErr.startHubServerUsingTLS()
-	assert := assert.New(t)
+
 	assert.Nil(resultNoErr)
 	basicFileOpsNoErr.AssertCalled(t, "Stat", certFile)
 	basicFileOpsNoErr.AssertCalled(t, "Stat", keyFile)
 	fakeServerNoErr.AssertCalled(t, "ListenAndServeTLS", certFile, keyFile)
+
+	basicFileOpsCertErr := new(wrapper.FakeFileOps)
+	basicFileOpsCertErr.On("Stat", certFile).Return(new(fake.FileInfo), errors.New(""))
+	fakeServerCertErr := new(wrapper.FakeServerOps)
+
+	mgrCertErr := Manager{
+		config: fakeConfig,
+		log:    fakeLogger,
+		file:   basicFileOpsCertErr,
+		server: fakeServerCertErr,
+	}
+
+	resultCertErr := mgrCertErr.startHubServerUsingTLS()
+	assert.Error(resultCertErr)
+	basicFileOpsCertErr.AssertCalled(t, "Stat", certFile)
+	basicFileOpsCertErr.AssertNotCalled(t, "Stat", keyFile)
+	fakeServerCertErr.AssertNotCalled(t, "ListenAndServeTLS", mock.Anything, mock.Anything)
+
+	basicFileOpsKeyErr := new(wrapper.FakeFileOps)
+	basicFileOpsKeyErr.On("Stat", certFile).Return(new(fake.FileInfo), nil)
+	basicFileOpsKeyErr.On("Stat", keyFile).Return(new(fake.FileInfo), errors.New(""))
+	fakeServerKeyErr := new(wrapper.FakeServerOps)
+
+	mgrKeyErr := Manager{
+		config: fakeConfig,
+		log:    fakeLogger,
+		file:   basicFileOpsKeyErr,
+		server: fakeServerKeyErr,
+	}
+
+	resultKeyErr := mgrKeyErr.startHubServerUsingTLS()
+	assert.Error(resultKeyErr)
+	basicFileOpsKeyErr.AssertCalled(t, "Stat", certFile)
+	basicFileOpsKeyErr.AssertCalled(t, "Stat", keyFile)
+	fakeServerCertErr.AssertNotCalled(t, "ListenAndServeTLS", mock.Anything, mock.Anything)
+
+	basicFileOpsServerErr := new(wrapper.FakeFileOps)
+	basicFileOpsServerErr.On("Stat", mock.AnythingOfType("string")).Return(new(fake.FileInfo), nil)
+	fakeServerErr := new(wrapper.FakeServerOps)
+	fakeServerErr.On("ListenAndServeTLS", mock.Anything, mock.Anything).Return(errors.New(""))
+
+	mgrSrvErr := Manager{
+		config: fakeConfig,
+		log:    fakeLogger,
+		file:   basicFileOpsServerErr,
+		server: fakeServerErr,
+	}
+
+	resultSrvErr := mgrSrvErr.startHubServerUsingTLS()
+	assert.Error(resultSrvErr)
+	basicFileOpsServerErr.AssertCalled(t, "Stat", certFile)
+	basicFileOpsServerErr.AssertCalled(t, "Stat", keyFile)
+	fakeServerErr.AssertCalled(t, "ListenAndServeTLS", certFile, keyFile)
 }
