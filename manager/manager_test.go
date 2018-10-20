@@ -233,3 +233,35 @@ func TestRegisterMockAPIs(t *testing.T) {
 	mgrErr.registerMockAPIs()
 	fakeAPIErr.AssertCalled(t, "Register", dir, certFile, keyFile)
 }
+
+func TestStartHubServerUsingTLS(t *testing.T) {
+	certFile := "testCertFile"
+	keyFile := "testKeyFile"
+
+	basicFileOpsNoErr := new(wrapper.FakeFileOps)
+	basicFileOpsNoErr.On("Stat", mock.AnythingOfType("string")).Return(new(fake.FileInfo), nil)
+
+	fakeConfig := &config.AppConfig{
+		HTTP: config.HTTP{
+			CertFile: certFile,
+			KeyFile:  keyFile,
+		},
+	}
+
+	fakeServerNoErr := new(wrapper.FakeServerOps)
+	fakeServerNoErr.On("ListenAndServeTLS", mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(nil)
+
+	mgrNoErr := Manager{
+		config: fakeConfig,
+		log:    log.GetFakeLogger(),
+		file:   basicFileOpsNoErr,
+		server: fakeServerNoErr,
+	}
+
+	resultNoErr := mgrNoErr.startHubServerUsingTLS()
+	assert := assert.New(t)
+	assert.Nil(resultNoErr)
+	basicFileOpsNoErr.AssertCalled(t, "Stat", certFile)
+	basicFileOpsNoErr.AssertCalled(t, "Stat", keyFile)
+	fakeServerNoErr.AssertCalled(t, "ListenAndServeTLS", certFile, keyFile)
+}

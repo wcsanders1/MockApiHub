@@ -35,3 +35,9 @@ func (ops *FakeFileOps) DecodeFile(file string, v interface{}) (toml.MetaData, e
 	args := ops.Called(file, v)
 	return args.Get(0).(toml.MetaData), args.Error(1)
 }
+
+// Stat is a fake implementation of IFileOps.Stat()
+func (ops *FakeFileOps) Stat(file string) (os.FileInfo, error) {
+	args := ops.Called(file)
+	return args.Get(0).(os.FileInfo), args.Error(1)
+}

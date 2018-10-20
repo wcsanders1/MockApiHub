@@ -14,6 +14,7 @@ type (
 		ReadAll(*os.File) ([]byte, error)
 		ReadDir(dir string) ([]os.FileInfo, error)
 		DecodeFile(file string, v interface{}) (toml.MetaData, error)
+		Stat(file string) (os.FileInfo, error)
 	}
 
 	// FileOps offers a real implementation of IFileOpc
@@ -38,4 +39,9 @@ func (ops *FileOps) ReadDir(dir string) ([]os.FileInfo, error) {
 // DecodeFile decodes a toml file
 func (ops *FileOps) DecodeFile(file string, v interface{}) (toml.MetaData, error) {
 	return toml.DecodeFile(file, v)
+}
+
+// Stat returns FileInfo describing the named file
+func (ops *FileOps) Stat(file string) (os.FileInfo, error) {
+	return os.Stat(file)
 }

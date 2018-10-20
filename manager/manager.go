@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
@@ -193,12 +192,12 @@ func (mgr *Manager) startHubServerUsingTLS() error {
 	})
 	contextLogger.Debug("starting hub server using TLS")
 
-	if _, err := os.Stat(certFile); err != nil {
+	if _, err := mgr.file.Stat(certFile); err != nil {
 		contextLogger.WithError(err).Error("error starting hub server using TLS -- cert file does not exist")
 		return err
 	}
 
-	if _, err := os.Stat(keyFile); err != nil {
+	if _, err := mgr.file.Stat(keyFile); err != nil {
 		contextLogger.WithError(err).Error("error starting hub server using TLS -- key file does not exist")
 		return err
 	}
