@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/wcsanders1/MockApiHub/constants"
 	"github.com/wcsanders1/MockApiHub/wrapper"
 )
 
@@ -63,11 +64,6 @@ type (
 	}
 )
 
-const (
-	apiDir    = "./api/apis"
-	apiDirExt = "Api"
-)
-
 // NewConfigManager returns a reference to a new Manager
 func NewConfigManager() *Manager {
 	return &Manager{
@@ -90,7 +86,7 @@ func (mgr *Manager) GetAPIConfig(fileInfo os.FileInfo) (*APIConfig, error) {
 }
 
 func (mgr *Manager) getAPIConfigFromDir(dir string) (*APIConfig, error) {
-	files, _ := mgr.file.ReadDir(fmt.Sprintf("%s/%s", apiDir, dir))
+	files, _ := mgr.file.ReadDir(fmt.Sprintf("%s/%s", constants.APIDir, dir))
 	for _, file := range files {
 		if isAPIConfig(file.Name()) {
 			apiConfig, err := mgr.decodeAPIConfig(dir, file.Name())
@@ -104,7 +100,7 @@ func (mgr *Manager) getAPIConfigFromDir(dir string) (*APIConfig, error) {
 }
 
 func (mgr *Manager) decodeAPIConfig(dir string, fileName string) (*APIConfig, error) {
-	path := fmt.Sprintf("%s/%s/%s", apiDir, dir, fileName)
+	path := fmt.Sprintf("%s/%s/%s", constants.APIDir, dir, fileName)
 	var Manager APIConfig
 	if _, err := mgr.file.DecodeFile(path, &Manager); err != nil {
 		return nil, err
@@ -118,5 +114,5 @@ func isAPIConfig(fileName string) bool {
 }
 
 func isAPI(dir string) bool {
-	return len(dir) > 3 && dir[len(dir)-3:] == apiDirExt
+	return len(dir) > 3 && dir[len(dir)-3:] == constants.APIDirExt
 }

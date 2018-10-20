@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/wcsanders1/MockApiHub/config"
+	"github.com/wcsanders1/MockApiHub/constants"
 	"github.com/wcsanders1/MockApiHub/json"
 	"github.com/wcsanders1/MockApiHub/log"
 	"github.com/wcsanders1/MockApiHub/ref"
@@ -43,8 +44,6 @@ type (
 		file       wrapper.IFileOps
 	}
 )
-
-const apiDir = "./api/apis"
 
 // NewAPI returns a new API
 func NewAPI(config *config.APIConfig) (*API, error) {
@@ -112,7 +111,7 @@ func (api *API) Register(dir, defaultCert, defaultKey string) error {
 		}
 
 		api.handlers[method][registeredRoute] = func(w http.ResponseWriter, r *http.Request) {
-			json, err := json.GetJSON(fmt.Sprintf("%s/%s/%s", apiDir, dir, file), api.file)
+			json, err := json.GetJSON(fmt.Sprintf("%s/%s/%s", constants.APIDir, dir, file), api.file)
 			if err != nil {
 				contextLoggerEndpoint.WithError(err).Error("error serving from this endpoint")
 			}

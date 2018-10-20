@@ -9,6 +9,7 @@ import (
 
 	"github.com/wcsanders1/MockApiHub/api"
 	"github.com/wcsanders1/MockApiHub/config"
+	"github.com/wcsanders1/MockApiHub/constants"
 	"github.com/wcsanders1/MockApiHub/log"
 	"github.com/wcsanders1/MockApiHub/ref"
 	"github.com/wcsanders1/MockApiHub/str"
@@ -27,11 +28,6 @@ type Manager struct {
 	file           wrapper.IFileOps
 	configManager  config.IManager
 }
-
-const (
-	apiDir    = "./api/apis"
-	apiDirExt = "Api"
-)
 
 // NewManager returns an instance of the Manager type
 func NewManager(appConfig *config.AppConfig) (*Manager, error) {
@@ -228,11 +224,11 @@ func (mgr *Manager) registerMockAPIs() {
 func (mgr *Manager) loadMockAPIs() error {
 	contextLogger := mgr.log.WithFields(logrus.Fields{
 		log.FuncField: ref.GetFuncName(),
-		"apiDir":      apiDir,
+		"apiDir":      constants.APIDir,
 	})
 	contextLogger.Debug("loading mock APIs")
 
-	files, err := mgr.file.ReadDir(apiDir)
+	files, err := mgr.file.ReadDir(constants.APIDir)
 	if err != nil {
 		contextLogger.WithError(err).Error("error reading API directory")
 		return err

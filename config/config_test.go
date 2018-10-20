@@ -6,6 +6,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/wcsanders1/MockApiHub/constants"
 	"github.com/wcsanders1/MockApiHub/fake"
 	"github.com/wcsanders1/MockApiHub/wrapper"
 
@@ -69,9 +70,8 @@ func TestDecodeAPIConfig(t *testing.T) {
 	}
 
 	dir := "testDir"
-	apiDir := "./api/apis"
 	fileName := "testfile"
-	path := fmt.Sprintf("%s/%s/%s", apiDir, dir, fileName)
+	path := fmt.Sprintf("%s/%s/%s", constants.APIDir, dir, fileName)
 
 	result, err := mgrPass.decodeAPIConfig(dir, fileName)
 
@@ -97,7 +97,7 @@ func TestDecodeAPIConfig(t *testing.T) {
 
 func TestGetAPIConfig(t *testing.T) {
 	apiDirInner := "mockApi"
-	expectedDir := fmt.Sprintf("%s/%s", apiDir, apiDirInner)
+	expectedDir := fmt.Sprintf("%s/%s", constants.APIDir, apiDirInner)
 	fileInfoPass := new(fake.FileInfo)
 	fileInfoPass.On("Name").Return(apiDirInner)
 	fileInfoPass.On("IsDir").Return(true)
@@ -156,7 +156,7 @@ func TestGetAPIConfig(t *testing.T) {
 
 func TestGetAPIConfigFromDir(t *testing.T) {
 	dir := "testdir"
-	expectedDir := fmt.Sprintf("%s/%s", apiDir, dir)
+	expectedDir := fmt.Sprintf("%s/%s", constants.APIDir, dir)
 	fileInfo := []os.FileInfo{}
 	fileInfoPass := new(fake.FileInfo)
 	fileInfoPass.On("Name").Return("testconfig.toml")
