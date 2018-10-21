@@ -31,7 +31,8 @@ func TestGetJSON_ReturnsJSON_WhenRetrievedFromFile(t *testing.T) {
 
 	assert := assert.New(t)
 	assert.NotNil(result)
-	assert.Error(err)
+	assert.Nil(err)
+	assert.IsType([]byte{}, result)
 	fileOps.AssertCalled(t, "Open", file)
 	fileOps.AssertCalled(t, "ReadAll", mock.AnythingOfType("*os.File"))
 }
