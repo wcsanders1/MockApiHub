@@ -203,58 +203,51 @@ func TestGetRoute_ReturnsError_WhenProvidedNothing(t *testing.T) {
 	assert.Error(err)
 }
 
-func TestAddRouteToExistingBranch(t *testing.T) {
+func TestAddRouteToExistingBranch_ReturnsNil_WhenRouteValid(t *testing.T) {
+	frags := strings.Split("test/route", "/")
+	routeTree := NewRouteTree()
+
+	err := routeTree.addRouteToExistingBranch(frags)
+
+	assert.Nil(t, err)
+}
+
+func TestAddRouteToExistingBranch_ReturnsError_WhenProvidedRegisteredRoute(t *testing.T) {
 	route := "test/route"
 	frags := strings.Split(route, "/")
 	routeTree := NewRouteTree()
 	routeTree.AddRoute(route)
 
-	r1 := routeTree.addRouteToExistingBranch(frags)
+	err := routeTree.addRouteToExistingBranch(frags)
 
-	assert := assert.New(t)
-	assert.NotNil(r1)
-	assert.Error(r1)
-
-	r2 := routeTree.addRouteToExistingBranch(frags[:len(frags)-1])
-
-	assert.Nil(r2)
-	assert.Equal(complete, routeTree.branches[frags[0]].routeType)
-
-	r3 := routeTree.addRouteToExistingBranch(frags[:len(frags)-1])
-
-	assert.Error(r3)
-
-	newRoute := fmt.Sprintf("%s/new", route)
-	newFrags := strings.Split(newRoute, "/")
-
-	r4 := routeTree.addRouteByFragments(newFrags)
-
-	assert.Nil(r4)
-	subTree := routeTree.branches[newFrags[0]].branches[newFrags[1]].branches[newFrags[2]]
-
-	assert.Equal(complete, subTree.routeType)
+	assert.Error(t, err)
 }
 
-func TestAddRouteByFragments(t *testing.T) {
-	var frags []string
+func TestAddRouteToExistingBranch_RegistersRoute_OneStepBelowExistingBranch(t *testing.T) {
+	route := "test/route"
+	frags := strings.Split(route, "/")
 	routeTree := NewRouteTree()
-	err := routeTree.addRouteByFragments(frags)
+	routeTree.AddRoute(route)
+
+	err := routeTree.addRouteToExistingBranch(frags[:len(frags)-1])
 
 	assert := assert.New(t)
 	assert.Nil(err)
+	assert.Equal(complete, routeTree.branches[frags[0]].routeType)
 }
 
-func TestDuplicateParamsExist(t *testing.T) {
-	noDups := "no/dup/:params/here"
-	noDupFrags, _ := str.GetURLFragments(noDups)
-	result := duplicateParamsExist(noDupFrags)
+func TestDuplicateParamsExist_ReturnsFalse_WhenNoDuplicateParams(t *testing.T) {
+	frags, _ := str.GetURLFragments("no/dup/:params/here")
 
-	assert := assert.New(t)
-	assert.False(result)
+	result := duplicateParamsExist(frags)
 
-	dups := "dup/:params/:params/here"
-	dupFrags, _ := str.GetURLFragments(dups)
-	result = duplicateParamsExist(dupFrags)
+	assert.False(t, result)
+}
 
-	assert.True(result)
+func TestDuplicateParamsExist_ReturnsTrue_WhenDuplicateParamsExist(t *testing.T) {
+	frags, _ := str.GetURLFragments("dup/:params/:params/here")
+
+	result := duplicateParamsExist(frags)
+
+	assert.True(t, result)
 }
