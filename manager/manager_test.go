@@ -44,13 +44,10 @@ func TestNewManager_ReturnsError_WhenPortNotProvided(t *testing.T) {
 	assert.Error(err)
 }
 
-func TestApiByPortExists(t *testing.T) {
-	testPort := 4000
-
+func TestAPIByPortExists_ReturnsFalse_WhenProvidedUnregisteredPort(t *testing.T) {
 	mgr := Manager{
 		apis: make(map[string]api.IAPI),
 	}
-
 	firstAPIConfig := config.APIConfig{
 		HTTP: config.HTTP{
 			Port: 3999,
@@ -61,31 +58,35 @@ func TestApiByPortExists(t *testing.T) {
 			Port: 4001,
 		},
 	}
+	mgr.apis["firstAPI"], _ = api.NewAPI(&firstAPIConfig)
+	mgr.apis["secondAPI"], _ = api.NewAPI(&secondAPIConfig)
 
-	firstAPI, err1 := api.NewAPI(&firstAPIConfig)
-	secondAPI, err2 := api.NewAPI(&secondAPIConfig)
+	result := mgr.apiByPortExists(4000)
 
-	mgr.apis["firstAPI"] = firstAPI
-	mgr.apis["secondAPI"] = secondAPI
+	assert.False(t, result)
+}
 
-	result := mgr.apiByPortExists(testPort)
-	assert := assert.New(t)
-	assert.False(result)
-	assert.Nil(err1)
-	assert.Nil(err2)
-
-	thirdAPIConfig := config.APIConfig{
+func TestAPIPortExists_ReturnsTrue_WhenProvidedRegisteredPort(t *testing.T) {
+	mgr := Manager{
+		apis: make(map[string]api.IAPI),
+	}
+	firstAPIConfig := config.APIConfig{
 		HTTP: config.HTTP{
-			Port: testPort,
+			Port: 3999,
 		},
 	}
+	secondAPIConfig := config.APIConfig{
+		HTTP: config.HTTP{
+			Port: 4001,
+		},
+	}
+	mgr.apis["firstAPI"], _ = api.NewAPI(&firstAPIConfig)
+	mgr.apis["secondAPI"], _ = api.NewAPI(&secondAPIConfig)
 
-	thirdAPI, err3 := api.NewAPI(&thirdAPIConfig)
-	mgr.apis["thirdAPI"] = thirdAPI
+	result := mgr.apiByPortExists(4001)
 
-	result2 := mgr.apiByPortExists(testPort)
-	assert.True(result2)
-	assert.Nil(err3)
+	assert.True(t, result)
+
 }
 
 func TestLoadMockAPIs(t *testing.T) {
