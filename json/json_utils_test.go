@@ -5,76 +5,89 @@ import (
 	"os"
 	"testing"
 
+	"github.com/wcsanders1/MockApiHub/wrapper"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"github.com/wcsanders1/MockApiHub/wrapper"
 )
 
 var goodJSON = []byte(`{
 	"JSON": "good",
 	"test": "good"
 }`)
+
 var badJSON = []byte(`{
 	"JSON": "bad,
 	"test": "good"
 }`)
 
-func TestGetJSON(t *testing.T) {
-	filePath := "testpath"
-	basicOpsPass := new(wrapper.FakeFileOps)
-	basicOpsPass.On("Open", mock.AnythingOfType("string")).Return(os.NewFile(1, "fakefile"), nil)
-	basicOpsPass.On("ReadAll", mock.AnythingOfType("*os.File")).Return(goodJSON, nil)
+func TestGetJSON_ReturnsJSON_WhenRetrievedFromFile(t *testing.T) {
+	file := "testpath"
+	fileOps := new(wrapper.FakeFileOps)
+	fileOps.On("Open", mock.AnythingOfType("string")).Return(os.NewFile(1, "fakefile"), nil)
+	fileOps.On("ReadAll", mock.AnythingOfType("*os.File")).Return(goodJSON, nil)
 
-	result, err := GetJSON(filePath, basicOpsPass)
+	result, err := GetJSON(file, fileOps)
 
 	assert := assert.New(t)
 	assert.NotNil(result)
 	assert.Nil(err)
-	basicOpsPass.AssertCalled(t, "Open", filePath)
-	basicOpsPass.AssertCalled(t, "ReadAll", mock.AnythingOfType("*os.File"))
-
-	basicOpsOpenFail := new(wrapper.FakeFileOps)
-	basicOpsOpenFail.On("Open", mock.AnythingOfType("string")).Return(os.NewFile(1, "fakefile"), errors.New(""))
-
-	result2, err2 := GetJSON(filePath, basicOpsOpenFail)
-
-	assert.NotNil(err2)
-	assert.Nil(result2)
-	basicOpsOpenFail.AssertCalled(t, "Open", filePath)
-	basicOpsOpenFail.AssertNotCalled(t, "ReadAll", mock.AnythingOfType("*os.File"))
-
-	basicOpsReadAllFail := new(wrapper.FakeFileOps)
-	basicOpsReadAllFail.On("Open", mock.AnythingOfType("string")).Return(os.NewFile(1, "fakefile"), nil)
-	basicOpsReadAllFail.On("ReadAll", mock.AnythingOfType("*os.File")).Return(goodJSON, errors.New(""))
-
-	result3, err3 := GetJSON(filePath, basicOpsReadAllFail)
-	assert.NotNil(err3)
-	assert.Nil(result3)
-	basicOpsReadAllFail.AssertCalled(t, "Open", filePath)
-	basicOpsReadAllFail.AssertCalled(t, "ReadAll", mock.AnythingOfType("*os.File"))
-
-	basicOpsBadJSON := new(wrapper.FakeFileOps)
-	basicOpsBadJSON.On("Open", mock.AnythingOfType("string")).Return(os.NewFile(1, "fakefile"), nil)
-	basicOpsBadJSON.On("ReadAll", mock.AnythingOfType("*os.File")).Return(badJSON, nil)
-
-	result4, err4 := GetJSON(filePath, basicOpsBadJSON)
-	assert.NotNil(err4)
-	assert.Nil(result4)
-	basicOpsBadJSON.AssertCalled(t, "Open", filePath)
-	basicOpsBadJSON.AssertCalled(t, "ReadAll", mock.AnythingOfType("*os.File"))
+	fileOps.AssertCalled(t, "Open", file)
+	fileOps.AssertCalled(t, "ReadAll", mock.AnythingOfType("*os.File"))
 }
 
-func TestIsValidJSON(t *testing.T) {
-	result := isValidJSON(goodJSON)
+func TestGetJSON_ReturnsError_WhenOpenFileFails(t *testing.T) {
+	file := "testpath"
+	fileOps := new(wrapper.FakeFileOps)
+	fileOps.On("Open", mock.AnythingOfType("string")).Return(os.NewFile(1, "fakefile"), errors.New(""))
+
+	result, err := GetJSON(file, fileOps)
 
 	assert := assert.New(t)
-	assert.True(result)
+	assert.NotNil(err)
+	assert.Nil(result)
+	fileOps.AssertCalled(t, "Open", file)
+	fileOps.AssertNotCalled(t, "ReadAll", mock.AnythingOfType("*os.File"))
+}
 
-	result = isValidJSON(badJSON)
+func TestGetJSON_ReturnsError_WhenReadFileFails(t *testing.T) {
+	file := "testpath"
+	fileOps := new(wrapper.FakeFileOps)
+	fileOps.On("Open", mock.AnythingOfType("string")).Return(os.NewFile(1, "fakefile"), nil)
+	fileOps.On("ReadAll", mock.AnythingOfType("*os.File")).Return(goodJSON, errors.New(""))
 
-	assert.False(result)
+	result, err := GetJSON(file, fileOps)
 
-	result = isValidJSON([]byte(""))
+	assert := assert.New(t)
+	assert.NotNil(err)
+	assert.Nil(result)
+	fileOps.AssertCalled(t, "Open", file)
+	fileOps.AssertCalled(t, "ReadAll", mock.AnythingOfType("*os.File"))
+}
 
-	assert.False(result)
+func TestGetJSON_ReturnsError_WhenJSONInvalid(t *testing.T) {
+	file := "testpath"
+	fileOps := new(wrapper.FakeFileOps)
+	fileOps.On("Open", mock.AnythingOfType("string")).Return(os.NewFile(1, "fakefile"), nil)
+	fileOps.On("ReadAll", mock.AnythingOfType("*os.File")).Return(badJSON, nil)
+
+	result, err := GetJSON(file, fileOps)
+
+	assert := assert.New(t)
+	assert.NotNil(err)
+	assert.Nil(result)
+	fileOps.AssertCalled(t, "Open", file)
+	fileOps.AssertCalled(t, "ReadAll", mock.AnythingOfType("*os.File"))
+}
+
+func TestIsValidJSON_ReturnsTrue_WhenJSONValid(t *testing.T) {
+	assert.True(t, isValidJSON(goodJSON))
+}
+
+func TestIsValidJSON_ReturnsFalse_WhenJSONInvalid(t *testing.T) {
+	assert.False(t, isValidJSON(badJSON))
+}
+
+func TestIsValidJSON_ReturnsFalse_WhenGivenNothing(t *testing.T) {
+	assert.False(t, isValidJSON([]byte("")))
 }
