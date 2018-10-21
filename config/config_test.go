@@ -3,10 +3,11 @@ package config
 import (
 	"errors"
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/wcsanders1/MockApiHub/constants"
-	"github.com/wcsanders1/MockApiHub/helper"
+	"github.com/wcsanders1/MockApiHub/fake"
 	"github.com/wcsanders1/MockApiHub/wrapper"
 
 	"github.com/BurntSushi/toml"
@@ -89,7 +90,7 @@ func TestDecodeAPIConfig_ReturnsError_WhenDecodeFails(t *testing.T) {
 
 func TestGetAPIConfig_ReturnsAPIConfig_WhenProvidedAPI(t *testing.T) {
 	dir := "mockApi"
-	fileInfo, fileCollection := helper.GetFakeFileInfoAndCollection(dir, "testconfig.toml")
+	fileInfo, fileCollection := getFakeFileInfoAndCollection(dir, "testconfig.toml")
 	fileOps := new(wrapper.FakeFileOps)
 	fileOps.On("ReadDir", mock.AnythingOfType("string")).Return(fileCollection, nil)
 	fileOps.On("DecodeFile", mock.AnythingOfType("string"), mock.Anything).Return(toml.MetaData{}, nil)
@@ -107,7 +108,7 @@ func TestGetAPIConfig_ReturnsAPIConfig_WhenProvidedAPI(t *testing.T) {
 }
 
 func TestGetAPIConfig_ReturnsError_WhenNotProvidedAPI(t *testing.T) {
-	fileInfo, _ := helper.GetFakeFileInfoAndCollection("mockApiNot", "")
+	fileInfo, _ := getFakeFileInfoAndCollection("mockApiNot", "")
 	fileOps := new(wrapper.FakeFileOps)
 	mgr := Manager{
 		file: fileOps,
@@ -124,7 +125,7 @@ func TestGetAPIConfig_ReturnsError_WhenNotProvidedAPI(t *testing.T) {
 
 func TestGetAPIConfig_ReturnsError_WhenDecodeFails(t *testing.T) {
 	dir := "mockApi"
-	fileInfo, fileCollection := helper.GetFakeFileInfoAndCollection(dir, "testconfig.toml")
+	fileInfo, fileCollection := getFakeFileInfoAndCollection(dir, "testconfig.toml")
 	fileOps := new(wrapper.FakeFileOps)
 	fileOps.On("ReadDir", mock.AnythingOfType("string")).Return(fileCollection, nil)
 	fileOps.On("DecodeFile", mock.AnythingOfType("string"), mock.Anything).Return(toml.MetaData{}, errors.New(""))
@@ -143,7 +144,7 @@ func TestGetAPIConfig_ReturnsError_WhenDecodeFails(t *testing.T) {
 
 func TestGetAPIConfigFromDir_ReturnsAPIConfig_WhenProvidedAPI(t *testing.T) {
 	dir := "testdir"
-	_, fileCollection := helper.GetFakeFileInfoAndCollection("", "testconfig.toml")
+	_, fileCollection := getFakeFileInfoAndCollection("", "testconfig.toml")
 	fileOps := new(wrapper.FakeFileOps)
 	fileOps.On("ReadDir", mock.AnythingOfType("string")).Return(fileCollection, nil)
 	fileOps.On("DecodeFile", mock.AnythingOfType("string"), mock.Anything).Return(toml.MetaData{}, nil)
@@ -163,7 +164,7 @@ func TestGetAPIConfigFromDir_ReturnsAPIConfig_WhenProvidedAPI(t *testing.T) {
 
 func TestGetAPIConfigFromDir_ReturnsNil_WhenNoAPIsInDirectory(t *testing.T) {
 	dir := "testdir"
-	_, fileCollection := helper.GetFakeFileInfoAndCollection("", "testconfig.not")
+	_, fileCollection := getFakeFileInfoAndCollection("", "testconfig.not")
 	fileOps := new(wrapper.FakeFileOps)
 	fileOps.On("ReadDir", mock.AnythingOfType("string")).Return(fileCollection, nil)
 	fileOps.On("DecodeFile", mock.AnythingOfType("string"), mock.Anything).Return(toml.MetaData{}, nil)
@@ -178,4 +179,17 @@ func TestGetAPIConfigFromDir_ReturnsNil_WhenNoAPIsInDirectory(t *testing.T) {
 	assert.Nil(err)
 	assert.Nil(result)
 	fileOps.AssertCalled(t, "ReadDir", expectedDir)
+}
+
+func getFakeFileInfoAndCollection(dir, file string) (os.FileInfo, []os.FileInfo) {
+	fileInfo := new(fake.FileInfo)
+	fileInfo.On("Name").Return(dir)
+	fileInfo.On("IsDir").Return(true)
+
+	fileInfoCollection := []os.FileInfo{}
+	fileInfoInner := new(fake.FileInfo)
+	fileInfoInner.On("Name").Return(file)
+	fileInfoCollection = append(fileInfoCollection, fileInfoInner)
+
+	return fileInfo, fileInfoCollection
 }
