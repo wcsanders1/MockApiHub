@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewRouteTree(t *testing.T) {
+func TestNewRouteTree_ReturnsNewRouteTree_WhenCalled(t *testing.T) {
 	result := NewRouteTree()
 
 	assert := assert.New(t)
@@ -18,15 +18,15 @@ func TestNewRouteTree(t *testing.T) {
 	assert.NotNil(result.branches)
 }
 
-func TestAddRoute(t *testing.T) {
+func TestAddRoute_AddsRoute_WhenProvidedValidRoute(t *testing.T) {
 	route := "test/route"
 	frags := strings.Split(route, "/")
 	routeTree := NewRouteTree()
-	registeredRoute, err := routeTree.AddRoute(route)
+	result, err := routeTree.AddRoute(route)
 
 	assert := assert.New(t)
 	assert.Nil(err)
-	assert.Equal(route, registeredRoute)
+	assert.Equal(route, result)
 	assert.Contains(routeTree.branches, frags[0])
 	assert.NotContains(routeTree.branches, frags[1])
 	assert.Contains(routeTree.branches[frags[0]].branches, frags[1])
@@ -35,24 +35,38 @@ func TestAddRoute(t *testing.T) {
 	assert.Equal(incomplete, routeTree.routeType)
 	assert.Equal(incomplete, routeTree.branches[frags[0]].routeType)
 	assert.Equal(complete, routeTree.branches[frags[0]].branches[frags[1]].routeType)
+}
 
-	retry, err := routeTree.AddRoute(route)
+func TestAddRoute_ReturnsError_WhenProvidedRegisteredRoute(t *testing.T) {
+	route := "test/route"
+	routeTree := NewRouteTree()
+	routeTree.AddRoute(route)
 
+	result, err := routeTree.AddRoute(route)
+
+	assert := assert.New(t)
 	assert.Error(err)
-	assert.Empty(retry)
+	assert.Empty(result)
+}
 
-	dupParamRoute := "test/:param/customers/:param"
-	dupResult, err := routeTree.AddRoute(dupParamRoute)
+func TestAddRoute_ReturnsError_WhenProvidedRouteWithDuplicateParams(t *testing.T) {
+	routeTree := NewRouteTree()
 
+	result, err := routeTree.AddRoute("test/:param/customers/:param")
+
+	assert := assert.New(t)
 	assert.Error(err)
-	assert.Empty(dupResult)
+	assert.Empty(result)
+}
 
-	emptyURL := ""
-	emptyResult, err := routeTree.AddRoute(emptyURL)
+func TestAddRoute_ReturnsError_WhenProvidedNothing(t *testing.T) {
+	routeTree := NewRouteTree()
 
-	assert.Empty(emptyResult)
-	assert.NotEmpty(err)
+	result, err := routeTree.AddRoute("")
+
+	assert := assert.New(t)
 	assert.Error(err)
+	assert.Empty(result)
 }
 
 func TestGetRoute(t *testing.T) {
