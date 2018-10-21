@@ -109,8 +109,7 @@ func (mgr *Manager) decodeAPIConfig(dir string, fileName string) (*APIConfig, er
 }
 
 func isAPIConfig(fileName string) bool {
-	ext := filepath.Ext(fileName)
-	return ext == ".toml"
+	return filepath.Ext(fileName) == ".toml"
 }
 
 func isAPI(dir string) bool {
