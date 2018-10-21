@@ -69,114 +69,137 @@ func TestAddRoute_ReturnsError_WhenProvidedNothing(t *testing.T) {
 	assert.Empty(result)
 }
 
-func TestGetRoute(t *testing.T) {
-	route1 := "test/route/again/and/again"
+func TestGetRoute_ReturnsRoute_WhenOneRouteRegistered(t *testing.T) {
+	route := "test/route/again/and/again"
 	routeTree := NewRouteTree()
-	routeTree.AddRoute(route1)
-	result, params, err := routeTree.GetRoute(route1)
+	routeTree.AddRoute(route)
+
+	result, params, err := routeTree.GetRoute(route)
 
 	assert := assert.New(t)
 	assert.Nil(err)
 	assert.Empty(params)
-	assert.Equal(route1, result)
+	assert.Equal(route, result)
+}
 
-	route2 := "test/route"
-	result, params, err = routeTree.GetRoute(route2)
+func TestGetRoute_ReturnsCorrectRoute_WhenTwoRoutesRegistered(t *testing.T) {
+	route := "test/route"
+	routeTree := NewRouteTree()
+	routeTree.AddRoute("test/route/again/and/again")
+	routeTree.AddRoute(route)
 
+	result, params, err := routeTree.GetRoute(route)
+
+	assert := assert.New(t)
+	assert.Nil(err)
+	assert.Equal(route, result)
+	assert.Empty(params)
+}
+
+func TestGetRoute_ReturnsCorrectRoute_WhenThreeRoutesRegistered(t *testing.T) {
+	route := "test/route/anotherroute"
+	routeTree := NewRouteTree()
+	routeTree.AddRoute("test/route/again/and/again")
+	routeTree.AddRoute("test/route")
+	routeTree.AddRoute(route)
+
+	result, params, err := routeTree.GetRoute(route)
+
+	assert := assert.New(t)
+	assert.Nil(err)
+	assert.Empty(params)
+	assert.Equal(route, result)
+}
+
+func TestGetRoute_ReturnsError_WhenProvidedNonRegisteredRoute(t *testing.T) {
+	routeTree := NewRouteTree()
+	routeTree.AddRoute("test/route/again/and/again")
+	routeTree.AddRoute("test/route")
+	routeTree.AddRoute("test/route/anotherroute")
+
+	result, params, err := routeTree.GetRoute("another/43434/route")
+
+	assert := assert.New(t)
 	assert.Error(err)
+	assert.Empty(params)
 	assert.Empty(result)
-	assert.Empty(params)
+}
 
-	routeTree.AddRoute(route2)
+func TestGetRoute_ReturnsRouteWithParam_WhenRouteHasParam(t *testing.T) {
+	paramKey := "param"
+	paramVal := "43434"
+	route := fmt.Sprintf("another/:%s/route", paramKey)
+	routeTree := NewRouteTree()
+	routeTree.AddRoute(route)
 
-	result, params, err = routeTree.GetRoute(route2)
+	result, params, err := routeTree.GetRoute(fmt.Sprintf("another/%s/route", paramVal))
 
+	assert := assert.New(t)
 	assert.Nil(err)
-	assert.Empty(params)
-	assert.Equal(route2, result)
+	assert.Equal(route, result)
+	assert.Contains(params, paramKey)
+	assert.Equal(paramVal, params[paramKey])
+}
 
-	route3 := "test/route/anotherroute"
+func TestGetRoute_ReturnsRouteWithParam_WhenRouteHasParamAtEnd(t *testing.T) {
+	paramKey := "end"
+	paramVal := "4325"
+	route := fmt.Sprintf("param/at/:%s", paramKey)
+	routeTree := NewRouteTree()
+	routeTree.AddRoute(route)
 
-	result, params, err = routeTree.GetRoute(route3)
+	result, params, err := routeTree.GetRoute(fmt.Sprintf("param/at/%s", paramVal))
 
-	assert.Error(err)
-	assert.Empty(params)
+	assert := assert.New(t)
+	assert.Nil(err)
+	assert.Equal(route, result)
+	assert.Contains(params, paramKey)
+	assert.Equal(paramVal, params[paramKey])
+}
+
+func TestGetRoute_ReturnsRouteWithParams_WhenRouteIsOnlyParams(t *testing.T) {
+	accountParamKey := "account"
+	accountParamVal := "3399"
+	idParamKey := "id"
+	idParamVal := "654h$76"
+	anotherIDParamKey := "another_id"
+	anotherIDParamVal := "9**11"
+	routeNoParams := "just/normal/route"
+	routeOneParam := fmt.Sprintf("just/:%s/param", accountParamKey)
+	routeOnlyParams := fmt.Sprintf(":%s/:%s", idParamKey, anotherIDParamKey)
+	routeTree := NewRouteTree()
+	routeTree.AddRoute(routeNoParams)
+	routeTree.AddRoute(routeOneParam)
+	routeTree.AddRoute(routeOnlyParams)
+
+	noParamRetrievedResult, noParamRetrievedParams, noParamErr := routeTree.GetRoute(routeNoParams)
+	oneParamRetrievedResult, oneParamRetrievedParams, oneParamErr := routeTree.GetRoute(fmt.Sprintf("just/%s/param", accountParamVal))
+	onlyParamsRetrievedResult, onlyParamsRetrievedParams, onlyParamsErr := routeTree.GetRoute(fmt.Sprintf("%s/%s", idParamVal, anotherIDParamVal))
+
+	assert := assert.New(t)
+	assert.Nil(noParamErr)
+	assert.Nil(oneParamErr)
+	assert.Nil(onlyParamsErr)
+	assert.Equal(routeNoParams, noParamRetrievedResult)
+	assert.Equal(routeOneParam, oneParamRetrievedResult)
+	assert.Equal(routeOnlyParams, onlyParamsRetrievedResult)
+	assert.Empty(noParamRetrievedParams)
+	assert.Contains(oneParamRetrievedParams, accountParamKey)
+	assert.Equal(accountParamVal, oneParamRetrievedParams[accountParamKey])
+	assert.Contains(onlyParamsRetrievedParams, idParamKey)
+	assert.Contains(onlyParamsRetrievedParams, anotherIDParamKey)
+	assert.Equal(idParamVal, onlyParamsRetrievedParams[idParamKey])
+	assert.Equal(anotherIDParamVal, onlyParamsRetrievedParams[anotherIDParamKey])
+}
+
+func TestGetRoute_ReturnsError_WhenProvidedNothing(t *testing.T) {
+	routeTree := NewRouteTree()
+
+	result, params, err := routeTree.GetRoute("")
+
+	assert := assert.New(t)
 	assert.Empty(result)
-
-	routeTree.AddRoute(route3)
-
-	result, params, err = routeTree.GetRoute(route3)
-
-	assert.Nil(err)
-	assert.Empty(params)
-	assert.Equal(route3, result)
-
-	result, params, err = routeTree.GetRoute(route1)
-	assert.Nil(err)
-	assert.Empty(params)
-	assert.Equal(route1, result)
-
-	result, params, err = routeTree.GetRoute(route2)
-	assert.Nil(err)
-	assert.Empty(params)
-	assert.Equal(route2, result)
-
-	result, params, err = routeTree.GetRoute(route3)
-	assert.Nil(err)
-	assert.Empty(params)
-	assert.Equal(route3, result)
-
-	_, _, err = routeTree.GetRoute("test")
-	assert.Error(err)
-
-	url := "another/43434/route"
-
-	_, params, err = routeTree.GetRoute(url)
-	assert.Error(err)
-	assert.Empty(params)
-
-	route4 := "another/:param/route"
-	routeTree.AddRoute(route4)
-
-	result, params, err = routeTree.GetRoute(url)
-	assert.Nil(err)
-	assert.Equal(route4, result)
-	assert.Contains(params, "param")
-	assert.Equal("43434", params["param"])
-
-	url = "another/3/route"
-	result, params, err = routeTree.GetRoute(url)
-	assert.Nil(err)
-	assert.Equal(route4, result)
-	assert.Contains(params, "param")
-	assert.Equal("3", params["param"])
-
-	route5 := "param/at/:end"
-	routeTree.AddRoute(route5)
-
-	url = "param/at/4325"
-	result, params, err = routeTree.GetRoute(url)
-	assert.Nil(err)
-	assert.Equal(route5, result)
-	assert.Contains(params, "end")
-	assert.Equal("4325", params["end"])
-
-	route6 := ":id/:another_id"
-	routeTree.AddRoute(route6)
-
-	url = "blah/blah"
-	result, params, err = routeTree.GetRoute(url)
-	assert.Nil(err)
-	assert.Equal(route6, result)
-	assert.Contains(params, "another_id")
-	assert.Equal("blah", params["another_id"])
-
-	emptyURL := ""
-	emptyResult, params, err := routeTree.GetRoute(emptyURL)
-
-	assert.Empty(emptyResult)
 	assert.Nil(params)
-	assert.NotNil(err)
 	assert.Error(err)
 }
 
