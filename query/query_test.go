@@ -6,20 +6,18 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestArrayContains(t *testing.T) {
-	arrInt := []int{4, 5, 6}
-	result := ArrayContains(5, arrInt)
+func TestArrayContains_ReturnsTrue_WhenIntInArray(t *testing.T) {
+	assert.True(t, ArrayContains(5, []int{4, 5, 6}))
+}
 
-	assert := assert.New(t)
-	assert.True(result)
+func TestArrayContains_ReturnsFalse_WhenIntNotInArray(t *testing.T) {
+	assert.False(t, ArrayContains(7, []int{4, 5, 6}))
+}
 
-	result = ArrayContains(7, arrInt)
-	assert.False(result)
+func TestArrayContains_ReturnsTrue_WhenStringInArray(t *testing.T) {
+	assert.True(t, ArrayContains(":id", []string{"hi", ":id", "432"}))
+}
 
-	arrStr := []string{"hi", ":id", "432"}
-	result = ArrayContains(":id", arrStr)
-	assert.True(result)
-
-	result = ArrayContains("id", arrStr)
-	assert.False(result)
+func TestArrayContains_ReturnsFalse_WhenStringNotInArray(t *testing.T) {
+	assert.False(t, ArrayContains("id", []string{"hi", ":id", "432"}))
 }
