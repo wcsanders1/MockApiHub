@@ -1,6 +1,7 @@
 package str
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -12,59 +13,59 @@ func TestGetPort(t *testing.T) {
 	assert.Equal(t, ":5000", port)
 }
 
-func TestGetURLFragments(t *testing.T) {
-	url := "test/url"
-	frags, err := GetURLFragments(url)
+func TestGetURLFragments_ReturnsFragments_WhenProvidedURL(t *testing.T) {
+	firstFrag := "test"
+	secondFrag := "url"
+
+	result, err := GetURLFragments(fmt.Sprintf("%s/%s", firstFrag, secondFrag))
 
 	assert := assert.New(t)
 	assert.Nil(err)
-	assert.NotNil(frags)
-	assert.NotEmpty(frags)
-	assert.Equal(2, len(frags))
-	assert.Equal("test", frags[0])
-	assert.Equal("url", frags[1])
+	assert.NotNil(result)
+	assert.IsType([]string{}, result)
+	assert.NotEmpty(result)
+	assert.Equal(2, len(result))
+	assert.Equal(firstFrag, result[0])
+	assert.Equal(secondFrag, result[1])
+}
 
-	emptyURL := ""
-	frags, err = GetURLFragments(emptyURL)
+func TestGetURLFragmentsReturnsError_WhenProvidedNothing(t *testing.T) {
+	result, err := GetURLFragments("")
 
-	assert.Nil(frags)
-	assert.NotNil(err)
+	assert := assert.New(t)
+	assert.Nil(result)
 	assert.Error(err)
 }
 
-func TestCleanURL(t *testing.T) {
-	url := "/TESt/Url/"
-	result := CleanURL(url)
+func TestCleanURL_ReturnsCleanedURL_WhenProvidedURL(t *testing.T) {
+	result := CleanURL("/TESt/Url/")
 
 	assert := assert.New(t)
 	assert.NotNil(result)
 	assert.NotEmpty(result)
 	assert.Equal("test/url", result)
-
-	emptyURL := ""
-	result = CleanURL(emptyURL)
-
-	assert.Empty(result)
 }
 
-func TestRemoveColonFromParam(t *testing.T) {
-	param := ":id"
-	niceParam := RemoveColonFromParam(param)
-
-	assert := assert.New(t)
-	assert.Equal("id", niceParam)
-
-	emptyStr := ""
-	assert.Empty(RemoveColonFromParam(emptyStr))
+func TestCleanURL_ReturnsNothing_WhenProvidedNothing(t *testing.T) {
+	assert.Empty(t, CleanURL(""))
 }
 
-func TestIsParam(t *testing.T) {
-	param := ":id"
-	nonParam := "id"
-	emptyStr := ""
+func TestRemoveColonFromParam_ReturnsColonlessParam_WhenProvidedParam(t *testing.T) {
+	assert.Equal(t, "id", RemoveColonFromParam(":id"))
+}
 
-	assert := assert.New(t)
-	assert.True(IsParam(param))
-	assert.False(IsParam(nonParam))
-	assert.False(IsParam(emptyStr))
+func TestRemoveColonFromParam_ReturnsNothing_WhenProvidedNothing(t *testing.T) {
+	assert.Empty(t, RemoveColonFromParam(""))
+}
+
+func TestIsParam_ReturnsTrue_WhenProvidedParam(t *testing.T) {
+	assert.True(t, IsParam(":id"))
+}
+
+func TestIsParam_ReturnsFalse_WhenProvidedNonParam(t *testing.T) {
+	assert.False(t, IsParam("id"))
+}
+
+func TestIsParam_ReturnsFalse_WhenProvidedNothing(t *testing.T) {
+	assert.False(t, IsParam(""))
 }

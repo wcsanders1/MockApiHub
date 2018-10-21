@@ -31,7 +31,7 @@ func TestGetJSON_ReturnsJSON_WhenRetrievedFromFile(t *testing.T) {
 
 	assert := assert.New(t)
 	assert.NotNil(result)
-	assert.Nil(err)
+	assert.Error(err)
 	fileOps.AssertCalled(t, "Open", file)
 	fileOps.AssertCalled(t, "ReadAll", mock.AnythingOfType("*os.File"))
 }
@@ -44,7 +44,7 @@ func TestGetJSON_ReturnsError_WhenOpenFileFails(t *testing.T) {
 	result, err := GetJSON(file, fileOps)
 
 	assert := assert.New(t)
-	assert.NotNil(err)
+	assert.Error(err)
 	assert.Nil(result)
 	fileOps.AssertCalled(t, "Open", file)
 	fileOps.AssertNotCalled(t, "ReadAll", mock.AnythingOfType("*os.File"))
@@ -59,7 +59,7 @@ func TestGetJSON_ReturnsError_WhenReadFileFails(t *testing.T) {
 	result, err := GetJSON(file, fileOps)
 
 	assert := assert.New(t)
-	assert.NotNil(err)
+	assert.Error(err)
 	assert.Nil(result)
 	fileOps.AssertCalled(t, "Open", file)
 	fileOps.AssertCalled(t, "ReadAll", mock.AnythingOfType("*os.File"))
@@ -74,7 +74,7 @@ func TestGetJSON_ReturnsError_WhenJSONInvalid(t *testing.T) {
 	result, err := GetJSON(file, fileOps)
 
 	assert := assert.New(t)
-	assert.NotNil(err)
+	assert.Error(err)
 	assert.Nil(result)
 	fileOps.AssertCalled(t, "Open", file)
 	fileOps.AssertCalled(t, "ReadAll", mock.AnythingOfType("*os.File"))
