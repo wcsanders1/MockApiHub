@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestNewConfigManager(t *testing.T) {
+func TestNewConfigManager_ReturnsNewConfigManager_WhenCalled(t *testing.T) {
 	result := NewConfigManager()
 
 	assert := assert.New(t)
@@ -25,187 +25,171 @@ func TestNewConfigManager(t *testing.T) {
 	assert.IsType(&wrapper.FileOps{}, result.file)
 }
 
-func TestIsAPIConfig(t *testing.T) {
-	fileName := "test.toml"
-	result := isAPIConfig(fileName)
-
-	assert := assert.New(t)
-	assert.True(result)
-
-	fileName = "test.exe"
-	result = isAPIConfig(fileName)
-
-	assert.False(result)
-
-	fileName = ""
-	result = isAPIConfig(fileName)
-
-	assert.False(result)
+func TestIsAPIConfig_ReturnsTrue_WhenFileIsConfig(t *testing.T) {
+	assert.True(t, isAPIConfig("test.toml"))
 }
 
-func TestIsAPI(t *testing.T) {
-	dirName := "testApi"
-	result := isAPI(dirName)
-
-	assert := assert.New(t)
-	assert.True(result)
-
-	dirName = "test"
-	result = isAPI(dirName)
-
-	assert.False(result)
-
-	dirName = ""
-	result = isAPI(dirName)
-
-	assert.False(result)
+func TestIsAPIConfig_ReturnsFalse_WhenFileIsNotConfig(t *testing.T) {
+	assert.False(t, isAPIConfig("test.exe"))
 }
 
-func TestDecodeAPIConfig(t *testing.T) {
-	basicOpsPass := new(wrapper.FakeFileOps)
-	basicOpsPass.On("DecodeFile", mock.AnythingOfType("string"), mock.Anything).Return(toml.MetaData{}, nil)
+func TestIsAPIConfig_ReturnsFalse_WhenGivenNoFile(t *testing.T) {
+	assert.False(t, isAPIConfig(""))
+}
 
-	mgrPass := Manager{
-		file: basicOpsPass,
+func TestIsAPI_ReturnsTrue_WhenIsAPIDirectory(t *testing.T) {
+	assert.True(t, isAPI("testApi"))
+}
+
+func TestIsAPI_ReturnsFalse_WhenIsNotAPIDirectory(t *testing.T) {
+	assert.False(t, isAPI("test"))
+}
+
+func TestIsAPI_ReturnsFalse_WhenNoDirectoryProvided(t *testing.T) {
+	assert.False(t, isAPI(""))
+}
+
+func TestDecodeAPIConfig_ReturnsAPIConfig_WhenDecodeSuccessful(t *testing.T) {
+	dir := "testDir"
+	file := "testfile"
+	path := fmt.Sprintf("%s/%s/%s", constants.APIDir, dir, file)
+	fileOps := new(wrapper.FakeFileOps)
+	fileOps.On("DecodeFile", mock.AnythingOfType("string"), mock.Anything).Return(toml.MetaData{}, nil)
+	mgr := Manager{
+		file: fileOps,
 	}
 
-	dir := "testDir"
-	fileName := "testfile"
-	path := fmt.Sprintf("%s/%s/%s", constants.APIDir, dir, fileName)
-
-	result, err := mgrPass.decodeAPIConfig(dir, fileName)
+	result, err := mgr.decodeAPIConfig(dir, file)
 
 	assert := assert.New(t)
 	assert.Nil(err)
 	assert.NotNil(result)
 	assert.IsType(&APIConfig{}, result)
-	basicOpsPass.AssertCalled(t, "DecodeFile", path, mock.AnythingOfType("*config.APIConfig"))
-
-	basicOpsFail := new(wrapper.FakeFileOps)
-	basicOpsFail.On("DecodeFile", mock.AnythingOfType("string"), mock.Anything).Return(toml.MetaData{}, errors.New(""))
-
-	mgrFail := Manager{
-		file: basicOpsFail,
-	}
-
-	result2, err2 := mgrFail.decodeAPIConfig(dir, fileName)
-	assert.Error(err2)
-	assert.Nil(result2)
-	assert.IsType(&APIConfig{}, result2)
-	basicOpsFail.AssertCalled(t, "DecodeFile", path, mock.AnythingOfType("*config.APIConfig"))
+	fileOps.AssertCalled(t, "DecodeFile", path, mock.AnythingOfType("*config.APIConfig"))
 }
 
-func TestGetAPIConfig(t *testing.T) {
-	apiDirInner := "mockApi"
-	expectedDir := fmt.Sprintf("%s/%s", constants.APIDir, apiDirInner)
-	fileInfoPass := new(fake.FileInfo)
-	fileInfoPass.On("Name").Return(apiDirInner)
-	fileInfoPass.On("IsDir").Return(true)
+func TestDecodeAPIConfig_ReturnsError_WhenDecodeFails(t *testing.T) {
+	dir := "testDir"
+	file := "testfile"
+	path := fmt.Sprintf("%s/%s/%s", constants.APIDir, dir, file)
+	fileOps := new(wrapper.FakeFileOps)
+	fileOps.On("DecodeFile", mock.AnythingOfType("string"), mock.Anything).Return(toml.MetaData{}, errors.New(""))
+
+	mgr := Manager{
+		file: fileOps,
+	}
+
+	result, err := mgr.decodeAPIConfig(dir, file)
+
+	assert := assert.New(t)
+	assert.Error(err)
+	assert.Nil(result)
+	assert.IsType(&APIConfig{}, result)
+	fileOps.AssertCalled(t, "DecodeFile", path, mock.AnythingOfType("*config.APIConfig"))
+}
+
+func TestGetAPIConfig_ReturnsAPIConfig_WhenProvidedAPI(t *testing.T) {
+	dir := "mockApi"
+	fileInfo, fileCollection := getFakeFileInfoAndCollection(dir, "testconfig.toml")
+	fileOps := new(wrapper.FakeFileOps)
+	fileOps.On("ReadDir", mock.AnythingOfType("string")).Return(fileCollection, nil)
+	fileOps.On("DecodeFile", mock.AnythingOfType("string"), mock.Anything).Return(toml.MetaData{}, nil)
+	mgr := Manager{
+		file: fileOps,
+	}
+
+	result, err := mgr.GetAPIConfig(fileInfo)
+
+	expectedDir := fmt.Sprintf("%s/%s", constants.APIDir, dir)
+	assert := assert.New(t)
+	assert.Nil(err)
+	assert.NotNil(result)
+	fileOps.AssertCalled(t, "ReadDir", expectedDir)
+}
+
+func TestGetAPIConfig_ReturnsError_WhenNotProvidedAPI(t *testing.T) {
+	fileInfo, _ := getFakeFileInfoAndCollection("mockApiNot", "")
+	fileOps := new(wrapper.FakeFileOps)
+	mgr := Manager{
+		file: fileOps,
+	}
+
+	result, err := mgr.GetAPIConfig(fileInfo)
+
+	assert := assert.New(t)
+	assert.Error(err)
+	assert.Nil(result)
+	fileOps.AssertNotCalled(t, "ReadDir", mock.AnythingOfType("string"))
+	fileOps.AssertNotCalled(t, "DecodeFile", mock.AnythingOfType("string"), mock.Anything)
+}
+
+func TestGetAPIConfig_ReturnsError_WhenDecodeFails(t *testing.T) {
+	dir := "mockApi"
+	fileInfo, fileCollection := getFakeFileInfoAndCollection(dir, "testconfig.toml")
+	fileOps := new(wrapper.FakeFileOps)
+	fileOps.On("ReadDir", mock.AnythingOfType("string")).Return(fileCollection, nil)
+	fileOps.On("DecodeFile", mock.AnythingOfType("string"), mock.Anything).Return(toml.MetaData{}, errors.New(""))
+	mgr := Manager{
+		file: fileOps,
+	}
+
+	result, err := mgr.GetAPIConfig(fileInfo)
+
+	expectedDir := fmt.Sprintf("%s/%s", constants.APIDir, dir)
+	assert := assert.New(t)
+	assert.Error(err)
+	assert.Nil(result)
+	fileOps.AssertCalled(t, "ReadDir", expectedDir)
+}
+
+func TestGetAPIConfigFromDir_ReturnsAPIConfig_WhenProvidedAPI(t *testing.T) {
+	dir := "testdir"
+	_, fileCollection := getFakeFileInfoAndCollection("", "testconfig.toml")
+	fileOps := new(wrapper.FakeFileOps)
+	fileOps.On("ReadDir", mock.AnythingOfType("string")).Return(fileCollection, nil)
+	fileOps.On("DecodeFile", mock.AnythingOfType("string"), mock.Anything).Return(toml.MetaData{}, nil)
+	mgr := Manager{
+		file: fileOps,
+	}
+
+	result, err := mgr.getAPIConfigFromDir(dir)
+
+	expectedDir := fmt.Sprintf("%s/%s", constants.APIDir, dir)
+	assert := assert.New(t)
+	assert.Nil(err)
+	assert.NotNil(result)
+	assert.IsType(&APIConfig{}, result)
+	fileOps.AssertCalled(t, "ReadDir", expectedDir)
+}
+
+func TestGetAPIConfigFromDir_ReturnsNil_WhenNoAPIsInDirectory(t *testing.T) {
+	dir := "testdir"
+	_, fileCollection := getFakeFileInfoAndCollection("", "testconfig.not")
+	fileOps := new(wrapper.FakeFileOps)
+	fileOps.On("ReadDir", mock.AnythingOfType("string")).Return(fileCollection, nil)
+	fileOps.On("DecodeFile", mock.AnythingOfType("string"), mock.Anything).Return(toml.MetaData{}, nil)
+	mgr := Manager{
+		file: fileOps,
+	}
+
+	result, err := mgr.getAPIConfigFromDir(dir)
+
+	expectedDir := fmt.Sprintf("%s/%s", constants.APIDir, dir)
+	assert := assert.New(t)
+	assert.Nil(err)
+	assert.Nil(result)
+	fileOps.AssertCalled(t, "ReadDir", expectedDir)
+}
+
+func getFakeFileInfoAndCollection(dir, file string) (os.FileInfo, []os.FileInfo) {
+	fileInfo := new(fake.FileInfo)
+	fileInfo.On("Name").Return(dir)
+	fileInfo.On("IsDir").Return(true)
 
 	fileInfoCollection := []os.FileInfo{}
 	fileInfoInner := new(fake.FileInfo)
-	fileInfoInner.On("Name").Return("testconfig.toml")
+	fileInfoInner.On("Name").Return(file)
 	fileInfoCollection = append(fileInfoCollection, fileInfoInner)
 
-	basicOpsIsAPI := new(wrapper.FakeFileOps)
-	basicOpsIsAPI.On("ReadDir", mock.AnythingOfType("string")).Return(fileInfoCollection, nil)
-	basicOpsIsAPI.On("DecodeFile", mock.AnythingOfType("string"), mock.Anything).Return(toml.MetaData{}, nil)
-
-	mgrIsAPI := Manager{
-		file: basicOpsIsAPI,
-	}
-
-	result, err := mgrIsAPI.GetAPIConfig(fileInfoPass)
-	assert := assert.New(t)
-	assert.Nil(err)
-	assert.NotNil(result)
-	basicOpsIsAPI.AssertCalled(t, "ReadDir", expectedDir)
-
-	fileInfoNotAPI := new(fake.FileInfo)
-	fileInfoNotAPI.On("IsDir").Return(true)
-	fileInfoNotAPI.On("Name").Return("mockApiNot")
-
-	basicOpsNotAPI := new(wrapper.FakeFileOps)
-	basicOpsNotAPI.On("ReadDir", mock.AnythingOfType("string")).Return(fileInfoCollection, nil)
-	basicOpsNotAPI.On("DecodeFile", mock.AnythingOfType("string"), mock.Anything).Return(toml.MetaData{}, nil)
-
-	mgrNotAPI := Manager{
-		file: basicOpsNotAPI,
-	}
-
-	result2, err2 := mgrNotAPI.GetAPIConfig(fileInfoNotAPI)
-	assert.Error(err2)
-	assert.Nil(result2)
-	basicOpsNotAPI.AssertNotCalled(t, "ReadDir", mock.AnythingOfType("string"))
-	basicOpsNotAPI.AssertNotCalled(t, "DecodeFile", mock.AnythingOfType("string"), mock.Anything)
-
-	basicOpsDecodeErr := new(wrapper.FakeFileOps)
-	basicOpsDecodeErr.On("ReadDir", mock.AnythingOfType("string")).Return(fileInfoCollection, nil)
-	basicOpsDecodeErr.On("DecodeFile", mock.AnythingOfType("string"), mock.Anything).Return(toml.MetaData{}, errors.New(""))
-
-	mgrDecodeErr := Manager{
-		file: basicOpsDecodeErr,
-	}
-
-	result3, err3 := mgrDecodeErr.GetAPIConfig(fileInfoPass)
-	assert.Error(err3)
-	assert.Nil(result3)
-	basicOpsIsAPI.On("ReadDir", mock.AnythingOfType("string")).Return(fileInfoCollection, nil)
-	basicOpsIsAPI.On("DecodeFile", mock.AnythingOfType("string"), mock.Anything).Return(toml.MetaData{}, nil)
-}
-
-func TestGetAPIConfigFromDir(t *testing.T) {
-	dir := "testdir"
-	expectedDir := fmt.Sprintf("%s/%s", constants.APIDir, dir)
-	fileInfo := []os.FileInfo{}
-	fileInfoPass := new(fake.FileInfo)
-	fileInfoPass.On("Name").Return("testconfig.toml")
-	fileInfo = append(fileInfo, fileInfoPass)
-
-	basicOpsPass := new(wrapper.FakeFileOps)
-	basicOpsPass.On("ReadDir", mock.AnythingOfType("string")).Return(fileInfo, nil)
-	basicOpsPass.On("DecodeFile", mock.AnythingOfType("string"), mock.Anything).Return(toml.MetaData{}, nil)
-
-	mgrPass := Manager{
-		file: basicOpsPass,
-	}
-
-	result, err := mgrPass.getAPIConfigFromDir(dir)
-
-	assert := assert.New(t)
-	assert.Nil(err)
-	assert.NotNil(result)
-	assert.IsType(&APIConfig{}, result)
-	basicOpsPass.AssertCalled(t, "ReadDir", expectedDir)
-
-	fileInfoNotAPIConfig := []os.FileInfo{}
-	fileInfoNil := new(fake.FileInfo)
-	fileInfoNil.On("Name").Return("testconfig.not")
-	fileInfoNotAPIConfig = append(fileInfoNotAPIConfig, fileInfoNil)
-
-	basicOpsNil := new(wrapper.FakeFileOps)
-	basicOpsNil.On("ReadDir", mock.AnythingOfType("string")).Return(fileInfoNotAPIConfig, nil)
-	basicOpsNil.On("DecodeFile", mock.AnythingOfType("string"), mock.Anything).Return(toml.MetaData{}, nil)
-
-	mgrNil := Manager{
-		file: basicOpsNil,
-	}
-
-	result2, err2 := mgrNil.getAPIConfigFromDir(dir)
-	assert.Nil(err2)
-	assert.Nil(result2)
-	basicOpsNil.AssertCalled(t, "ReadDir", expectedDir)
-
-	basicOpsErr := new(wrapper.FakeFileOps)
-	basicOpsErr.On("ReadDir", mock.AnythingOfType("string")).Return(fileInfo, nil)
-	basicOpsErr.On("DecodeFile", mock.AnythingOfType("string"), mock.Anything).Return(toml.MetaData{}, errors.New(""))
-
-	mgrErr := Manager{
-		file: basicOpsErr,
-	}
-
-	result3, err3 := mgrErr.getAPIConfigFromDir(dir)
-	assert.Error(err3)
-	assert.Nil(result3)
-	basicOpsNil.AssertCalled(t, "ReadDir", expectedDir)
+	return fileInfo, fileInfoCollection
 }
