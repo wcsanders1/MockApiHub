@@ -2,8 +2,9 @@ package manager
 
 import (
 	"errors"
-	"os"
 	"testing"
+
+	"github.com/wcsanders1/MockApiHub/helper"
 
 	"github.com/wcsanders1/MockApiHub/api"
 	"github.com/wcsanders1/MockApiHub/config"
@@ -89,103 +90,110 @@ func TestAPIPortExists_ReturnsTrue_WhenProvidedRegisteredPort(t *testing.T) {
 
 }
 
-func TestLoadMockAPIs(t *testing.T) {
-	fileInfoCollection := []os.FileInfo{}
-	fileInfoInner := new(fake.FileInfo)
-	fileInfoInner.On("Name").Return("testconfig.toml")
-	fileInfoCollection = append(fileInfoCollection, fileInfoInner)
-
-	basicOpsIsAPI := new(wrapper.FakeFileOps)
-	basicOpsIsAPI.On("ReadDir", mock.AnythingOfType("string")).Return(fileInfoCollection, nil)
-
-	testAPIConfig := &config.APIConfig{
-		HTTP: config.HTTP{
-			Port: 4000,
-		},
-	}
+func TestLoadMockAPIs_ReturnsNil_WhenProvidedValidAPI(t *testing.T) {
+	_, fileCollection := helper.GetFakeFileInfoAndCollection("", "testconfig.toml")
+	fileOps := new(wrapper.FakeFileOps)
+	fileOps.On("ReadDir", mock.AnythingOfType("string")).Return(fileCollection, nil)
+	apiConfig := helper.GetFakeAPIConfig(4000)
 	configManager := new(config.FakeManager)
-	configManager.On("GetAPIConfig", mock.AnythingOfType("*fake.FileInfo")).Return(testAPIConfig, nil)
-
+	configManager.On("GetAPIConfig", mock.AnythingOfType("*fake.FileInfo")).Return(apiConfig, nil)
 	mgr := Manager{
-		file:          basicOpsIsAPI,
+		file:          fileOps,
 		configManager: configManager,
 		log:           log.GetFakeLogger(),
 		apis:          make(map[string]api.IAPI),
 	}
 
 	err := mgr.loadMockAPIs()
+
 	assert := assert.New(t)
 	assert.Nil(err)
 	configManager.AssertCalled(t, "GetAPIConfig", mock.AnythingOfType("*fake.FileInfo"))
+}
 
-	configManagerErr := new(config.FakeManager)
-	configManagerErr.On("GetAPIConfig", mock.AnythingOfType("*fake.FileInfo")).Return(testAPIConfig, errors.New(""))
-
-	mgrNoConfig := Manager{
-		file:          basicOpsIsAPI,
-		configManager: configManagerErr,
+func TestLoadMockAPIs_ReturnsNil_WhenGetConfigFails(t *testing.T) {
+	_, fileCollection := helper.GetFakeFileInfoAndCollection("", "testconfig.toml")
+	fileOps := new(wrapper.FakeFileOps)
+	fileOps.On("ReadDir", mock.AnythingOfType("string")).Return(fileCollection, nil)
+	apiConfig := helper.GetFakeAPIConfig(4000)
+	configManager := new(config.FakeManager)
+	configManager.On("GetAPIConfig", mock.AnythingOfType("*fake.FileInfo")).Return(apiConfig, errors.New(""))
+	mgr := Manager{
+		file:          fileOps,
+		configManager: configManager,
 		log:           log.GetFakeLogger(),
 		apis:          make(map[string]api.IAPI),
 	}
 
-	errNoConfig := mgrNoConfig.loadMockAPIs()
-	assert.Nil(errNoConfig)
+	err := mgr.loadMockAPIs()
 
-	basicOpsReadDirErr := new(wrapper.FakeFileOps)
-	basicOpsReadDirErr.On("ReadDir", mock.AnythingOfType("string")).Return([]os.FileInfo{}, errors.New(""))
-	configMgrReadDirErr := new(config.FakeManager)
+	assert := assert.New(t)
+	assert.Nil(err)
+	configManager.AssertCalled(t, "GetAPIConfig", mock.AnythingOfType("*fake.FileInfo"))
+}
 
-	mgrReadDirErr := Manager{
-		file:          basicOpsReadDirErr,
-		configManager: configMgrReadDirErr,
-		log:           log.GetFakeLogger(),
-	}
-
-	errReadDir := mgrReadDirErr.loadMockAPIs()
-	assert.Error(errReadDir)
-	configMgrReadDirErr.AssertNotCalled(t, "GetAPIConfig", mock.Anything)
-
-	configManagerDupPort := new(config.FakeManager)
-	configManagerDupPort.On("GetAPIConfig", mock.AnythingOfType("*fake.FileInfo")).Return(testAPIConfig, nil)
-	fileInfoInner2 := new(fake.FileInfo)
-	fileInfoInner2.On("Name").Return("testconfig2.toml")
-	fileInfoCollection = append(fileInfoCollection, fileInfoInner2)
-
-	basicOpsDupPort := new(wrapper.FakeFileOps)
-	basicOpsDupPort.On("ReadDir", mock.AnythingOfType("string")).Return(fileInfoCollection, nil)
-
-	mgrDupPort := Manager{
-		file:          basicOpsDupPort,
-		configManager: configManagerDupPort,
+func TestLoadMockAPIs_ReturnsError_WhenReadDirFails(t *testing.T) {
+	_, fileCollection := helper.GetFakeFileInfoAndCollection("", "testconfig.toml")
+	fileOps := new(wrapper.FakeFileOps)
+	fileOps.On("ReadDir", mock.AnythingOfType("string")).Return(fileCollection, errors.New(""))
+	configManager := new(config.FakeManager)
+	mgr := Manager{
+		file:          fileOps,
+		configManager: configManager,
 		log:           log.GetFakeLogger(),
 		apis:          make(map[string]api.IAPI),
 	}
 
-	errDupPort := mgrDupPort.loadMockAPIs()
-	assert.Nil(errDupPort)
-	assert.Equal(1, len(mgrDupPort.apis))
+	err := mgr.loadMockAPIs()
 
-	testAPIConfigPortZero := &config.APIConfig{
-		HTTP: config.HTTP{
-			Port: 0,
-		},
-	}
+	assert := assert.New(t)
+	assert.Error(err)
+	configManager.AssertNotCalled(t, "GetAPIConfig", mock.Anything)
+}
 
-	configMgrPortZero := new(config.FakeManager)
-	configMgrPortZero.On("GetAPIConfig", mock.AnythingOfType("*fake.FileInfo")).Return(testAPIConfigPortZero, nil)
-	basicOpsPortZero := new(wrapper.FakeFileOps)
-	basicOpsPortZero.On("ReadDir", mock.AnythingOfType("string")).Return(fileInfoCollection, nil)
-
-	mgrPortZero := Manager{
-		file:          basicOpsPortZero,
-		configManager: configMgrPortZero,
+func TestLoadMockAPIs_LoadsOneAPI_WhenProvidedTwoWithSamePort(t *testing.T) {
+	_, fileCollection := helper.GetFakeFileInfoAndCollection("", "testconfig.toml")
+	fileInfo, _ := helper.GetFakeFileInfoAndCollection("", "testconfig2.toml")
+	fileCollection = append(fileCollection, fileInfo)
+	fileOps := new(wrapper.FakeFileOps)
+	fileOps.On("ReadDir", mock.AnythingOfType("string")).Return(fileCollection, nil)
+	apiConfig := helper.GetFakeAPIConfig(4000)
+	configManager := new(config.FakeManager)
+	configManager.On("GetAPIConfig", mock.AnythingOfType("*fake.FileInfo")).Return(apiConfig, nil)
+	mgr := Manager{
+		file:          fileOps,
+		configManager: configManager,
 		log:           log.GetFakeLogger(),
 		apis:          make(map[string]api.IAPI),
 	}
 
-	errPortZero := mgrPortZero.loadMockAPIs()
-	assert.Nil(errPortZero)
-	assert.Empty(mgrPortZero.apis)
+	err := mgr.loadMockAPIs()
+
+	assert := assert.New(t)
+	assert.Nil(err)
+	assert.Equal(1, len(mgr.apis))
+	configManager.AssertCalled(t, "GetAPIConfig", mock.AnythingOfType("*fake.FileInfo"))
+}
+
+func TestLoadMockAPIs_DoesNotLoadAPI_WhenPortIsZero(t *testing.T) {
+	_, fileCollection := helper.GetFakeFileInfoAndCollection("", "testconfig.toml")
+	fileOps := new(wrapper.FakeFileOps)
+	fileOps.On("ReadDir", mock.AnythingOfType("string")).Return(fileCollection, nil)
+	apiConfig := helper.GetFakeAPIConfig(0)
+	configManager := new(config.FakeManager)
+	configManager.On("GetAPIConfig", mock.AnythingOfType("*fake.FileInfo")).Return(apiConfig, nil)
+	mgr := Manager{
+		file:          fileOps,
+		configManager: configManager,
+		log:           log.GetFakeLogger(),
+		apis:          make(map[string]api.IAPI),
+	}
+
+	err := mgr.loadMockAPIs()
+
+	assert := assert.New(t)
+	assert.Nil(err)
+	assert.Empty(mgr.apis)
 }
 
 func TestRegisterMockAPIs(t *testing.T) {

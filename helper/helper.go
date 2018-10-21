@@ -3,6 +3,8 @@ package helper
 import (
 	"os"
 
+	"github.com/wcsanders1/MockApiHub/config"
+
 	"github.com/wcsanders1/MockApiHub/fake"
 )
 
@@ -19,4 +21,13 @@ func GetFakeFileInfoAndCollection(dir, file string) (os.FileInfo, []os.FileInfo)
 	fileInfoCollection = append(fileInfoCollection, fileInfoInner)
 
 	return fileInfo, fileInfoCollection
+}
+
+// GetFakeAPIConfig returns a fake *config.APIConfig.
+func GetFakeAPIConfig(port int) *config.APIConfig {
+	return &config.APIConfig{
+		HTTP: config.HTTP{
+			Port: port,
+		},
+	}
 }
