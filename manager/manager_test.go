@@ -4,11 +4,10 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/wcsanders1/MockApiHub/helper"
-
 	"github.com/wcsanders1/MockApiHub/api"
 	"github.com/wcsanders1/MockApiHub/config"
 	"github.com/wcsanders1/MockApiHub/fake"
+	"github.com/wcsanders1/MockApiHub/helper"
 	"github.com/wcsanders1/MockApiHub/log"
 	"github.com/wcsanders1/MockApiHub/wrapper"
 
@@ -196,54 +195,47 @@ func TestLoadMockAPIs_DoesNotLoadAPI_WhenPortIsZero(t *testing.T) {
 	assert.Empty(mgr.apis)
 }
 
-func TestRegisterMockAPIs(t *testing.T) {
-	baseURL := "baseURL"
-	port := 4000
+func TestRegisterMockAPIs_RegistersAPI_WithCertAndKey(t *testing.T) {
 	certFile := "testCert"
 	keyFile := "testKey"
 	dir := "fakeAPI"
 	fakeAPI := new(api.FakeAPI)
-	fakeAPI.On("GetBaseURL").Return(baseURL)
-	fakeAPI.On("GetPort").Return(port)
+	fakeAPI.On("GetBaseURL").Return("baseURL")
+	fakeAPI.On("GetPort").Return(4000)
 	fakeAPI.On("Register", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(nil)
-
 	apis := map[string]api.IAPI{
 		dir: fakeAPI,
 	}
-
-	fakeConfig := &config.AppConfig{
-		HTTP: config.HTTP{
-			CertFile: certFile,
-			KeyFile:  keyFile,
-		},
-	}
-
-	mgrNoErr := Manager{
+	mgr := Manager{
 		apis:   apis,
-		config: fakeConfig,
+		config: helper.GetFakeAppConfig(certFile, keyFile),
 		log:    log.GetFakeLogger(),
 	}
 
-	mgrNoErr.registerMockAPIs()
+	mgr.registerMockAPIs()
+
 	fakeAPI.AssertCalled(t, "Register", dir, certFile, keyFile)
+}
 
-	fakeAPIErr := new(api.FakeAPI)
-	fakeAPIErr.On("GetBaseURL").Return(baseURL)
-	fakeAPIErr.On("GetPort").Return(port)
-	fakeAPIErr.On("Register", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(errors.New(""))
-
-	apisErr := map[string]api.IAPI{
-		dir: fakeAPIErr,
+func TestRegisterMockAPIs_DoesNotPanic_WhenRegisterFails(t *testing.T) {
+	certFile := "testCert"
+	keyFile := "testKey"
+	dir := "fakeAPI"
+	fakeAPI := new(api.FakeAPI)
+	fakeAPI.On("GetBaseURL").Return("baseURL")
+	fakeAPI.On("GetPort").Return(4000)
+	fakeAPI.On("Register", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(errors.New(""))
+	apis := map[string]api.IAPI{
+		dir: fakeAPI,
 	}
-
-	mgrErr := Manager{
-		apis:   apisErr,
-		config: fakeConfig,
+	mgr := Manager{
+		apis:   apis,
+		config: helper.GetFakeAppConfig(certFile, keyFile),
 		log:    log.GetFakeLogger(),
 	}
 
-	mgrErr.registerMockAPIs()
-	fakeAPIErr.AssertCalled(t, "Register", dir, certFile, keyFile)
+	assert.NotPanics(t, func() { mgr.registerMockAPIs() })
+	fakeAPI.AssertCalled(t, "Register", dir, certFile, keyFile)
 }
 
 func TestStartHubServerUsingTLS(t *testing.T) {

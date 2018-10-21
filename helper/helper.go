@@ -31,3 +31,13 @@ func GetFakeAPIConfig(port int) *config.APIConfig {
 		},
 	}
 }
+
+// GetFakeAppConfig returns a fake *config.AppConfig
+func GetFakeAppConfig(certFile, keyFile string) *config.AppConfig {
+	return &config.AppConfig{
+		HTTP: config.HTTP{
+			CertFile: certFile,
+			KeyFile:  keyFile,
+		},
+	}
+}
