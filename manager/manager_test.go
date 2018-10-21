@@ -15,11 +15,10 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestNewManager(t *testing.T) {
-	port := 4000
+func TestNewManager_ReturnsManager_WhenConfigValid(t *testing.T) {
 	cfg := &config.AppConfig{
 		HTTP: config.HTTP{
-			Port: port,
+			Port: 4000,
 		},
 	}
 
@@ -28,15 +27,19 @@ func TestNewManager(t *testing.T) {
 	assert := assert.New(t)
 	assert.Nil(err)
 	assert.NotNil(result)
+	assert.IsType(&Manager{}, result)
+}
 
-	badCfg := &config.AppConfig{
+func TestNewManager_ReturnsError_WhenPortNotProvided(t *testing.T) {
+	cfg := &config.AppConfig{
 		HTTP: config.HTTP{
 			Port: 0,
 		},
 	}
 
-	result, err = NewManager(badCfg)
+	result, err := NewManager(cfg)
 
+	assert := assert.New(t)
 	assert.Nil(result)
 	assert.Error(err)
 }
