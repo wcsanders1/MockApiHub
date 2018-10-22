@@ -18,7 +18,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// Manager coordinates and controls the apis
+// Manager coordinates and controls the mock apis
 type Manager struct {
 	apis           map[string]api.IAPI
 	config         *config.AppConfig
