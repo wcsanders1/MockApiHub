@@ -354,6 +354,7 @@ func TestStartHubServer_ReturnsNil_WhenStartUsingTLSSucceeds(t *testing.T) {
 	err := mgr.startHubServer()
 
 	assert.Nil(t, err)
+	fakeServer.AssertCalled(t, "ListenAndServeTLS", certFile, keyFile)
 }
 
 func TestStartHubServer_ReturnsError_WhenStartUsingTLSFails(t *testing.T) {
@@ -375,14 +376,13 @@ func TestStartHubServer_ReturnsError_WhenStartUsingTLSFails(t *testing.T) {
 	err := mgr.startHubServer()
 
 	assert.Error(t, err)
+	fakeServer.AssertCalled(t, "ListenAndServeTLS", certFile, keyFile)
 }
 
 func TestStartHubServer_ReturnsNil_WhenStartSucceeds(t *testing.T) {
-	certFile := "testCertFile"
-	keyFile := "testKeyFile"
 	fileOps := new(wrapper.FakeFileOps)
 	fileOps.On("Stat", mock.AnythingOfType("string")).Return(new(fake.FileInfo), nil)
-	fakeConfig := helper.GetFakeAppConfig(certFile, keyFile)
+	fakeConfig := helper.GetFakeAppConfig("", "")
 	fakeConfig.HTTP.UseTLS = false
 	fakeServer := new(wrapper.FakeServerOps)
 	fakeServer.On("ListenAndServe").Return(nil)
@@ -396,14 +396,13 @@ func TestStartHubServer_ReturnsNil_WhenStartSucceeds(t *testing.T) {
 	err := mgr.startHubServer()
 
 	assert.Nil(t, err)
+	fakeServer.AssertCalled(t, "ListenAndServe")
 }
 
 func TestStartHubServer_ReturnsError_WhenStartFails(t *testing.T) {
-	certFile := "testCertFile"
-	keyFile := "testKeyFile"
 	fileOps := new(wrapper.FakeFileOps)
 	fileOps.On("Stat", mock.AnythingOfType("string")).Return(new(fake.FileInfo), nil)
-	fakeConfig := helper.GetFakeAppConfig(certFile, keyFile)
+	fakeConfig := helper.GetFakeAppConfig("", "")
 	fakeConfig.HTTP.UseTLS = false
 	fakeServer := new(wrapper.FakeServerOps)
 	fakeServer.On("ListenAndServe").Return(errors.New(""))
@@ -417,4 +416,33 @@ func TestStartHubServer_ReturnsError_WhenStartFails(t *testing.T) {
 	err := mgr.startHubServer()
 
 	assert.Error(t, err)
+	fakeServer.AssertCalled(t, "ListenAndServe")
+}
+
+func TestShutdownHubServer_ReturnsNil_WhenShutdownSucceeds(t *testing.T) {
+	fakeServer := new(wrapper.FakeServerOps)
+	fakeServer.On("Shutdown", mock.AnythingOfType("*context.timerCtx")).Return(nil)
+	mgr := Manager{
+		log:    log.GetFakeLogger(),
+		server: fakeServer,
+	}
+
+	err := mgr.shutdownHubServer()
+
+	assert.Nil(t, err)
+	fakeServer.AssertCalled(t, "Shutdown", mock.AnythingOfType("*context.timerCtx"))
+}
+
+func TestShutdownServer_ReturnsError_WhenShutdownFails(t *testing.T) {
+	fakeServer := new(wrapper.FakeServerOps)
+	fakeServer.On("Shutdown", mock.AnythingOfType("*context.timerCtx")).Return(errors.New(""))
+	mgr := Manager{
+		log:    log.GetFakeLogger(),
+		server: fakeServer,
+	}
+
+	err := mgr.shutdownHubServer()
+
+	assert.Error(t, err)
+	fakeServer.AssertCalled(t, "Shutdown", mock.AnythingOfType("*context.timerCtx"))
 }
