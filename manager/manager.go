@@ -84,7 +84,7 @@ func (mgr *Manager) StopMockAPIHub() {
 	contextLogger := mgr.log.WithField(log.FuncField, ref.GetFuncName())
 	contextLogger.Debug("stopping mock API hub")
 
-	mgr.shutdownMockAPIs()
+	mgr.shutDownMockAPIs()
 
 	if err := mgr.shutdownHubServer(); err != nil {
 		contextLogger.WithError(err).Panic("error shutting down hub server")
@@ -121,7 +121,7 @@ func (mgr *Manager) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("endpoint not found"))
 }
 
-func (mgr *Manager) shutdownMockAPIs() {
+func (mgr *Manager) shutDownMockAPIs() {
 	contextLogger := mgr.log.WithField(log.FuncField, ref.GetFuncName())
 	contextLogger.Debug("shutting down mock APIs")
 

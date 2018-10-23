@@ -447,7 +447,7 @@ func TestShutdownServer_ReturnsError_WhenShutdownFails(t *testing.T) {
 	fakeServer.AssertCalled(t, "Shutdown", mock.AnythingOfType("*context.timerCtx"))
 }
 
-func TestShutdownMockAPIs_ShutsDownAPIs_WhenCalled(t *testing.T) {
+func TestShutDownMockAPIs_ShutsDownAPIs_WhenCalled(t *testing.T) {
 	dir := "fakeAPI"
 	fakeAPI := new(api.FakeAPI)
 	fakeAPI.On("GetBaseURL").Return("baseURL")
@@ -461,14 +461,14 @@ func TestShutdownMockAPIs_ShutsDownAPIs_WhenCalled(t *testing.T) {
 		log:  log.GetFakeLogger(),
 	}
 
-	mgr.shutdownMockAPIs()
+	mgr.shutDownMockAPIs()
 
 	fakeAPI.AssertCalled(t, "GetPort")
 	fakeAPI.AssertCalled(t, "GetBaseURL")
 	fakeAPI.AssertCalled(t, "Shutdown")
 }
 
-func TestShutdownMockAPIs_ShutsDownAllAPIs_WhenOneShutdownFails(t *testing.T) {
+func TestShutDownMockAPIs_ShutsDownAllAPIs_WhenOneShutdownFails(t *testing.T) {
 	dir1 := "fakeAPI1"
 	fakeAPI1 := new(api.FakeAPI)
 	fakeAPI1.On("GetBaseURL").Return("baseURL1")
@@ -488,7 +488,7 @@ func TestShutdownMockAPIs_ShutsDownAllAPIs_WhenOneShutdownFails(t *testing.T) {
 		log:  log.GetFakeLogger(),
 	}
 
-	mgr.shutdownMockAPIs()
+	mgr.shutDownMockAPIs()
 
 	fakeAPI1.AssertCalled(t, "GetPort")
 	fakeAPI1.AssertCalled(t, "GetBaseURL")

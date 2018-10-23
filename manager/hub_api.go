@@ -26,7 +26,7 @@ func (mgr *Manager) refreshMockAPIs(w http.ResponseWriter, r *http.Request) {
 	contextLogger := mgr.log.WithField(log.FuncField, ref.GetFuncName())
 	contextLogger.Debug("refreshing all mock APIs")
 
-	mgr.shutdownMockAPIs()
+	mgr.shutDownMockAPIs()
 	mgr.apis = make(map[string]api.IAPI)
 	if err := mgr.loadMockAPIs(); err != nil {
 		contextLogger.WithError(err).Error("error loading mock APIs")
