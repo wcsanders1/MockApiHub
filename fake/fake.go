@@ -1,6 +1,7 @@
 package fake
 
 import (
+	"net/http"
 	"os"
 	"time"
 
@@ -10,6 +11,11 @@ import (
 type (
 	// FileInfo offers a fake, mockable implementation of os.FileInfo
 	FileInfo struct {
+		mock.Mock
+	}
+
+	// ResponseWriter offers a fake, mockable implementation of http.ResponseWriter
+	ResponseWriter struct {
 		mock.Mock
 	}
 )
@@ -48,4 +54,21 @@ func (fi *FileInfo) IsDir() bool {
 func (fi *FileInfo) Sys() interface{} {
 	args := fi.Called()
 	return args.Get(0).(interface{})
+}
+
+// Header is a fake implementation of http.Header()
+func (r *ResponseWriter) Header() http.Header {
+	args := r.Called()
+	return args.Get(0).(http.Header)
+}
+
+// Write is a fake implementation of http.Write()
+func (r *ResponseWriter) Write(data []byte) (int, error) {
+	args := r.Called(data)
+	return args.Int(0), args.Error(1)
+}
+
+// WriteHeader is a fake implementation of http.WriteHeader()
+func (r *ResponseWriter) WriteHeader(statusCode int) {
+	return
 }
