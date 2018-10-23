@@ -446,3 +446,54 @@ func TestShutdownServer_ReturnsError_WhenShutdownFails(t *testing.T) {
 	assert.Error(t, err)
 	fakeServer.AssertCalled(t, "Shutdown", mock.AnythingOfType("*context.timerCtx"))
 }
+
+func TestShutdownMockAPIs_ShutsDownAPIs_WhenCalled(t *testing.T) {
+	dir := "fakeAPI"
+	fakeAPI := new(api.FakeAPI)
+	fakeAPI.On("GetBaseURL").Return("baseURL")
+	fakeAPI.On("GetPort").Return(4000)
+	fakeAPI.On("Shutdown").Return(nil)
+	apis := map[string]api.IAPI{
+		dir: fakeAPI,
+	}
+	mgr := Manager{
+		apis: apis,
+		log:  log.GetFakeLogger(),
+	}
+
+	mgr.shutdownMockAPIs()
+
+	fakeAPI.AssertCalled(t, "GetPort")
+	fakeAPI.AssertCalled(t, "GetBaseURL")
+	fakeAPI.AssertCalled(t, "Shutdown")
+}
+
+func TestShutdownMockAPIs_ShutsDownAllAPIs_WhenOneShutdownFails(t *testing.T) {
+	dir1 := "fakeAPI1"
+	fakeAPI1 := new(api.FakeAPI)
+	fakeAPI1.On("GetBaseURL").Return("baseURL1")
+	fakeAPI1.On("GetPort").Return(4000)
+	fakeAPI1.On("Shutdown").Return(errors.New(""))
+	dir2 := "fakeAPI2"
+	fakeAPI2 := new(api.FakeAPI)
+	fakeAPI2.On("GetBaseURL").Return("baseURL2")
+	fakeAPI2.On("GetPort").Return(4001)
+	fakeAPI2.On("Shutdown").Return(nil)
+	apis := map[string]api.IAPI{
+		dir1: fakeAPI1,
+		dir2: fakeAPI2,
+	}
+	mgr := Manager{
+		apis: apis,
+		log:  log.GetFakeLogger(),
+	}
+
+	mgr.shutdownMockAPIs()
+
+	fakeAPI1.AssertCalled(t, "GetPort")
+	fakeAPI1.AssertCalled(t, "GetBaseURL")
+	fakeAPI1.AssertCalled(t, "Shutdown")
+	fakeAPI2.AssertCalled(t, "GetPort")
+	fakeAPI2.AssertCalled(t, "GetBaseURL")
+	fakeAPI2.AssertCalled(t, "Shutdown")
+}
