@@ -2,6 +2,7 @@ package manager
 
 import (
 	"errors"
+	"net/http"
 	"testing"
 
 	"github.com/wcsanders1/MockApiHub/api"
@@ -9,6 +10,7 @@ import (
 	"github.com/wcsanders1/MockApiHub/fake"
 	"github.com/wcsanders1/MockApiHub/helper"
 	"github.com/wcsanders1/MockApiHub/log"
+	"github.com/wcsanders1/MockApiHub/str"
 	"github.com/wcsanders1/MockApiHub/wrapper"
 
 	"github.com/stretchr/testify/assert"
@@ -496,4 +498,59 @@ func TestShutDownMockAPIs_ShutsDownAllAPIs_WhenOneShutdownFails(t *testing.T) {
 	fakeAPI2.AssertCalled(t, "GetPort")
 	fakeAPI2.AssertCalled(t, "GetBaseURL")
 	fakeAPI2.AssertCalled(t, "Shutdown")
+}
+
+func TestServeHTTP_FindsHandler_WhenHandlerExists(t *testing.T) {
+	method := "GET"
+	url := "/test/path"
+	request, _ := http.NewRequest(method, url, nil)
+	responseWriter := new(fake.ResponseWriter)
+	responseWriter.On("Write", mock.AnythingOfType("[]uint8")).Return(1, nil)
+	handler := func(w http.ResponseWriter, r *http.Request) {}
+	hubAPIHandlers := make(map[string]map[string]func(http.ResponseWriter, *http.Request))
+	hubAPIHandlers[method] = make(map[string]func(http.ResponseWriter, *http.Request))
+	hubAPIHandlers[method][str.CleanURL(url)] = handler
+	mgr := Manager{
+		hubAPIHandlers: hubAPIHandlers,
+		log:            log.GetFakeLogger(),
+	}
+
+	mgr.ServeHTTP(responseWriter, request)
+
+	responseWriter.AssertNotCalled(t, "WriteHeader", http.StatusNotFound)
+}
+
+func TestServeHTTP_SetsStatusNotFound_WhenNotProvidedPath(t *testing.T) {
+	request, _ := http.NewRequest("", "", nil)
+	responseWriter := new(fake.ResponseWriter)
+	responseWriter.On("Write", mock.AnythingOfType("[]uint8")).Return(1, nil)
+	responseWriter.On("WriteHeader", mock.AnythingOfType("int")).Return()
+	mgr := Manager{
+		log: log.GetFakeLogger(),
+	}
+
+	mgr.ServeHTTP(responseWriter, request)
+
+	responseWriter.AssertCalled(t, "WriteHeader", http.StatusNotFound)
+}
+
+func TestServeHTTP_SetsStatusNotFound_WhenPathNotHandled(t *testing.T) {
+	method := "GET"
+	url := "/test/path"
+	request, _ := http.NewRequest(method, url, nil)
+	responseWriter := new(fake.ResponseWriter)
+	responseWriter.On("Write", mock.AnythingOfType("[]uint8")).Return(1, nil)
+	responseWriter.On("WriteHeader", mock.AnythingOfType("int")).Return()
+	handler := func(w http.ResponseWriter, r *http.Request) {}
+	hubAPIHandlers := make(map[string]map[string]func(http.ResponseWriter, *http.Request))
+	hubAPIHandlers[method] = make(map[string]func(http.ResponseWriter, *http.Request))
+	hubAPIHandlers[method]["/some/other/path"] = handler
+	mgr := Manager{
+		hubAPIHandlers: hubAPIHandlers,
+		log:            log.GetFakeLogger(),
+	}
+
+	mgr.ServeHTTP(responseWriter, request)
+
+	responseWriter.AssertCalled(t, "WriteHeader", http.StatusNotFound)
 }

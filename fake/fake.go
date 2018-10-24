@@ -70,5 +70,6 @@ func (r *ResponseWriter) Write(data []byte) (int, error) {
 
 // WriteHeader is a fake implementation of http.WriteHeader()
 func (r *ResponseWriter) WriteHeader(statusCode int) {
+	r.Called(statusCode)
 	return
 }
