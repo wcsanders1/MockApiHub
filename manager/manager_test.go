@@ -598,3 +598,96 @@ func TestStopMockAPIHub_Panics_OnError(t *testing.T) {
 	fakeServer.AssertCalled(t, "Shutdown", mock.AnythingOfType("*context.timerCtx"))
 	fakeAPI.AssertCalled(t, "Shutdown")
 }
+
+func TestStartMockAPIHub_ReturnsNil_OnSuccess(t *testing.T) {
+	_, fileCollection := helper.GetFakeFileInfoAndCollection("", "testconfig.toml")
+	fileOps := new(wrapper.FakeFileOps)
+	fileOps.On("ReadDir", mock.AnythingOfType("string")).Return(fileCollection, nil)
+	apiConfig := helper.GetFakeAPIConfig(4000)
+	configManager := new(config.FakeManager)
+	configManager.On("GetAPIConfig", mock.AnythingOfType("*fake.FileInfo")).Return(apiConfig, nil)
+	dir := "fakeAPI"
+	fakeAPI := new(api.FakeAPI)
+	fakeAPI.On("GetBaseURL").Return("baseURL")
+	fakeAPI.On("GetPort").Return(4000)
+	fakeAPI.On("Register", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(nil)
+	fakeServer := new(wrapper.FakeServerOps)
+	fakeServer.On("ListenAndServe").Return(nil)
+	apis := map[string]api.IAPI{
+		dir: fakeAPI,
+	}
+	mgr := Manager{
+		file:          fileOps,
+		configManager: configManager,
+		apis:          apis,
+		config:        helper.GetFakeAppConfig("", ""),
+		log:           log.GetFakeLogger(),
+		server:        fakeServer,
+	}
+
+	err := mgr.StartMockAPIHub()
+
+	assert.NoError(t, err)
+}
+
+func TestStartMockAPIHub_ReturnsError_WhenStartMockAPIHubFails(t *testing.T) {
+	_, fileCollection := helper.GetFakeFileInfoAndCollection("", "testconfig.toml")
+	fileOps := new(wrapper.FakeFileOps)
+	fileOps.On("ReadDir", mock.AnythingOfType("string")).Return(fileCollection, errors.New(""))
+	apiConfig := helper.GetFakeAPIConfig(4000)
+	configManager := new(config.FakeManager)
+	configManager.On("GetAPIConfig", mock.AnythingOfType("*fake.FileInfo")).Return(apiConfig, nil)
+	dir := "fakeAPI"
+	fakeAPI := new(api.FakeAPI)
+	fakeAPI.On("GetBaseURL").Return("baseURL")
+	fakeAPI.On("GetPort").Return(4000)
+	fakeAPI.On("Register", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(nil)
+	fakeServer := new(wrapper.FakeServerOps)
+	fakeServer.On("ListenAndServe").Return(nil)
+	apis := map[string]api.IAPI{
+		dir: fakeAPI,
+	}
+	mgr := Manager{
+		file:          fileOps,
+		configManager: configManager,
+		apis:          apis,
+		config:        helper.GetFakeAppConfig("", ""),
+		log:           log.GetFakeLogger(),
+		server:        fakeServer,
+	}
+
+	err := mgr.StartMockAPIHub()
+
+	assert.Error(t, err)
+}
+
+func TestStartMockAPIHub_ReturnsError_WhenStartHubServerFails(t *testing.T) {
+	_, fileCollection := helper.GetFakeFileInfoAndCollection("", "testconfig.toml")
+	fileOps := new(wrapper.FakeFileOps)
+	fileOps.On("ReadDir", mock.AnythingOfType("string")).Return(fileCollection, nil)
+	apiConfig := helper.GetFakeAPIConfig(4000)
+	configManager := new(config.FakeManager)
+	configManager.On("GetAPIConfig", mock.AnythingOfType("*fake.FileInfo")).Return(apiConfig, nil)
+	dir := "fakeAPI"
+	fakeAPI := new(api.FakeAPI)
+	fakeAPI.On("GetBaseURL").Return("baseURL")
+	fakeAPI.On("GetPort").Return(4000)
+	fakeAPI.On("Register", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(nil)
+	fakeServer := new(wrapper.FakeServerOps)
+	fakeServer.On("ListenAndServe").Return(errors.New(""))
+	apis := map[string]api.IAPI{
+		dir: fakeAPI,
+	}
+	mgr := Manager{
+		file:          fileOps,
+		configManager: configManager,
+		apis:          apis,
+		config:        helper.GetFakeAppConfig("", ""),
+		log:           log.GetFakeLogger(),
+		server:        fakeServer,
+	}
+
+	err := mgr.StartMockAPIHub()
+
+	assert.Error(t, err)
+}
