@@ -554,3 +554,47 @@ func TestServeHTTP_SetsStatusNotFound_WhenPathNotHandled(t *testing.T) {
 
 	responseWriter.AssertCalled(t, "WriteHeader", http.StatusNotFound)
 }
+
+func TestStopMockAPIHub_DoesNotPanic_OnSuccess(t *testing.T) {
+	fakeServer := new(wrapper.FakeServerOps)
+	fakeServer.On("Shutdown", mock.AnythingOfType("*context.timerCtx")).Return(nil)
+	dir := "fakeAPI"
+	fakeAPI := new(api.FakeAPI)
+	fakeAPI.On("GetBaseURL").Return("baseURL")
+	fakeAPI.On("GetPort").Return(4000)
+	fakeAPI.On("Shutdown").Return(nil)
+	apis := map[string]api.IAPI{
+		dir: fakeAPI,
+	}
+	mgr := Manager{
+		apis:   apis,
+		log:    log.GetFakeLogger(),
+		server: fakeServer,
+	}
+
+	assert.NotPanics(t, func() { mgr.StopMockAPIHub() })
+	fakeServer.AssertCalled(t, "Shutdown", mock.AnythingOfType("*context.timerCtx"))
+	fakeAPI.AssertCalled(t, "Shutdown")
+}
+
+func TestStopMockAPIHub_Panics_OnError(t *testing.T) {
+	fakeServer := new(wrapper.FakeServerOps)
+	fakeServer.On("Shutdown", mock.AnythingOfType("*context.timerCtx")).Return(errors.New(""))
+	dir := "fakeAPI"
+	fakeAPI := new(api.FakeAPI)
+	fakeAPI.On("GetBaseURL").Return("baseURL")
+	fakeAPI.On("GetPort").Return(4000)
+	fakeAPI.On("Shutdown").Return(nil)
+	apis := map[string]api.IAPI{
+		dir: fakeAPI,
+	}
+	mgr := Manager{
+		apis:   apis,
+		log:    log.GetFakeLogger(),
+		server: fakeServer,
+	}
+
+	assert.Panics(t, func() { mgr.StopMockAPIHub() })
+	fakeServer.AssertCalled(t, "Shutdown", mock.AnythingOfType("*context.timerCtx"))
+	fakeAPI.AssertCalled(t, "Shutdown")
+}
