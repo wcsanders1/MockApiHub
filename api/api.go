@@ -114,6 +114,9 @@ func (api *API) Register(dir, defaultCert, defaultKey string) error {
 			json, err := json.GetJSON(fmt.Sprintf("%s/%s/%s", constants.APIDir, dir, file), api.file)
 			if err != nil {
 				contextLoggerEndpoint.WithError(err).Error("error serving from this endpoint")
+				w.WriteHeader(http.StatusInternalServerError)
+				w.Write([]byte(err.Error()))
+				return
 			}
 			contextLoggerEndpoint.Debug("successfully retrieved JSON; serving it")
 			w.Write(json)
