@@ -24,6 +24,7 @@ keyFile = ""
     path = ""
     file = "students.json"
     method = "GET"
+    enforceValidJSON = true
 
     [endpoints.postStudents]
     path = "students"

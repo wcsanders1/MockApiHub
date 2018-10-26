@@ -47,9 +47,10 @@ type (
 
 	// Endpoint contains information regarding an endpoint
 	Endpoint struct {
-		Path   string
-		File   string
-		Method string
+		Path             string
+		File             string
+		Method           string
+		EnforceValidJSON bool
 	}
 
 	// IManager provides functionality to manage configurations, such as getting

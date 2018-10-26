@@ -110,16 +110,37 @@ func (api *API) Register(dir, defaultCert, defaultKey string) error {
 			}
 		}
 
+		// TODO: Clean this up
 		api.handlers[method][registeredRoute] = func(w http.ResponseWriter, r *http.Request) {
-			json, err := json.GetJSON(fmt.Sprintf("%s/%s/%s", constants.APIDir, dir, file), api.file)
-			if err != nil {
-				contextLoggerEndpoint.WithError(err).Error("error serving from this endpoint")
-				w.WriteHeader(http.StatusInternalServerError)
-				w.Write([]byte(err.Error()))
-				return
+			var bytes []byte
+			var err error
+			if endpoint.EnforceValidJSON {
+				if bytes, err = json.GetJSON(fmt.Sprintf("%s/%s/%s", constants.APIDir, dir, file), api.file); err != nil {
+					contextLoggerEndpoint.WithError(err).Error("error serving from this endpoint")
+					w.WriteHeader(http.StatusInternalServerError)
+					w.Write([]byte(err.Error()))
+					return
+				}
+			} else {
+				fileInfo, err := api.file.Open(fmt.Sprintf("%s/%s/%s", constants.APIDir, dir, file))
+				defer fileInfo.Close()
+				if err != nil {
+					contextLoggerEndpoint.WithError(err).Error("error opening file")
+					w.WriteHeader(http.StatusInternalServerError)
+					w.Write([]byte(err.Error()))
+					return
+				}
+				bytes, err = api.file.ReadAll(fileInfo)
+				if err != nil {
+					contextLoggerEndpoint.WithError(err).Error("error opening file")
+					w.WriteHeader(http.StatusInternalServerError)
+					w.Write([]byte(err.Error()))
+					return
+				}
 			}
+
 			contextLoggerEndpoint.Debug("successfully retrieved JSON; serving it")
-			w.Write(json)
+			w.Write(bytes)
 		}
 	}
 
