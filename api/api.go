@@ -40,7 +40,7 @@ type (
 		httpConfig config.HTTP
 		log        *logrus.Entry
 		file       wrapper.IFileOps
-		creator    ICreator
+		creator    iCreator
 	}
 )
 
@@ -113,32 +113,7 @@ func (api *API) Start(dir, defaultCert, defaultKey string) error {
 		api.handlers[method][registeredRoute] = api.creator.getHandler(endpoint.EnforceValidJSON, dir, file, api.file)
 	}
 
-	if api.httpConfig.UseTLS {
-		cert, key, err := api.getCertAndKeyFile(defaultCert, defaultKey)
-		if err != nil {
-			contextLogger.WithError(err).Error("error getting TLS cert and key")
-			return err
-		}
-
-		go func() error {
-			if err := api.server.ListenAndServeTLS(cert, key); err != nil {
-				contextLogger.WithError(err).Error("error starting mock API with TLS")
-				return err
-			}
-			return nil
-		}()
-		return nil
-	}
-
-	go func() error {
-		if err := api.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			contextLogger.WithError(err).Error("mock API server error")
-			return err
-		}
-		return nil
-	}()
-
-	return nil
+	return api.creator.startAPI(defaultCert, defaultKey, api.server, api.httpConfig)
 }
 
 // Shutdown shutsdown the server
@@ -204,22 +179,6 @@ func (api *API) GetBaseURL() string {
 // GetEndpoints returns the API's endpoints
 func (api *API) GetEndpoints() map[string]config.Endpoint {
 	return api.endpoints
-}
-
-func (api *API) getCertAndKeyFile(defaultCert, defaultKey string) (string, string, error) {
-	if len(api.httpConfig.CertFile) > 0 && len(api.httpConfig.KeyFile) > 0 {
-		return api.httpConfig.CertFile, api.httpConfig.KeyFile, nil
-	}
-
-	if len(api.httpConfig.CertFile) == 0 && len(api.httpConfig.KeyFile) > 0 {
-		return "", "", errors.New("key provided without cert")
-	}
-
-	if len(api.httpConfig.KeyFile) == 0 && len(api.httpConfig.CertFile) > 0 {
-		return "", "", errors.New("cert provided without key")
-	}
-
-	return defaultCert, defaultKey, nil
 }
 
 func (api *API) ensureRouteRegistered(url string) string {
