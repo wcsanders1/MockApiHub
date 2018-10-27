@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/wcsanders1/MockApiHub/log"
+
 	"github.com/wcsanders1/MockApiHub/constants"
 	"github.com/wcsanders1/MockApiHub/json"
 	"github.com/wcsanders1/MockApiHub/wrapper"
@@ -12,22 +14,35 @@ import (
 )
 
 type (
-	// IHandlerManager provides functionality to get a handler for a mock API
-	IHandlerManager interface {
-		GetHandler(enforceValidJSON bool, dir, fileName string, file wrapper.IFileOps, logger *logrus.Entry) func(w http.ResponseWriter, r *http.Request)
+	// ICreator provides functionality to get a handler for a mock API
+	ICreator interface {
+		getHandler(enforceValidJSON bool, dir, fileName string, file wrapper.IFileOps) func(w http.ResponseWriter, r *http.Request)
 	}
 
-	// HandlerManager implements IAPIHandlerManager
-	HandlerManager struct{}
+	// Creator implements ICreator
+	Creator struct {
+		log *logrus.Entry
+	}
 )
 
-// GetHandler returns an API handler
-func (h HandlerManager) GetHandler(enforceValidJSON bool, dir, fileName string, file wrapper.IFileOps, logger *logrus.Entry) func(w http.ResponseWriter, r *http.Request) {
-	path := fmt.Sprintf("%s/%s/%s", constants.APIDir, dir, fileName)
-	if enforceValidJSON {
-		return getJSONHandler(path, file, logger)
+func newCreator(logger *logrus.Entry) *Creator {
+	return &Creator{
+		log: logger,
 	}
-	return getGeneralHandler(path, file, logger)
+}
+
+func (h Creator) getHandler(enforceValidJSON bool, dir, fileName string, file wrapper.IFileOps) func(w http.ResponseWriter, r *http.Request) {
+	path := fmt.Sprintf("%s/%s/%s", constants.APIDir, dir, fileName)
+	contextLogger := h.log.WithFields(logrus.Fields{
+		log.FuncField:      "handler for mock API",
+		"enforceValidJSON": enforceValidJSON,
+		log.PathField:      path,
+	})
+
+	if enforceValidJSON {
+		return getJSONHandler(path, file, contextLogger)
+	}
+	return getGeneralHandler(path, file, contextLogger)
 }
 
 func getJSONHandler(path string, file wrapper.IFileOps, logger *logrus.Entry) func(w http.ResponseWriter, r *http.Request) {

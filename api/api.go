@@ -32,15 +32,15 @@ type (
 
 	// API contains information for an API
 	API struct {
-		baseURL        string
-		endpoints      map[string]config.Endpoint
-		server         wrapper.IServerOps
-		handlers       map[string]map[string]func(http.ResponseWriter, *http.Request)
-		routeTree      route.ITree
-		httpConfig     config.HTTP
-		log            *logrus.Entry
-		file           wrapper.IFileOps
-		handlerManager IHandlerManager
+		baseURL    string
+		endpoints  map[string]config.Endpoint
+		server     wrapper.IServerOps
+		handlers   map[string]map[string]func(http.ResponseWriter, *http.Request)
+		routeTree  route.ITree
+		httpConfig config.HTTP
+		log        *logrus.Entry
+		file       wrapper.IFileOps
+		creator    ICreator
 	}
 )
 
@@ -69,7 +69,7 @@ func NewAPI(config *config.APIConfig) (*API, error) {
 	api.routeTree = route.NewRouteTree()
 	api.httpConfig = config.HTTP
 	api.file = &wrapper.FileOps{}
-	api.handlerManager = &HandlerManager{}
+	api.creator = newCreator(api.log)
 
 	contextLogger.Info("successfully created mock API")
 	return api, nil
@@ -109,7 +109,8 @@ func (api *API) Start(dir, defaultCert, defaultKey string) error {
 			}
 		}
 
-		api.handlers[method][registeredRoute] = api.handlerManager.GetHandler(endpoint.EnforceValidJSON, dir, file, api.file, contextLoggerEndpoint)
+		contextLoggerEndpoint.Debug("registered endpoint; now assigning handler")
+		api.handlers[method][registeredRoute] = api.creator.getHandler(endpoint.EnforceValidJSON, dir, file, api.file)
 	}
 
 	if api.httpConfig.UseTLS {
