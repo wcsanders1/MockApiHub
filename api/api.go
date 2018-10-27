@@ -38,7 +38,7 @@ type (
 		endpoints  map[string]config.Endpoint
 		server     wrapper.IServerOps
 		handlers   map[string]map[string]func(http.ResponseWriter, *http.Request)
-		routeTree  *route.Tree
+		routeTree  route.ITree
 		httpConfig config.HTTP
 		log        *logrus.Entry
 		file       wrapper.IFileOps

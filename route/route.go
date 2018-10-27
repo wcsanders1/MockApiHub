@@ -14,6 +14,12 @@ import (
 type (
 	routeType int
 
+	// ITree is an interface providing functionality to interact with a route tree
+	ITree interface {
+		AddRoute(url string) (string, error)
+		GetRoute(url string) (string, map[string]string, error)
+	}
+
 	// Tree contains routing for an API in a tree format
 	Tree struct {
 		routeType routeType
