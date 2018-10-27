@@ -12,8 +12,8 @@ type FakeAPI struct {
 	mock.Mock
 }
 
-// Register is a mockable api.Register()
-func (api *FakeAPI) Register(dir, defaultCert, defaultKey string) error {
+// Start is a mockable api.Start()
+func (api *FakeAPI) Start(dir, defaultCert, defaultKey string) error {
 	args := api.Called(dir, defaultCert, defaultKey)
 	return args.Error(0)
 }

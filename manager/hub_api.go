@@ -33,7 +33,7 @@ func (mgr *Manager) refreshMockAPIs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	mgr.registerMockAPIs()
+	mgr.startMockAPIs()
 	msg := "successfully refreshed mock apis"
 	w.Write([]byte(msg))
 	contextLogger.Debug(msg)

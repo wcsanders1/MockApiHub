@@ -10,8 +10,6 @@ import (
 	"time"
 
 	"github.com/wcsanders1/MockApiHub/config"
-	"github.com/wcsanders1/MockApiHub/constants"
-	"github.com/wcsanders1/MockApiHub/json"
 	"github.com/wcsanders1/MockApiHub/log"
 	"github.com/wcsanders1/MockApiHub/ref"
 	"github.com/wcsanders1/MockApiHub/route"
@@ -24,7 +22,7 @@ import (
 type (
 	// IAPI is an interface providing functionality to manage an API
 	IAPI interface {
-		Register(dir, defaultCert, defaultKey string) error
+		Start(dir, defaultCert, defaultKey string) error
 		Shutdown() error
 		ServeHTTP(w http.ResponseWriter, r *http.Request)
 		GetPort() int
@@ -34,14 +32,15 @@ type (
 
 	// API contains information for an API
 	API struct {
-		baseURL    string
-		endpoints  map[string]config.Endpoint
-		server     wrapper.IServerOps
-		handlers   map[string]map[string]func(http.ResponseWriter, *http.Request)
-		routeTree  route.ITree
-		httpConfig config.HTTP
-		log        *logrus.Entry
-		file       wrapper.IFileOps
+		baseURL        string
+		endpoints      map[string]config.Endpoint
+		server         wrapper.IServerOps
+		handlers       map[string]map[string]func(http.ResponseWriter, *http.Request)
+		routeTree      route.ITree
+		httpConfig     config.HTTP
+		log            *logrus.Entry
+		file           wrapper.IFileOps
+		handlerManager IHandlerManager
 	}
 )
 
@@ -70,24 +69,24 @@ func NewAPI(config *config.APIConfig) (*API, error) {
 	api.routeTree = route.NewRouteTree()
 	api.httpConfig = config.HTTP
 	api.file = &wrapper.FileOps{}
+	api.handlerManager = &HandlerManager{}
 
 	contextLogger.Info("successfully created mock API")
 	return api, nil
 }
 
-// Register registers an api with the server
-func (api *API) Register(dir, defaultCert, defaultKey string) error {
+// Start starts an api server
+func (api *API) Start(dir, defaultCert, defaultKey string) error {
 	contextLogger := api.log.WithFields(logrus.Fields{
 		log.FuncField:            ref.GetFuncName(),
 		log.DefaultCertFileField: defaultCert,
 		log.DefaultKeyFileField:  defaultKey,
 		log.APIDirField:          dir,
 	})
-	contextLogger.Debug("registering API")
+	contextLogger.Debug("starting API")
 
-	base := api.baseURL
 	for endpointName, endpoint := range api.endpoints {
-		path := fmt.Sprintf("%s/%s", base, endpoint.Path)
+		path := fmt.Sprintf("%s/%s", api.baseURL, endpoint.Path)
 		registeredRoute := api.ensureRouteRegistered(path)
 		file := endpoint.File
 		method := strings.ToUpper(endpoint.Method)
@@ -110,41 +109,9 @@ func (api *API) Register(dir, defaultCert, defaultKey string) error {
 			}
 		}
 
-		// TODO: Clean this up
-		api.handlers[method][registeredRoute] = func(w http.ResponseWriter, r *http.Request) {
-			var bytes []byte
-			var err error
-			if endpoint.EnforceValidJSON {
-				if bytes, err = json.GetJSON(fmt.Sprintf("%s/%s/%s", constants.APIDir, dir, file), api.file); err != nil {
-					contextLoggerEndpoint.WithError(err).Error("error serving from this endpoint")
-					w.WriteHeader(http.StatusInternalServerError)
-					w.Write([]byte(err.Error()))
-					return
-				}
-			} else {
-				fileInfo, err := api.file.Open(fmt.Sprintf("%s/%s/%s", constants.APIDir, dir, file))
-				defer fileInfo.Close()
-				if err != nil {
-					contextLoggerEndpoint.WithError(err).Error("error opening file")
-					w.WriteHeader(http.StatusInternalServerError)
-					w.Write([]byte(err.Error()))
-					return
-				}
-				bytes, err = api.file.ReadAll(fileInfo)
-				if err != nil {
-					contextLoggerEndpoint.WithError(err).Error("error opening file")
-					w.WriteHeader(http.StatusInternalServerError)
-					w.Write([]byte(err.Error()))
-					return
-				}
-			}
-
-			contextLoggerEndpoint.Debug("successfully retrieved JSON; serving it")
-			w.Write(bytes)
-		}
+		api.handlers[method][registeredRoute] = api.handlerManager.GetHandler(endpoint.EnforceValidJSON, dir, file, api.file, contextLoggerEndpoint)
 	}
 
-	var err error
 	if api.httpConfig.UseTLS {
 		cert, key, err := api.getCertAndKeyFile(defaultCert, defaultKey)
 		if err != nil {
@@ -153,7 +120,7 @@ func (api *API) Register(dir, defaultCert, defaultKey string) error {
 		}
 
 		go func() error {
-			if err = api.server.ListenAndServeTLS(cert, key); err != nil {
+			if err := api.server.ListenAndServeTLS(cert, key); err != nil {
 				contextLogger.WithError(err).Error("error starting mock API with TLS")
 				return err
 			}
@@ -163,14 +130,14 @@ func (api *API) Register(dir, defaultCert, defaultKey string) error {
 	}
 
 	go func() error {
-		if err = api.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := api.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			contextLogger.WithError(err).Error("mock API server error")
 			return err
 		}
 		return nil
 	}()
 
-	return err
+	return nil
 }
 
 // Shutdown shutsdown the server

@@ -197,14 +197,14 @@ func TestLoadMockAPIs_DoesNotLoadAPI_WhenPortIsZero(t *testing.T) {
 	assert.Empty(mgr.apis)
 }
 
-func TestRegisterMockAPIs_RegistersAPI_WithCertAndKey(t *testing.T) {
+func TestStartMockAPIs_StartsAPI_WithCertAndKey(t *testing.T) {
 	certFile := "testCert"
 	keyFile := "testKey"
 	dir := "fakeAPI"
 	fakeAPI := new(api.FakeAPI)
 	fakeAPI.On("GetBaseURL").Return("baseURL")
 	fakeAPI.On("GetPort").Return(4000)
-	fakeAPI.On("Register", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(nil)
+	fakeAPI.On("Start", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(nil)
 	apis := map[string]api.IAPI{
 		dir: fakeAPI,
 	}
@@ -214,19 +214,19 @@ func TestRegisterMockAPIs_RegistersAPI_WithCertAndKey(t *testing.T) {
 		log:    log.GetFakeLogger(),
 	}
 
-	mgr.registerMockAPIs()
+	mgr.startMockAPIs()
 
-	fakeAPI.AssertCalled(t, "Register", dir, certFile, keyFile)
+	fakeAPI.AssertCalled(t, "Start", dir, certFile, keyFile)
 }
 
-func TestRegisterMockAPIs_DoesNotPanic_WhenRegisterFails(t *testing.T) {
+func TestStartMockAPIs_DoesNotPanic_WhenStartFails(t *testing.T) {
 	certFile := "testCert"
 	keyFile := "testKey"
 	dir := "fakeAPI"
 	fakeAPI := new(api.FakeAPI)
 	fakeAPI.On("GetBaseURL").Return("baseURL")
 	fakeAPI.On("GetPort").Return(4000)
-	fakeAPI.On("Register", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(errors.New(""))
+	fakeAPI.On("Start", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(errors.New(""))
 	apis := map[string]api.IAPI{
 		dir: fakeAPI,
 	}
@@ -236,8 +236,8 @@ func TestRegisterMockAPIs_DoesNotPanic_WhenRegisterFails(t *testing.T) {
 		log:    log.GetFakeLogger(),
 	}
 
-	assert.NotPanics(t, func() { mgr.registerMockAPIs() })
-	fakeAPI.AssertCalled(t, "Register", dir, certFile, keyFile)
+	assert.NotPanics(t, func() { mgr.startMockAPIs() })
+	fakeAPI.AssertCalled(t, "Start", dir, certFile, keyFile)
 }
 
 func TestStartHubServerUsingTLS_ReturnsNil_WhenServerStarted(t *testing.T) {
@@ -610,7 +610,7 @@ func TestStartMockAPIHub_ReturnsNil_OnSuccess(t *testing.T) {
 	fakeAPI := new(api.FakeAPI)
 	fakeAPI.On("GetBaseURL").Return("baseURL")
 	fakeAPI.On("GetPort").Return(4000)
-	fakeAPI.On("Register", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(nil)
+	fakeAPI.On("Start", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(nil)
 	fakeServer := new(wrapper.FakeServerOps)
 	fakeServer.On("ListenAndServe").Return(nil)
 	apis := map[string]api.IAPI{
@@ -641,7 +641,7 @@ func TestStartMockAPIHub_ReturnsError_WhenStartMockAPIHubFails(t *testing.T) {
 	fakeAPI := new(api.FakeAPI)
 	fakeAPI.On("GetBaseURL").Return("baseURL")
 	fakeAPI.On("GetPort").Return(4000)
-	fakeAPI.On("Register", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(nil)
+	fakeAPI.On("Start", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(nil)
 	fakeServer := new(wrapper.FakeServerOps)
 	fakeServer.On("ListenAndServe").Return(nil)
 	apis := map[string]api.IAPI{
@@ -672,7 +672,7 @@ func TestStartMockAPIHub_ReturnsError_WhenStartHubServerFails(t *testing.T) {
 	fakeAPI := new(api.FakeAPI)
 	fakeAPI.On("GetBaseURL").Return("baseURL")
 	fakeAPI.On("GetPort").Return(4000)
-	fakeAPI.On("Register", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(nil)
+	fakeAPI.On("Start", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(nil)
 	fakeServer := new(wrapper.FakeServerOps)
 	fakeServer.On("ListenAndServe").Return(errors.New(""))
 	apis := map[string]api.IAPI{

@@ -65,16 +65,16 @@ func (mgr *Manager) StartMockAPIHub() error {
 		contextLogger.WithError(err).Error("error loading mock APIs")
 		return err
 	}
+	mgr.startMockAPIs()
+	contextLogger.Debug("successfully started mock APIs; will next start the mock API hub")
 
 	mgr.registerHubAPIHandlers()
-	mgr.registerMockAPIs()
-
 	if err := mgr.startHubServer(); err != nil {
 		contextLogger.WithError(err).Error("error starting hub server")
 		return err
 	}
-
 	contextLogger.Debug("successfully started mock API hub")
+
 	return nil
 }
 
@@ -206,7 +206,7 @@ func (mgr *Manager) startHubServerUsingTLS() error {
 	return nil
 }
 
-func (mgr *Manager) registerMockAPIs() {
+func (mgr *Manager) startMockAPIs() {
 	contextLogger := mgr.log.WithField(log.FuncField, ref.GetFuncName())
 
 	for dir, api := range mgr.apis {
@@ -214,9 +214,9 @@ func (mgr *Manager) registerMockAPIs() {
 			log.BaseURLField: api.GetBaseURL(),
 			log.PortField:    api.GetPort(),
 		})
-		contextLoggerAPI.Debug("registering mock API")
-		if err := api.Register(dir, mgr.config.HTTP.CertFile, mgr.config.HTTP.KeyFile); err != nil {
-			contextLoggerAPI.WithError(err).Error("error registering mock API -- moving on to next mock API")
+		contextLoggerAPI.Debug("starting mock API")
+		if err := api.Start(dir, mgr.config.HTTP.CertFile, mgr.config.HTTP.KeyFile); err != nil {
+			contextLoggerAPI.WithError(err).Error("error starting mock API -- moving on to next mock API")
 		}
 	}
 }
