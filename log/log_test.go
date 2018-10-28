@@ -3,9 +3,51 @@ package log
 import (
 	"testing"
 
+	"github.com/wcsanders1/MockApiHub/config"
+
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 )
+
+func TestNewLogger_ReturnsEntry_WhenFormatterIsJSON(t *testing.T) {
+	config := config.Log{
+		LoggingEnabled: true,
+		FormatAsJSON:   true,
+		Level:          "info",
+	}
+
+	entry := NewLogger(&config, "test")
+
+	assert := assert.New(t)
+	assert.NotNil(entry)
+	assert.IsType(&logrus.Entry{}, entry)
+}
+
+func TestNewLogger_ReturnsEntry_WhenFormatterNotJSON(t *testing.T) {
+	config := config.Log{
+		LoggingEnabled: true,
+		FormatAsJSON:   false,
+		Level:          "info",
+	}
+
+	entry := NewLogger(&config, "test")
+
+	assert := assert.New(t)
+	assert.NotNil(entry)
+	assert.IsType(&logrus.Entry{}, entry)
+}
+
+func TestNewLogger_ReturnsEntry_WhenLoggingDisabled(t *testing.T) {
+	config := config.Log{
+		LoggingEnabled: false,
+	}
+
+	entry := NewLogger(&config, "test")
+
+	assert := assert.New(t)
+	assert.NotNil(entry)
+	assert.IsType(&logrus.Entry{}, entry)
+}
 
 func TestGetLogFilename_ReturnsDefault_IfNoNameProvided(t *testing.T) {
 	assert.Equal(t, defaultFilename, getLogFilename(""))
