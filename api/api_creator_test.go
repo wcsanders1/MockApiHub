@@ -20,6 +20,14 @@ var goodJSON = []byte(`{
 	"test": "good"
 }`)
 
+func TestNewCreator_ReturnsCreator_WhenCalled(t *testing.T) {
+	result := newCreator(log.GetFakeLogger())
+
+	assert := assert.New(t)
+	assert.NotNil(result)
+	assert.IsType(&creator{}, result)
+}
+
 func TestGetHandler_ReturnsHandler_WhenEnforceJSONFalse(t *testing.T) {
 	creator := creator{
 		log: log.GetFakeLogger(),
