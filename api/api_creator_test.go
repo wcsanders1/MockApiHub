@@ -20,6 +20,53 @@ var goodJSON = []byte(`{
 	"test": "good"
 }`)
 
+func TestGetJSONHandler_ReturnsHandler_WhenCalled(t *testing.T) {
+	fileOps := wrapper.FakeFileOps{}
+	logger := log.GetFakeLogger()
+	funcResult := getJSONHandler("test", &fileOps, logger)
+
+	assert.NotNil(t, funcResult)
+}
+
+func TestJSONHandler_Writes_OnSuccess(t *testing.T) {
+	path := "test/path"
+	fileOps := wrapper.FakeFileOps{}
+	logger := log.GetFakeLogger()
+	fileOps.On("Open", mock.AnythingOfType("string")).Return(os.NewFile(1, "fakefile"), nil)
+	fileOps.On("ReadAll", mock.AnythingOfType("*os.File")).Return(goodJSON, nil)
+	funcResult := getJSONHandler(path, &fileOps, logger)
+	w := fake.ResponseWriter{}
+	w.On("WriteHeader", mock.AnythingOfType("int")).Return(1)
+	w.On("Write", mock.AnythingOfType("[]uint8")).Return(1, nil)
+	request, _ := http.NewRequest("GET", "test/url", nil)
+
+	funcResult(&w, request)
+
+	fileOps.AssertCalled(t, "Open", path)
+	fileOps.AssertCalled(t, "ReadAll", mock.AnythingOfType("*os.File"))
+	w.AssertCalled(t, "Write", mock.AnythingOfType("[]uint8"))
+}
+
+func TestJSONHandler_WritesError_OnFailure(t *testing.T) {
+	path := "test/path"
+	fileOps := wrapper.FakeFileOps{}
+	logger := log.GetFakeLogger()
+	fileOps.On("Open", mock.AnythingOfType("string")).Return(os.NewFile(1, "fakefile"), nil)
+	fileOps.On("ReadAll", mock.AnythingOfType("*os.File")).Return([]byte{}, errors.New(""))
+	funcResult := getJSONHandler(path, &fileOps, logger)
+	w := fake.ResponseWriter{}
+	w.On("WriteHeader", mock.AnythingOfType("int")).Return(1)
+	w.On("Write", mock.AnythingOfType("[]uint8")).Return(1, nil)
+	request, _ := http.NewRequest("GET", "test/url", nil)
+
+	funcResult(&w, request)
+
+	fileOps.AssertCalled(t, "Open", path)
+	fileOps.AssertCalled(t, "ReadAll", mock.AnythingOfType("*os.File"))
+	w.AssertCalled(t, "Write", mock.AnythingOfType("[]uint8"))
+	w.AssertCalled(t, "WriteHeader", http.StatusInternalServerError)
+}
+
 func TestGetGeneralHanlder_ReturnsFunc_WhenCalled(t *testing.T) {
 	fileOps := wrapper.FakeFileOps{}
 	logger := log.GetFakeLogger()
