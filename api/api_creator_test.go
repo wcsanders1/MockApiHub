@@ -2,16 +2,102 @@ package api
 
 import (
 	"errors"
+	"net/http"
+	"os"
 	"testing"
 
-	"github.com/stretchr/testify/mock"
-
 	"github.com/wcsanders1/MockApiHub/config"
+	"github.com/wcsanders1/MockApiHub/fake"
 	"github.com/wcsanders1/MockApiHub/log"
 	"github.com/wcsanders1/MockApiHub/wrapper"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
+
+var goodJSON = []byte(`{
+	"JSON": "good",
+	"test": "good"
+}`)
+
+func TestGetGeneralHanlder_ReturnsFunc_WhenCalled(t *testing.T) {
+	fileOps := wrapper.FakeFileOps{}
+	logger := log.GetFakeLogger()
+	funcResult := getGeneralHandler("test", &fileOps, logger)
+
+	assert.NotNil(t, funcResult)
+}
+
+func TestGeneralHandler_Writes_OnSuccess(t *testing.T) {
+	path := "test/path"
+	fileOps := wrapper.FakeFileOps{}
+	logger := log.GetFakeLogger()
+	fileOps.On("Open", mock.AnythingOfType("string")).Return(os.NewFile(1, "fakefile"), nil)
+	fileOps.On("ReadAll", mock.AnythingOfType("*os.File")).Return(goodJSON, nil)
+	funcResult := getGeneralHandler(path, &fileOps, logger)
+	w := fake.ResponseWriter{}
+	w.On("WriteHeader", mock.AnythingOfType("int")).Return(1)
+	w.On("Write", mock.AnythingOfType("[]uint8")).Return(1, nil)
+	request, _ := http.NewRequest("GET", "test/url", nil)
+
+	funcResult(&w, request)
+
+	fileOps.AssertCalled(t, "Open", path)
+	fileOps.AssertCalled(t, "ReadAll", mock.AnythingOfType("*os.File"))
+	w.AssertCalled(t, "Write", mock.AnythingOfType("[]uint8"))
+}
+
+func TestGeneralHandler_WritesError_WhenReadFails(t *testing.T) {
+	path := "test/path"
+	fileOps := wrapper.FakeFileOps{}
+	logger := log.GetFakeLogger()
+	fileOps.On("Open", mock.AnythingOfType("string")).Return(os.NewFile(1, "fakefile"), nil)
+	fileOps.On("ReadAll", mock.AnythingOfType("*os.File")).Return([]byte{}, errors.New(""))
+	funcResult := getGeneralHandler(path, &fileOps, logger)
+	w := fake.ResponseWriter{}
+	w.On("WriteHeader", mock.AnythingOfType("int")).Return(1)
+	w.On("Write", mock.AnythingOfType("[]uint8")).Return(1, nil)
+	request, _ := http.NewRequest("GET", "test/url", nil)
+
+	funcResult(&w, request)
+
+	fileOps.AssertCalled(t, "Open", path)
+	fileOps.AssertCalled(t, "ReadAll", mock.AnythingOfType("*os.File"))
+	w.AssertCalled(t, "Write", mock.AnythingOfType("[]uint8"))
+	w.AssertCalled(t, "WriteHeader", http.StatusInternalServerError)
+}
+
+func TestGeneralHandler_WritesError_WhenFileOpenFails(t *testing.T) {
+	path := "test/path"
+	fileOps := wrapper.FakeFileOps{}
+	logger := log.GetFakeLogger()
+	fileOps.On("Open", mock.AnythingOfType("string")).Return(os.NewFile(1, "fakefile"), errors.New(""))
+	funcResult := getGeneralHandler(path, &fileOps, logger)
+	w := fake.ResponseWriter{}
+	w.On("WriteHeader", mock.AnythingOfType("int")).Return(1)
+	w.On("Write", mock.AnythingOfType("[]uint8")).Return(1, nil)
+	request, _ := http.NewRequest("GET", "test/url", nil)
+
+	funcResult(&w, request)
+
+	fileOps.AssertCalled(t, "Open", path)
+	fileOps.AssertNotCalled(t, "ReadAll", mock.Anything)
+	w.AssertCalled(t, "Write", mock.AnythingOfType("[]uint8"))
+	w.AssertCalled(t, "WriteHeader", http.StatusInternalServerError)
+}
+
+func TestWriteError_WritesError_WhenCalled(t *testing.T) {
+	err := errors.New("test error")
+	w := fake.ResponseWriter{}
+	w.On("WriteHeader", mock.AnythingOfType("int")).Return(1)
+	w.On("Write", mock.AnythingOfType("[]uint8")).Return(1, nil)
+
+	writeError(err, &w)
+
+	expectedError := []byte(err.Error())
+	w.AssertCalled(t, "WriteHeader", http.StatusInternalServerError)
+	w.AssertCalled(t, "Write", expectedError)
+}
 
 func TestStartAPI_ReturnsNil_WhenStartNoTLSSuccessful(t *testing.T) {
 	fakeServer := wrapper.NewFakeServerOps()
