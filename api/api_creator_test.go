@@ -20,6 +20,30 @@ var goodJSON = []byte(`{
 	"test": "good"
 }`)
 
+func TestGetHandler_ReturnsHandler_WhenEnforceJSONFalse(t *testing.T) {
+	creator := creator{
+		log: log.GetFakeLogger(),
+	}
+
+	result := creator.getHandler(false, "testDir", "testFile", &wrapper.FakeFileOps{})
+
+	assert := assert.New(t)
+	assert.NotNil(result)
+	assert.IsType(func(w http.ResponseWriter, r *http.Request) {}, result)
+}
+
+func TestGetHandler_ReturnsHandler_WhenEnforceJSONTrue(t *testing.T) {
+	creator := creator{
+		log: log.GetFakeLogger(),
+	}
+
+	result := creator.getHandler(true, "testDir", "testFile", &wrapper.FakeFileOps{})
+
+	assert := assert.New(t)
+	assert.NotNil(result)
+	assert.IsType(func(w http.ResponseWriter, r *http.Request) {}, result)
+}
+
 func TestGetJSONHandler_ReturnsHandler_WhenCalled(t *testing.T) {
 	fileOps := wrapper.FakeFileOps{}
 	logger := log.GetFakeLogger()
