@@ -95,7 +95,7 @@ func (c creator) startAPI(defaultCert, defaultKey string, server wrapper.IServer
 	})
 
 	if httpConfig.UseTLS {
-		cert, key, err := getCertAndKeyFile(defaultCert, defaultKey, httpConfig)
+		cert, key, err := getCertAndKeyFileNames(defaultCert, defaultKey, httpConfig)
 		if err != nil {
 			contextLogger.WithError(err).Error("error getting TLS cert and key")
 			return err
@@ -122,7 +122,7 @@ func (c creator) startAPI(defaultCert, defaultKey string, server wrapper.IServer
 	return nil
 }
 
-func getCertAndKeyFile(defaultCert, defaultKey string, httpConfig config.HTTP) (string, string, error) {
+func getCertAndKeyFileNames(defaultCert, defaultKey string, httpConfig config.HTTP) (string, string, error) {
 	if len(httpConfig.CertFile) > 0 && len(httpConfig.KeyFile) > 0 {
 		return httpConfig.CertFile, httpConfig.KeyFile, nil
 	}
