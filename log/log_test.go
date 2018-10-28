@@ -7,6 +7,38 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestGetLogFilename_ReturnsDefault_IfNoNameProvided(t *testing.T) {
+	assert.Equal(t, defaultFilename, getLogFilename(""))
+}
+
+func TestGetLogFilename_ReturnsFilename_WhenFilenameProvided(t *testing.T) {
+	assert.Equal(t, "fileName", getLogFilename("fileName"))
+}
+
+func TestGetMaxFileSize_ReturnsDefault_IfNoSizeProvided(t *testing.T) {
+	assert.Equal(t, defaultMaxFileSize, getMaxFileSize(0))
+}
+
+func TestGetMaxFileSize_ReturnsFileSize_WhenProvided(t *testing.T) {
+	assert.Equal(t, 50, getMaxFileSize(50))
+}
+
+func TestGetMaxFileBackups_ReturnsDefault_WhenNoAmountProvided(t *testing.T) {
+	assert.Equal(t, defaultMaxFileBackups, getMaxFileBackups(0))
+}
+
+func TestGetMaxFileBackups_ReturnsMaxBackups_WhenProvided(t *testing.T) {
+	assert.Equal(t, 50, getMaxFileBackups(50))
+}
+
+func TestGetMaxFileDaysAge_ReturnsDefault_WhenDaysNotProvided(t *testing.T) {
+	assert.Equal(t, defaultMaxFileDaysAge, getMaxFileDaysAge(0))
+}
+
+func TestGetMaxFileDaysAge_ReturnsDays_WhenDaysProvided(t *testing.T) {
+	assert.Equal(t, 50, getMaxFileDaysAge(50))
+}
+
 func TestGetLogLevel_ReturnsDebugLevel_ByDefault(t *testing.T) {
 	assert.Equal(t, logrus.DebugLevel, getLogLevel("noLevel"))
 }
