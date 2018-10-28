@@ -246,7 +246,7 @@ func TestStartHubServerUsingTLS_ReturnsNil_WhenServerStarted(t *testing.T) {
 	fileOps := new(wrapper.FakeFileOps)
 	fileOps.On("Stat", mock.AnythingOfType("string")).Return(new(fake.FileInfo), nil)
 	fakeConfig := helper.GetFakeAppConfig(certFile, keyFile)
-	fakeServer := new(wrapper.FakeServerOps)
+	fakeServer := wrapper.NewFakeServerOps()
 	fakeServer.On("ListenAndServeTLS", mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(nil)
 	mgr := Manager{
 		config: fakeConfig,
@@ -270,7 +270,7 @@ func TestStartHubServerUsingTLS_RetursError_WhenReadCertFails(t *testing.T) {
 	fileOps := new(wrapper.FakeFileOps)
 	fileOps.On("Stat", certFile).Return(new(fake.FileInfo), errors.New(""))
 	fakeConfig := helper.GetFakeAppConfig(certFile, keyFile)
-	fakeServer := new(wrapper.FakeServerOps)
+	fakeServer := wrapper.NewFakeServerOps()
 	fakeServer.On("ListenAndServeTLS", mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(nil)
 	mgr := Manager{
 		config: fakeConfig,
@@ -295,7 +295,7 @@ func TestStartHubServerUsingTLS_ReturnsError_WhenReadKeyFails(t *testing.T) {
 	fileOps.On("Stat", certFile).Return(new(fake.FileInfo), nil)
 	fileOps.On("Stat", keyFile).Return(new(fake.FileInfo), errors.New(""))
 	fakeConfig := helper.GetFakeAppConfig(certFile, keyFile)
-	fakeServer := new(wrapper.FakeServerOps)
+	fakeServer := wrapper.NewFakeServerOps()
 	fakeServer.On("ListenAndServeTLS", mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(nil)
 	mgr := Manager{
 		config: fakeConfig,
@@ -319,7 +319,7 @@ func TestStartHubServerUsingTLS_ReturnsError_WhenStartServerFails(t *testing.T) 
 	fileOps := new(wrapper.FakeFileOps)
 	fileOps.On("Stat", mock.AnythingOfType("string")).Return(new(fake.FileInfo), nil)
 	fakeConfig := helper.GetFakeAppConfig(certFile, keyFile)
-	fakeServer := new(wrapper.FakeServerOps)
+	fakeServer := wrapper.NewFakeServerOps()
 	fakeServer.On("ListenAndServeTLS", mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(errors.New(""))
 	mgr := Manager{
 		config: fakeConfig,
@@ -344,7 +344,7 @@ func TestStartHubServer_ReturnsNil_WhenStartUsingTLSSucceeds(t *testing.T) {
 	fileOps.On("Stat", mock.AnythingOfType("string")).Return(new(fake.FileInfo), nil)
 	fakeConfig := helper.GetFakeAppConfig(certFile, keyFile)
 	fakeConfig.HTTP.UseTLS = true
-	fakeServer := new(wrapper.FakeServerOps)
+	fakeServer := wrapper.NewFakeServerOps()
 	fakeServer.On("ListenAndServeTLS", mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(nil)
 	mgr := Manager{
 		config: fakeConfig,
@@ -366,7 +366,7 @@ func TestStartHubServer_ReturnsError_WhenStartUsingTLSFails(t *testing.T) {
 	fileOps.On("Stat", mock.AnythingOfType("string")).Return(new(fake.FileInfo), nil)
 	fakeConfig := helper.GetFakeAppConfig(certFile, keyFile)
 	fakeConfig.HTTP.UseTLS = true
-	fakeServer := new(wrapper.FakeServerOps)
+	fakeServer := wrapper.NewFakeServerOps()
 	fakeServer.On("ListenAndServeTLS", mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(errors.New(""))
 	mgr := Manager{
 		config: fakeConfig,
@@ -386,7 +386,7 @@ func TestStartHubServer_ReturnsNil_WhenStartSucceeds(t *testing.T) {
 	fileOps.On("Stat", mock.AnythingOfType("string")).Return(new(fake.FileInfo), nil)
 	fakeConfig := helper.GetFakeAppConfig("", "")
 	fakeConfig.HTTP.UseTLS = false
-	fakeServer := new(wrapper.FakeServerOps)
+	fakeServer := wrapper.NewFakeServerOps()
 	fakeServer.On("ListenAndServe").Return(nil)
 	mgr := Manager{
 		config: fakeConfig,
@@ -406,7 +406,7 @@ func TestStartHubServer_ReturnsError_WhenStartFails(t *testing.T) {
 	fileOps.On("Stat", mock.AnythingOfType("string")).Return(new(fake.FileInfo), nil)
 	fakeConfig := helper.GetFakeAppConfig("", "")
 	fakeConfig.HTTP.UseTLS = false
-	fakeServer := new(wrapper.FakeServerOps)
+	fakeServer := wrapper.NewFakeServerOps()
 	fakeServer.On("ListenAndServe").Return(errors.New(""))
 	mgr := Manager{
 		config: fakeConfig,
@@ -422,7 +422,7 @@ func TestStartHubServer_ReturnsError_WhenStartFails(t *testing.T) {
 }
 
 func TestShutdownHubServer_ReturnsNil_WhenShutdownSucceeds(t *testing.T) {
-	fakeServer := new(wrapper.FakeServerOps)
+	fakeServer := wrapper.NewFakeServerOps()
 	fakeServer.On("Shutdown", mock.AnythingOfType("*context.timerCtx")).Return(nil)
 	mgr := Manager{
 		log:    log.GetFakeLogger(),
@@ -436,7 +436,7 @@ func TestShutdownHubServer_ReturnsNil_WhenShutdownSucceeds(t *testing.T) {
 }
 
 func TestShutdownServer_ReturnsError_WhenShutdownFails(t *testing.T) {
-	fakeServer := new(wrapper.FakeServerOps)
+	fakeServer := wrapper.NewFakeServerOps()
 	fakeServer.On("Shutdown", mock.AnythingOfType("*context.timerCtx")).Return(errors.New(""))
 	mgr := Manager{
 		log:    log.GetFakeLogger(),
@@ -555,7 +555,7 @@ func TestServeHTTP_SetsStatusNotFound_WhenPathNotHandled(t *testing.T) {
 }
 
 func TestStopMockAPIHub_DoesNotPanic_OnSuccess(t *testing.T) {
-	fakeServer := new(wrapper.FakeServerOps)
+	fakeServer := wrapper.NewFakeServerOps()
 	fakeServer.On("Shutdown", mock.AnythingOfType("*context.timerCtx")).Return(nil)
 	dir := "fakeAPI"
 	fakeAPI := new(api.FakeAPI)
@@ -577,7 +577,7 @@ func TestStopMockAPIHub_DoesNotPanic_OnSuccess(t *testing.T) {
 }
 
 func TestStopMockAPIHub_Panics_OnError(t *testing.T) {
-	fakeServer := new(wrapper.FakeServerOps)
+	fakeServer := wrapper.NewFakeServerOps()
 	fakeServer.On("Shutdown", mock.AnythingOfType("*context.timerCtx")).Return(errors.New(""))
 	dir := "fakeAPI"
 	fakeAPI := new(api.FakeAPI)
@@ -610,7 +610,7 @@ func TestStartMockAPIHub_ReturnsNil_OnSuccess(t *testing.T) {
 	fakeAPI.On("GetBaseURL").Return("baseURL")
 	fakeAPI.On("GetPort").Return(4000)
 	fakeAPI.On("Start", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(nil)
-	fakeServer := new(wrapper.FakeServerOps)
+	fakeServer := wrapper.NewFakeServerOps()
 	fakeServer.On("ListenAndServe").Return(nil)
 	apis := map[string]api.IAPI{
 		dir: fakeAPI,
@@ -641,7 +641,7 @@ func TestStartMockAPIHub_ReturnsError_WhenStartMockAPIHubFails(t *testing.T) {
 	fakeAPI.On("GetBaseURL").Return("baseURL")
 	fakeAPI.On("GetPort").Return(4000)
 	fakeAPI.On("Start", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(nil)
-	fakeServer := new(wrapper.FakeServerOps)
+	fakeServer := wrapper.NewFakeServerOps()
 	fakeServer.On("ListenAndServe").Return(nil)
 	apis := map[string]api.IAPI{
 		dir: fakeAPI,
@@ -672,7 +672,7 @@ func TestStartMockAPIHub_ReturnsError_WhenStartHubServerFails(t *testing.T) {
 	fakeAPI.On("GetBaseURL").Return("baseURL")
 	fakeAPI.On("GetPort").Return(4000)
 	fakeAPI.On("Start", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(nil)
-	fakeServer := new(wrapper.FakeServerOps)
+	fakeServer := wrapper.NewFakeServerOps()
 	fakeServer.On("ListenAndServe").Return(errors.New(""))
 	apis := map[string]api.IAPI{
 		dir: fakeAPI,

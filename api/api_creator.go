@@ -5,12 +5,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/wcsanders1/MockApiHub/ref"
-
 	"github.com/wcsanders1/MockApiHub/config"
 	"github.com/wcsanders1/MockApiHub/constants"
 	"github.com/wcsanders1/MockApiHub/json"
 	"github.com/wcsanders1/MockApiHub/log"
+	"github.com/wcsanders1/MockApiHub/ref"
 	"github.com/wcsanders1/MockApiHub/wrapper"
 
 	"github.com/sirupsen/logrus"
@@ -101,24 +100,19 @@ func (c creator) startAPI(defaultCert, defaultKey string, server wrapper.IServer
 			return err
 		}
 
-		go func() error {
+		go func() {
 			if err := server.ListenAndServeTLS(cert, key); err != nil {
 				contextLogger.WithError(err).Error("error starting mock API with TLS")
-				return err
 			}
-			return nil
 		}()
 		return nil
 	}
 
-	go func() error {
+	go func() {
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			contextLogger.WithError(err).Error("mock API server error")
-			return err
 		}
-		return nil
 	}()
-
 	return nil
 }
 
