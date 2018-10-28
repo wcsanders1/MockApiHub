@@ -450,13 +450,12 @@ func TestShutdownServer_ReturnsError_WhenShutdownFails(t *testing.T) {
 }
 
 func TestShutDownMockAPIs_ShutsDownAPIs_WhenCalled(t *testing.T) {
-	dir := "fakeAPI"
 	fakeAPI := new(api.FakeAPI)
 	fakeAPI.On("GetBaseURL").Return("baseURL")
 	fakeAPI.On("GetPort").Return(4000)
 	fakeAPI.On("Shutdown").Return(nil)
 	apis := map[string]api.IAPI{
-		dir: fakeAPI,
+		"fakeAPI": fakeAPI,
 	}
 	mgr := Manager{
 		apis: apis,
