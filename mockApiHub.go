@@ -27,8 +27,7 @@ func main() {
 	signal.Notify(shutdown, os.Interrupt)
 
 	go func() {
-		err := mgr.StartMockAPIHub()
-		if err != nil {
+		if err := mgr.StartMockAPIHub(); err != nil {
 			fmt.Println(err)
 			panic(err)
 		}
