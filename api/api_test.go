@@ -4,12 +4,39 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/wcsanders1/MockApiHub/str"
+
+	"github.com/wcsanders1/MockApiHub/log"
+
 	"github.com/wcsanders1/MockApiHub/config"
+	"github.com/wcsanders1/MockApiHub/fake"
 	"github.com/wcsanders1/MockApiHub/route"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
+
+func TestServeHTTP_DoesNotWriteErrorStatus_WhenHandlerExists(t *testing.T) {
+	path := "/test/path"
+	method := "GET"
+	routeTree := route.FakeTree{}
+	routeTree.On("GetRoute", mock.AnythingOfType("string")).Return(path, map[string]string{}, nil)
+	writer := fake.ResponseWriter{}
+	request, _ := http.NewRequest(method, path, nil)
+	handlers := make(map[string]map[string]func(http.ResponseWriter, *http.Request))
+	handlers[method] = make(map[string]func(http.ResponseWriter, *http.Request))
+	handlers[method][path] = func(http.ResponseWriter, *http.Request) {}
+	testAPI := API{
+		handlers:  handlers,
+		log:       log.GetFakeLogger(),
+		routeTree: &routeTree,
+	}
+
+	testAPI.ServeHTTP(&writer, request)
+
+	routeTree.AssertCalled(t, "GetRoute", str.CleanURL(path))
+	writer.AssertNotCalled(t, "WriteHeader", http.StatusNotFound)
+}
 
 func TestGetPort_ReturnsPort_WhenCalled(t *testing.T) {
 	port := 4000
