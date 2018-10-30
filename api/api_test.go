@@ -11,6 +11,53 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+func TestGetPort_ReturnsPort_WhenCalled(t *testing.T) {
+	port := 4000
+	testAPI := API{
+		httpConfig: config.HTTP{
+			Port: port,
+		},
+	}
+
+	result := testAPI.GetPort()
+
+	assert := assert.New(t)
+	assert.NotNil(result)
+	assert.Equal(port, result)
+}
+
+func TestGetBaseURL_ReturnsBaseURL_WhenCalled(t *testing.T) {
+	baseURL := "base/url"
+	testAPI := API{
+		baseURL: baseURL,
+	}
+
+	result := testAPI.GetBaseURL()
+
+	assert := assert.New(t)
+	assert.NotNil(result)
+	assert.Equal(baseURL, result)
+}
+
+func TestGetEndpoints_ReturnsEndpoints_WhenCalled(t *testing.T) {
+	endpointName := "testEndpoint"
+	endpoints := map[string]config.Endpoint{
+		endpointName: config.Endpoint{},
+	}
+	testAPI := API{
+		endpoints: endpoints,
+	}
+
+	result := testAPI.GetEndpoints()
+
+	assert := assert.New(t)
+	assert.NotNil(result)
+	assert.NotEmpty(result)
+	assert.IsType(map[string]config.Endpoint{}, result)
+	assert.Contains(result, endpointName)
+	assert.Equal(1, len(result))
+}
+
 func TestEnsureRouteRegistered_AddsRoute_IfNotRegistered(t *testing.T) {
 	url := "test/url"
 	fakeRouteTree := &route.FakeTree{}
