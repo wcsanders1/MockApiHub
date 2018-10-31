@@ -1,20 +1,82 @@
 package api
 
 import (
+	"errors"
 	"net/http"
 	"testing"
 
-	"github.com/wcsanders1/MockApiHub/str"
-
-	"github.com/wcsanders1/MockApiHub/log"
-
 	"github.com/wcsanders1/MockApiHub/config"
 	"github.com/wcsanders1/MockApiHub/fake"
+	"github.com/wcsanders1/MockApiHub/log"
 	"github.com/wcsanders1/MockApiHub/route"
+	"github.com/wcsanders1/MockApiHub/str"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
+
+func TestServeHTTP_WritesStatusNotFound_WhenNoHandlerForRoute(t *testing.T) {
+	path := "/test/path"
+	method := "GET"
+	routeTree := route.FakeTree{}
+	routeTree.On("GetRoute", mock.AnythingOfType("string")).Return(path, map[string]string{}, nil)
+	writer := fake.ResponseWriter{}
+	writer.On("WriteHeader", mock.AnythingOfType("int")).Return(1)
+	writer.On("Write", mock.AnythingOfType("[]uint8")).Return(1, nil)
+	request, _ := http.NewRequest(method, path, nil)
+	testAPI := API{
+		log:       log.GetFakeLogger(),
+		routeTree: &routeTree,
+	}
+
+	testAPI.ServeHTTP(&writer, request)
+
+	routeTree.AssertCalled(t, "GetRoute", str.CleanURL(path))
+	writer.AssertCalled(t, "WriteHeader", http.StatusNotFound)
+}
+
+func TestServeHTTP_DoesNotWriteError_WhenRouteTreeReturnsNonHTTPError(t *testing.T) {
+	path := "/test/path"
+	routeTree := route.FakeTree{}
+	routeTree.On("GetRoute", mock.AnythingOfType("string")).Return(path, map[string]string{}, errors.New(""))
+	writer := fake.ResponseWriter{}
+	writer.On("WriteHeader", mock.AnythingOfType("int")).Return(1)
+	writer.On("Write", mock.AnythingOfType("[]uint8")).Return(1, nil)
+	request, _ := http.NewRequest("GET", path, nil)
+	testAPI := API{
+		log:       log.GetFakeLogger(),
+		routeTree: &routeTree,
+	}
+
+	testAPI.ServeHTTP(&writer, request)
+
+	routeTree.AssertCalled(t, "GetRoute", str.CleanURL(path))
+	writer.AssertNotCalled(t, "WriteHeader", mock.Anything)
+}
+
+func TestServeHTTP_WritesError_WhenRouteTreeReturnsHTTPError(t *testing.T) {
+	path := "/test/path"
+	status := http.StatusBadRequest
+	httpError := &route.HTTPError{
+		Status: status,
+		Msg:    "test",
+	}
+	routeTree := route.FakeTree{}
+	routeTree.On("GetRoute", mock.AnythingOfType("string")).Return(path, map[string]string{}, httpError)
+	writer := fake.ResponseWriter{}
+	writer.On("WriteHeader", mock.AnythingOfType("int")).Return(1)
+	writer.On("Write", mock.AnythingOfType("[]uint8")).Return(1, nil)
+	request, _ := http.NewRequest("GET", path, nil)
+	testAPI := API{
+		log:       log.GetFakeLogger(),
+		routeTree: &routeTree,
+	}
+
+	testAPI.ServeHTTP(&writer, request)
+
+	routeTree.AssertCalled(t, "GetRoute", str.CleanURL(path))
+	writer.AssertCalled(t, "WriteHeader", status)
+}
 
 func TestServeHTTP_DoesNotWriteErrorStatus_WhenHandlerExists(t *testing.T) {
 	path := "/test/path"
