@@ -10,10 +10,39 @@ import (
 	"github.com/wcsanders1/MockApiHub/log"
 	"github.com/wcsanders1/MockApiHub/route"
 	"github.com/wcsanders1/MockApiHub/str"
+	"github.com/wcsanders1/MockApiHub/wrapper"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
+
+func TestShutdown_ReturnsNil_WhenShutdownSuccessful(t *testing.T) {
+	fakeServer := wrapper.FakeServerOps{}
+	fakeServer.On("Shutdown", mock.Anything).Return(nil)
+	api := API{
+		log:    log.GetFakeLogger(),
+		server: &fakeServer,
+	}
+
+	err := api.Shutdown()
+
+	assert.NoError(t, err)
+	fakeServer.AssertCalled(t, "Shutdown", mock.Anything)
+}
+
+func TestShutdown_ReturnsError_WhenShutdownFails(t *testing.T) {
+	fakeServer := wrapper.FakeServerOps{}
+	fakeServer.On("Shutdown", mock.Anything).Return(errors.New(""))
+	api := API{
+		log:    log.GetFakeLogger(),
+		server: &fakeServer,
+	}
+
+	err := api.Shutdown()
+
+	assert.Error(t, err)
+	fakeServer.AssertCalled(t, "Shutdown", mock.Anything)
+}
 
 func TestServeHTTP_WritesStatusNotFound_WhenNoHandlerForRoute(t *testing.T) {
 	path := "/test/path"
