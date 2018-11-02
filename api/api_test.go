@@ -16,6 +16,49 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+func TestStart_DeletesEndpoint_WhenEndpointIsDuplicate(t *testing.T) {
+	endpointName := "testEndpoint"
+	baseURL := "baseURL"
+	path := "test/endpoint"
+	file := "testFile"
+	cert := "testCert"
+	key := "testKey"
+	dir := "testDir"
+	creator := fakeAPICreator{}
+	creator.On("getHandler", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(func(w http.ResponseWriter, r *http.Request) {})
+	creator.On("startAPI", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+	routeTree := route.FakeTree{}
+	routeTree.On("GetRoute", mock.AnythingOfType("string")).Return(path, map[string]string{}, nil)
+	endpoints := map[string]config.Endpoint{
+		endpointName: config.Endpoint{
+			Path:   path,
+			File:   file,
+			Method: "GET",
+		},
+		"somethingElse": config.Endpoint{
+			Path:   path,
+			File:   file,
+			Method: "GET",
+		},
+	}
+	testAPI := API{
+		server:     &wrapper.FakeServerOps{},
+		httpConfig: config.HTTP{},
+		endpoints:  endpoints,
+		baseURL:    baseURL,
+		routeTree:  &routeTree,
+		log:        log.GetFakeLogger(),
+		creator:    &creator,
+		handlers:   make(map[string]map[string]func(http.ResponseWriter, *http.Request)),
+	}
+
+	err := testAPI.Start(dir, cert, key)
+
+	assert := assert.New(t)
+	assert.NoError(err)
+	assert.Equal(1, len(testAPI.endpoints))
+}
+
 func TestStart_ReturnsNil_WhenStartSuccessful(t *testing.T) {
 	endpointName := "testEndpoint"
 	baseURL := "baseURL"
@@ -36,17 +79,20 @@ func TestStart_ReturnsNil_WhenStartSuccessful(t *testing.T) {
 		},
 	}
 	testAPI := API{
-		endpoints: endpoints,
-		baseURL:   baseURL,
-		routeTree: &routeTree,
-		log:       log.GetFakeLogger(),
-		creator:   &creator,
-		handlers:  make(map[string]map[string]func(http.ResponseWriter, *http.Request)),
+		server:     &wrapper.FakeServerOps{},
+		httpConfig: config.HTTP{},
+		endpoints:  endpoints,
+		baseURL:    baseURL,
+		routeTree:  &routeTree,
+		log:        log.GetFakeLogger(),
+		creator:    &creator,
+		handlers:   make(map[string]map[string]func(http.ResponseWriter, *http.Request)),
 	}
 
 	err := testAPI.Start(dir, cert, key)
 
 	assert.NoError(t, err)
+	creator.AssertCalled(t, "startAPI", cert, key, mock.Anything, mock.Anything)
 }
 
 func TestShutdown_ReturnsNil_WhenShutdownSuccessful(t *testing.T) {
