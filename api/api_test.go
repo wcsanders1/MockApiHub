@@ -16,6 +16,30 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+func TestNewAPI_ReturnsNewAPI_WhenProvidedPort(t *testing.T) {
+	config := &config.APIConfig{
+		HTTP: config.HTTP{
+			Port: 4000,
+		},
+	}
+
+	result, err := NewAPI(config)
+
+	assert := assert.New(t)
+	assert.NotNil(result)
+	assert.NoError(err)
+}
+
+func TestNewAPI_ReturnsError_WhenNotProvidedPort(t *testing.T) {
+	config := &config.APIConfig{}
+
+	result, err := NewAPI(config)
+
+	assert := assert.New(t)
+	assert.Nil(result)
+	assert.Error(err)
+}
+
 func TestStart_DeletesEndpoint_WhenEndpointIsDuplicate(t *testing.T) {
 	endpointName := "testEndpoint"
 	baseURL := "baseURL"
