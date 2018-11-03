@@ -11,6 +11,7 @@ env:
 install: true
 script:
 - go test -v -race ./... -coverprofile=coverage.txt -covermode=atomic
+- go build mockApiHub.go
 after_success:
 - bash <(curl -s https://codecov.io/bash)
 deploy:
