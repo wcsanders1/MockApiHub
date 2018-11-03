@@ -3,7 +3,9 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/wcsanders1/MockApiHub)](https://goreportcard.com/report/github.com/wcsanders1/MockApiHub)
 [![BuildStatus](https://travis-ci.org/wcsanders1/MockApiHub.svg?branch=master)](https://travis-ci.org/wcsanders1/MockApiHub)
 [![codecov](https://codecov.io/gh/wcsanders1/MockApiHub/branch/master/graph/badge.svg)](https://codecov.io/gh/wcsanders1/MockApiHub)
-[![License](https://img.shields.io/badge/license-mit-blue.svg?style=flat-square)](https:/githubusercontent.com/wcsanders1/MOckApiHub/master/LICENSE)
+[![License](https://img.shields.io/badge/license-mit-blue.svg)](https:/githubusercontent.com/wcsanders1/MOckApiHub/master/LICENSE)
+[![GoDoc](https://img.shields.io/badge/go-documentation-darkblue.svg)](https://godoc.org/github.com/wcsanders1/MockApiHub)
+![Version](https://img.shields.io/badge/version-0.1.0-darkred.svg)
 
 This server allows you to create a collection of mock APIs.
 
