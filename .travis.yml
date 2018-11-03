@@ -12,6 +12,7 @@ install: true
 script:
 - go test -v -race ./... -coverprofile=coverage.txt -covermode=atomic
 - go build mockApiHub.go
+- GOOS=windows GOARCH=386 go build -o mockApiHub.exe mockApiHub.go
 after_success:
 - bash <(curl -s https://codecov.io/bash)
 deploy:
@@ -19,7 +20,9 @@ deploy:
   skip_cleanup: true
   api_key:
     secure: BQ46KN5lMMefGVTaj00i2B+OxaogfL+R99WyPOi/CZeLZLDhd8deRcum6SMo6aUNt//nUn+pq9NEk5q43dNTa9lyWusK5fLOjXPMCLYSByOaBSQMpJ3COBAMbSDEHGvzqNQDcoFWzGQEIDNsmPv7eiY+YagFwfzzh9eViTnZwmeCWFuPehXVREVbPEuv4hi8JzDYHec9nIgbUByCnHC8o4mFNy9qOO/rfvIVC3hhEYIsRE324v5Em4QOHANIRZZ0niL4DSVusaDvn8blunu7AoWspA2qXJlLsahU0JYks6qYO+Vm8rW6c8cP1Y0T6i4dHLLDN2nVGFo6QOIkNYSDdCMGtqKcEjXyCDF82E35egSh7OfjNL4yCfYZP/BITpGsW/loKu42smlEhrQPQRn+uGDSPYGpfJj2r3hbutCPjKARi6EvhRBmLYsXHE7zefhV7f256VrnU+t84pRhulxy+d9d0eygiK7HnggB5DaM9y9Hcn+oK4VLpJifGPuid46TQyzEvp3tBvf7AnhaWwj1ygYZwIPROFcKzumjb8DEWCMj5T48WMVCO4CT25x1G2Nv4APxYjj0VV5ium/EB9+CJY4qawBjRY/veUrf8OP2FFblFt/bv9qDYZYhpSaoVfEpO7H5xYiJc9QdCOKq81/f1YGjybX1FZ4ztBJkTFtUciw=
-  file: mockApiHub
+  file: 
+    - mockApiHub
+    - mockApiHub.exe
   on:
     repo: wcsanders1/MockApiHub
     tags: true
