@@ -16,6 +16,7 @@ type (
 	}
 )
 
+// NewFakeServerOps returns a reference to a FakeServerOps
 func NewFakeServerOps() *FakeServerOps {
 	return &FakeServerOps{
 		Finished: make(chan call),
@@ -42,6 +43,7 @@ func (ops *FakeServerOps) ListenAndServeTLS(certFile, keyFile string) error {
 	return args.Error(0)
 }
 
+// WaitForListenAndServe ensures that the ListenAndServe function is called before a test makes assertions about that call
 func (ops *FakeServerOps) WaitForListenAndServe() {
 	<-ops.Finished
 }
