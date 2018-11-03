@@ -21,4 +21,4 @@ deploy:
   file: mockApiHub
   on:
     repo: wcsanders1/MockApiHub
-    tags: false
+    tags: true
