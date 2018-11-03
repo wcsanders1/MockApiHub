@@ -7,18 +7,18 @@ import (
 )
 
 type (
-	Call interface{}
+	call interface{}
 
 	// FakeServerOps is a fake implementation of IServerOps
 	FakeServerOps struct {
 		mock.Mock
-		Finished chan Call
+		Finished chan call
 	}
 )
 
 func NewFakeServerOps() *FakeServerOps {
 	return &FakeServerOps{
-		Finished: make(chan Call),
+		Finished: make(chan call),
 	}
 }
 
