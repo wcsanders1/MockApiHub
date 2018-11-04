@@ -3,32 +3,32 @@ Package api creates a mock API based on configuration placed in the mockApis dir
 
 Example configuration:
 
-baseUrl = "studentsApi/:districtNumber"
+	baseUrl = "studentsApi/:districtNumber"
 
-[log]
-loggingEnabled = true
-fileName = "testLogs/studentsApi/default.log"
-maxFileDaysAge = 3
-formatAsJSON = true
-prettyJSON = true
+	[log]
+	loggingEnabled = true
+	fileName = "testLogs/studentsApi/default.log"
+	maxFileDaysAge = 3
+	formatAsJSON = true
+	prettyJSON = true
 
-[http]
-port = 5002
-useTLS = false
-certFile = ""
-keyFile = ""
+	[http]
+	port = 5002
+	useTLS = false
+	certFile = ""
+	keyFile = ""
 
-[endpoints]
+	[endpoints]
 
-    [endpoints.getAllAccounts]
-    path = "accounts"
-    file = "accounts.json"
-	method = "GET"
+		[endpoints.getAllAccounts]
+		path = "accounts"
+		file = "accounts.json"
+		method = "GET"
 
-	[endpoints.getCustomerBalances]
-	path = "customers/:id/balances"
-    file = "customers.json"
-	method = "GET"
+		[endpoints.getCustomerBalances]
+		path = "customers/:id/balances"
+		file = "customers.json"
+		method = "GET"
 
 */
 package api
