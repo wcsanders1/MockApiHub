@@ -1,4 +1,3 @@
-mockApiHub
-mockApiHub.exe
+mockApiHub_*
 vendor/*/
 testLogs
