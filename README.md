@@ -32,7 +32,7 @@ formatAsJSON = true
 prettyJSON = true
 ```
 
-After configuring the hub server, you need to configure your mock APIs and provide files containing the data you want them to return. The API configuration files and data files must be placed in `api/apis`, whose root must be the directory of the executable. Each mock API must have its own directory as a subdirectory of `api/apis`, which must itself end in the letters `Api`. Each mock API must have it's own configuration file, which must end in the letters `api` and must be in `toml` format. (I apologize for the complexity and constraint of how the configuration files must be. I plan to simplify this in a later release.)
+After configuring the hub server, you need to configure your mock APIs and provide files containing the data you want them to return. The API configuration files and data files must be placed in a directory called `mockApis`, whose root must be the directory of the executable. Each mock API must have its own directory as a subdirectory of `mockApis`, each of which must end in the letters `Api`. Each mock API must have its own configuration file, which must end in the letters `Api` and must be in `toml` format. See examples in the `mockApis` directory in this repository, or read further.
 
 This application does not limit the amount of mock APIs that can run at once; however, each mock API must listen on a distinct port, and none of them can listen on the same port as the hub server.
 
