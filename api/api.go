@@ -1,3 +1,36 @@
+/*
+Package api creates a mock API based on configuration placed in the mockApis directory.
+
+Example configuration:
+
+baseUrl = "studentsApi/:districtNumber"
+
+[log]
+loggingEnabled = true
+fileName = "testLogs/studentsApi/default.log"
+maxFileDaysAge = 3
+formatAsJSON = true
+prettyJSON = true
+
+[http]
+port = 5002
+useTLS = false
+certFile = ""
+keyFile = ""
+
+[endpoints]
+
+    [endpoints.getAllAccounts]
+    path = "accounts"
+    file = "accounts.json"
+	method = "GET"
+
+	[endpoints.getCustomerBalances]
+	path = "customers/:id/balances"
+    file = "customers.json"
+	method = "GET"
+
+*/
 package api
 
 import (
@@ -20,7 +53,7 @@ import (
 )
 
 type (
-	// IAPI is an interface providing functionality to manage an API
+	// IAPI is an interface providing functionality to manage an API.
 	IAPI interface {
 		Start(dir, defaultCert, defaultKey string) error
 		Shutdown() error
@@ -30,7 +63,7 @@ type (
 		GetEndpoints() map[string]config.Endpoint
 	}
 
-	// API contains information for an API
+	// API contains information for an API.
 	API struct {
 		baseURL    string
 		endpoints  map[string]config.Endpoint
@@ -44,7 +77,7 @@ type (
 	}
 )
 
-// NewAPI returns a new API
+// NewAPI returns a new API.
 func NewAPI(config *config.APIConfig) (*API, error) {
 	api := &API{}
 	api.log = log.NewLogger(&config.Log, "api").WithFields(logrus.Fields{
@@ -75,7 +108,7 @@ func NewAPI(config *config.APIConfig) (*API, error) {
 	return api, nil
 }
 
-// Start starts an api server
+// Start starts an api server.
 func (api *API) Start(dir, defaultCert, defaultKey string) error {
 	contextLogger := api.log.WithFields(logrus.Fields{
 		log.FuncField:            ref.GetFuncName(),
@@ -116,7 +149,7 @@ func (api *API) Start(dir, defaultCert, defaultKey string) error {
 	return api.creator.startAPI(defaultCert, defaultKey, api.server, api.httpConfig)
 }
 
-// Shutdown shutsdown the server
+// Shutdown shutsdown the server.
 func (api *API) Shutdown() error {
 	contextLogger := api.log.WithField(log.FuncField, ref.GetFuncName())
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -166,17 +199,17 @@ func (api *API) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("endpoint not found"))
 }
 
-// GetPort returns the API's port number
+// GetPort returns the API's port number.
 func (api *API) GetPort() int {
 	return api.httpConfig.Port
 }
 
-// GetBaseURL returns the API's base URL
+// GetBaseURL returns the API's base URL.
 func (api *API) GetBaseURL() string {
 	return api.baseURL
 }
 
-// GetEndpoints returns the API's endpoints
+// GetEndpoints returns the API's endpoints.
 func (api *API) GetEndpoints() map[string]config.Endpoint {
 	return api.endpoints
 }

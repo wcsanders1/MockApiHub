@@ -1,3 +1,4 @@
+//Package str provides string-manipulation functionality.
 package str
 
 import (
@@ -7,7 +8,7 @@ import (
 	"strings"
 )
 
-// GetPort returns the port in the format that http server expects
+// GetPort returns the port in the format that http server expects.
 func GetPort(port int) string {
 	return fmt.Sprintf(":%d", port)
 }
@@ -23,7 +24,7 @@ func GetURLFragments(url string) ([]string, error) {
 	return frags, nil
 }
 
-// CleanURL returns a URL in lowercase without a trailing or preceding slash
+// CleanURL returns a URL in lowercase without a trailing or preceding slash.
 func CleanURL(url string) string {
 	if len(url) == 0 {
 		return ""
@@ -33,7 +34,7 @@ func CleanURL(url string) string {
 	return path.Clean(urlLower[1:])
 }
 
-// RemoveColonFromParam removes the colon from a route parameter so it looks nice when logged
+// RemoveColonFromParam removes the colon from a route parameter so it looks nice when logged.
 func RemoveColonFromParam(param string) string {
 	if len(param) == 0 {
 		return ""
@@ -42,7 +43,7 @@ func RemoveColonFromParam(param string) string {
 	return param[1:]
 }
 
-// IsParam returns true if the string passed to it is a route parameter
+// IsParam returns true if the string passed to it is a route parameter.
 func IsParam(routeFrag string) bool {
 	if len(routeFrag) == 0 {
 		return false

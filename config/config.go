@@ -1,3 +1,4 @@
+//Package config contains configuration structs for the hub server and for the mock APIs.
 package config
 
 import (
@@ -11,13 +12,13 @@ import (
 )
 
 type (
-	// AppConfig is application configuration
+	// AppConfig is application configuration.
 	AppConfig struct {
 		HTTP HTTP
 		Log  Log
 	}
 
-	// APIConfig is configuration for an individual mock api
+	// APIConfig is configuration for an individual mock API.
 	APIConfig struct {
 		HTTP      HTTP
 		BaseURL   string
@@ -25,7 +26,7 @@ type (
 		Log       Log
 	}
 
-	// Log is configuration for logging
+	// Log is configuration for logging.
 	Log struct {
 		LoggingEnabled bool
 		Filename       string
@@ -37,7 +38,7 @@ type (
 		PrettyJSON     bool
 	}
 
-	// HTTP contains information regarding server setup
+	// HTTP contains information regarding server setup.
 	HTTP struct {
 		Port     int
 		UseTLS   bool
@@ -45,7 +46,7 @@ type (
 		KeyFile  string
 	}
 
-	// Endpoint contains information regarding an endpoint
+	// Endpoint contains information regarding an endpoint.
 	Endpoint struct {
 		Path             string
 		File             string
@@ -54,25 +55,25 @@ type (
 	}
 
 	// IManager provides functionality to manage configurations, such as getting
-	// a mock API configuration from the disk
+	// a mock API configuration from the disk.
 	IManager interface {
 		GetAPIConfig(file os.FileInfo) (*APIConfig, error)
 	}
 
-	// Manager is a concrete implementation of IManager
+	// Manager is a concrete implementation of IManager.
 	Manager struct {
 		file wrapper.IFileOps
 	}
 )
 
-// NewConfigManager returns a reference to a new Manager
+// NewConfigManager returns a reference to a new Manager.
 func NewConfigManager() *Manager {
 	return &Manager{
 		file: &wrapper.FileOps{},
 	}
 }
 
-// GetAPIConfig gets a mock API configuration from the disk
+// GetAPIConfig gets a mock API configuration from the disk.
 func (mgr *Manager) GetAPIConfig(fileInfo os.FileInfo) (*APIConfig, error) {
 	dir := fileInfo.Name()
 	if !fileInfo.IsDir() || !isAPI(dir) {

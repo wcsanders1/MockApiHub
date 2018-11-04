@@ -1,3 +1,4 @@
+//Package wrapper wraps functionality concerning server and file interaction so that the functionality can be mocked.
 package wrapper
 
 import (

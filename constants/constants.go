@@ -1,3 +1,4 @@
+//Package constants contains global constants.
 package constants
 
 const (

@@ -1,3 +1,22 @@
+/*
+Package main is the main entry point for the application. It requires configuration in a file called app_config.toml.
+
+Example configuration:
+
+[http]
+port = 5000
+useTLS = false
+certFile = ""
+keyFile = ""
+
+[log]
+loggingEnabled = true
+fileName = "testLogs/mockApiHub/default.log"
+maxFileDaysAge = 3
+formatAsJSON = true
+prettyJSON = true
+
+*/
 package main
 
 import (

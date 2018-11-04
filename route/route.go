@@ -1,3 +1,4 @@
+//Package route provides a tree structure for routing and functionality to manage the tree.
 package route
 
 import (
@@ -14,19 +15,19 @@ import (
 type (
 	routeType int
 
-	// ITree is an interface providing functionality to interact with a route tree
+	// ITree is an interface providing functionality to interact with a route tree.
 	ITree interface {
 		AddRoute(url string) (string, error)
 		GetRoute(url string) (string, map[string]string, error)
 	}
 
-	// Tree contains routing for an API in a tree format
+	// Tree contains routing for an API in a tree format.
 	Tree struct {
 		routeType routeType
 		branches  map[string]*Tree
 	}
 
-	// HTTPError is the error type returned when an HTTP error occurs
+	// HTTPError is the error type returned when an HTTP error occurs.
 	HTTPError struct {
 		Msg    string
 		Status int
@@ -39,7 +40,7 @@ const (
 	notFoundMsg string    = "route not found"
 )
 
-// NewHTTPError returns a reference to a NewHTTPError
+// NewHTTPError returns a reference to a NewHTTPError.
 func NewHTTPError(msg string, status int) *HTTPError {
 	return &HTTPError{
 		Msg:    fmt.Sprintf("msg: %s || status: %s", msg, http.StatusText(status)),
@@ -51,7 +52,7 @@ func (e *HTTPError) Error() string {
 	return e.Msg
 }
 
-// NewRouteTree returns a new instance of Tree
+// NewRouteTree returns a new instance of Tree.
 func NewRouteTree() *Tree {
 	return &Tree{
 		routeType: incomplete,
@@ -59,7 +60,7 @@ func NewRouteTree() *Tree {
 	}
 }
 
-// AddRoute adds a route to the tree
+// AddRoute adds a route to the tree.
 func (tree *Tree) AddRoute(url string) (string, error) {
 	if len(url) == 0 {
 		return "", errors.New("no url provided")
@@ -87,7 +88,7 @@ func (tree *Tree) AddRoute(url string) (string, error) {
 	return path.Clean(route), nil
 }
 
-// GetRoute returns a route if it exists in the tree
+// GetRoute returns a route if it exists in the tree.
 func (tree *Tree) GetRoute(url string) (string, map[string]string, error) {
 	url = strings.ToLower(url)
 	fragments, err := str.GetURLFragments(url)

@@ -1,3 +1,4 @@
+//Package log implements github.com/sirupsen/logrus to provide logging functionality.
 package log
 
 import (
@@ -17,53 +18,53 @@ const (
 	defaultMaxFileDaysAge = 20
 	pkgField              = "pkg"
 
-	// FuncField is the name of the log field denoting the name of the function doing the logging
+	// FuncField is the name of the log field denoting the name of the function doing the logging.
 	FuncField = "func"
 
-	// PortField is the name of the log field denoting a server port number
+	// PortField is the name of the log field denoting a server port number.
 	PortField = "port"
 
-	// MethodField is the name of the log field denoting the HTTP method name
+	// MethodField is the name of the log field denoting the HTTP method name.
 	MethodField = "method"
 
-	// PathField is the name of the log field denoting an HTTP path
+	// PathField is the name of the log field denoting an HTTP path.
 	PathField = "path"
 
-	// UseTLSField is the name of the log field denoting whether a server is configured to use TLS
+	// UseTLSField is the name of the log field denoting whether a server is configured to use TLS.
 	UseTLSField = "useTLS"
 
-	// CertFileField is the name of the log field denoting the configured path to a server's TLS certificate
+	// CertFileField is the name of the log field denoting the configured path to a server's TLS certificate.
 	CertFileField = "certFile"
 
-	// KeyFileField is the name of the log field denoting the configured path to a server's TLS key
+	// KeyFileField is the name of the log field denoting the configured path to a server's TLS key.
 	KeyFileField = "keyFile"
 
-	// DefaultCertFileField is the name of the log field denoting the default cert file
+	// DefaultCertFileField is the name of the log field denoting the default cert file.
 	DefaultCertFileField = "defaultCertFile"
 
-	// DefaultKeyFileField is the name of the log field denoting the default key file
+	// DefaultKeyFileField is the name of the log field denoting the default key file.
 	DefaultKeyFileField = "defaultKeyFile"
 
-	// BaseURLField is the name of the log field denoting the base URL of an API
+	// BaseURLField is the name of the log field denoting the base URL of an API.
 	BaseURLField = "baseURL"
 
-	// RouteField is the name of the log field denoting a registered route in an API
+	// RouteField is the name of the log field denoting a registered route in an API.
 	RouteField = "route"
 
-	// FileField is the name of the log field denoting a file that a mock API route will serve
+	// FileField is the name of the log field denoting a file that a mock API route will serve.
 	FileField = "file"
 
-	// APIDirField is the name of the log field denoting the directory a mock API is in
+	// APIDirField is the name of the log field denoting the directory a mock API is in.
 	APIDirField = "apiDir"
 
-	// APINameField is the name of the log field denoting the name of a mock API
+	// APINameField is the name of the log field denoting the name of a mock API.
 	APINameField = "mockAPIName"
 
-	// EndpointNameField is the name of the log field denoting the name of an endpoint
+	// EndpointNameField is the name of the log field denoting the name of an endpoint.
 	EndpointNameField = "endpointName"
 )
 
-// NewLogger returns a new instance of a logger
+// NewLogger returns a new instance of a logger.
 func NewLogger(config *config.Log, pkgName string) *logrus.Entry {
 	log := logrus.New()
 

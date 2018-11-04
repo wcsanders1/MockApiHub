@@ -13,7 +13,7 @@ This application allows you to create a collection of mock APIs. The APIs are ea
 
 ## Getting Started
 
-Download the appropriate binary from [here](https://github.com/wcsanders1/MockApiHub/releases). The binary with the `exe` extension is for Windows and the other is for Linux.
+Download the appropriate binary from [here](https://github.com/wcsanders1/MockApiHub/releases).
 
 Before starting the application, you must configure the hub server in a file named `app_config.toml`, which must be in the same directory level as the executable. The file must be in `toml` format. You must provide the port on which you want the hub server to listen. If you want the server to use TLS, you must enable TLS and provide the paths for the certificate and key files. In addition, you can configure logging in this file. (Note that logging configuration for the mock APIs is separate, discussed below.) Here is an example of a valid `app_config.toml`:
 

@@ -1,3 +1,4 @@
+//Package manager manages mock APIs.
 package manager
 
 import (
@@ -18,7 +19,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// Manager coordinates and controls the mock apis
+// Manager coordinates and controls the mock APIs
 type Manager struct {
 	apis           map[string]api.IAPI
 	config         *config.AppConfig
@@ -29,7 +30,7 @@ type Manager struct {
 	configManager  config.IManager
 }
 
-// NewManager returns an instance of the Manager type
+// NewManager returns an instance of the Manager type.
 func NewManager(appConfig *config.AppConfig) (*Manager, error) {
 	mgr := &Manager{}
 	mgr.log = log.NewLogger(&appConfig.Log, "manager").WithFields(logrus.Fields{
@@ -56,7 +57,7 @@ func NewManager(appConfig *config.AppConfig) (*Manager, error) {
 	return mgr, nil
 }
 
-// StartMockAPIHub registers the mock apis and serves them
+// StartMockAPIHub registers the mock apis and serves them.
 func (mgr *Manager) StartMockAPIHub() error {
 	contextLogger := mgr.log.WithField(log.FuncField, ref.GetFuncName())
 	contextLogger.Debug("starting mock API hub")

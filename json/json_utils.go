@@ -1,3 +1,4 @@
+//Package json provides utility functions for operations with JSON.
 package json
 
 import (
@@ -8,7 +9,7 @@ import (
 	"github.com/wcsanders1/MockApiHub/wrapper"
 )
 
-// GetJSON returns a []byte of valid JSON from a file
+// GetJSON returns a []byte of valid JSON from a file.
 func GetJSON(filePath string, file wrapper.IFileOps) ([]byte, error) {
 	jsonFile, err := file.Open(filePath)
 	if err != nil {
