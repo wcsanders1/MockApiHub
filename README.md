@@ -102,7 +102,7 @@ If you want to have a variable as part of a mock API's URL, just put a colon in 
 
 This application does not cache the contents of the files that the mock APIs serve, so if you want to change the content of the files, you can do so without restarting or reloading anything.
 
-If you make a change to a mock API's configuration file, simply save the changes and send a `POST` request to the hub server with the path `refresh-all-mock-apis`; e.g., `http://localhost:5000/refresh-all-mock-apis`. which will apply any changes you made to the mock APIs.
+If you make a change to a mock API's configuration file, simply save the changes and send a `POST` request to the hub server with the path `refresh-all-mock-apis`; e.g., `http://localhost:5000/refresh-all-mock-apis`, which will apply any changes you made to the mock APIs.
 
 A `GET` request to the hub server with the path `show-all-registered-mock-apis` will return all of the registered mock APIs with their configurations; e.g., `http://localhost:5000/show-all-registered-mock-apis`.
 
