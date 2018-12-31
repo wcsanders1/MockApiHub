@@ -119,7 +119,12 @@ func (api *API) Start(dir, defaultCert, defaultKey string) error {
 	contextLogger.Debug("starting API")
 
 	for endpointName, endpoint := range api.endpoints {
-		path := fmt.Sprintf("%s/%s", api.baseURL, endpoint.Path)
+		var path string
+		if len(api.baseURL) > 0 {
+			path = fmt.Sprintf("%s/%s", api.baseURL, endpoint.Path)
+		} else {
+			path = endpoint.Path
+		}
 		registeredRoute := api.ensureRouteRegistered(path)
 		file := endpoint.File
 		method := strings.ToUpper(endpoint.Method)
