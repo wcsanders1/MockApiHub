@@ -1,11 +1,16 @@
 # MockApiHub
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/wcsanders1/MockApiHub)](https://goreportcard.com/report/github.com/wcsanders1/MockApiHub)
+
 [![BuildStatus](https://travis-ci.org/wcsanders1/MockApiHub.svg?branch=master)](https://travis-ci.org/wcsanders1/MockApiHub)
+
 [![codecov](https://codecov.io/gh/wcsanders1/MockApiHub/branch/master/graph/badge.svg)](https://codecov.io/gh/wcsanders1/MockApiHub)
+
 [![License](https://img.shields.io/badge/license-mit-blue.svg)](https:/githubusercontent.com/wcsanders1/MOckApiHub/master/LICENSE)
+
 [![GoDoc](https://img.shields.io/badge/go-documentation-darkblue.svg)](https://godoc.org/github.com/wcsanders1/MockApiHub)
-![Version](https://img.shields.io/badge/version-0.1.0-darkred.svg)
+
+![Version](https://img.shields.io/badge/version-0.1.1-darkred.svg)
 
 ## Overview
 
@@ -88,12 +93,8 @@ If you want to have a variable as part of a mock API's URL, just put a colon in 
   "pkg": "api",
   "port": 5001,
   "query": {
-    "page": [
-      "2"
-    ],
-    "size": [
-      "50"
-    ]
+    "page": ["2"],
+    "size": ["50"]
   },
   "time": "2018-11-03 20:40:36",
   "useTLS": false
