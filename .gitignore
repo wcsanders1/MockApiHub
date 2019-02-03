@@ -1,4 +1,5 @@
 mockApiHub_*
+MockApiHub
 vendor/*/
 testLogs
 main
