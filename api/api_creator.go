@@ -17,7 +17,7 @@ import (
 
 type (
 	iCreator interface {
-		getHandler(enforceValidJSON bool, dir, fileName string, file wrapper.IFileOps) func(w http.ResponseWriter, r *http.Request)
+		getHandler(enforceValidJSON bool, headers []config.Header, dir, fileName string, file wrapper.IFileOps) func(w http.ResponseWriter, r *http.Request)
 		startAPI(defaultCert, defaultKey string, server wrapper.IServerOps, httpConfig config.HTTP) error
 	}
 
@@ -32,7 +32,7 @@ func newCreator(logger *logrus.Entry) *creator {
 	}
 }
 
-func (c creator) getHandler(enforceValidJSON bool, dir, fileName string, file wrapper.IFileOps) func(w http.ResponseWriter, r *http.Request) {
+func (c creator) getHandler(enforceValidJSON bool, headers []config.Header, dir, fileName string, file wrapper.IFileOps) func(w http.ResponseWriter, r *http.Request) {
 	path := fmt.Sprintf("%s/%s/%s", constants.APIDir, dir, fileName)
 	contextLogger := c.log.WithFields(logrus.Fields{
 		log.FuncField:      "handler for mock API",
@@ -41,13 +41,18 @@ func (c creator) getHandler(enforceValidJSON bool, dir, fileName string, file wr
 	})
 
 	if enforceValidJSON {
-		return getJSONHandler(path, file, contextLogger)
+		return getJSONHandler(path, headers, file, contextLogger)
 	}
-	return getGeneralHandler(path, file, contextLogger)
+	return getGeneralHandler(path, headers, file, contextLogger)
 }
 
-func getJSONHandler(path string, file wrapper.IFileOps, logger *logrus.Entry) func(w http.ResponseWriter, r *http.Request) {
+func getJSONHandler(path string, headers []config.Header, file wrapper.IFileOps, logger *logrus.Entry) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+
+		for _, header := range headers {
+			w.Header().Set(header.Key, header.Value)
+		}
+
 		bytes, err := json.GetJSON(path, file)
 		if err != nil {
 			logger.WithError(err).Error("error serving JSON from this endpoint")
@@ -59,8 +64,12 @@ func getJSONHandler(path string, file wrapper.IFileOps, logger *logrus.Entry) fu
 	}
 }
 
-func getGeneralHandler(path string, file wrapper.IFileOps, logger *logrus.Entry) func(w http.ResponseWriter, r *http.Request) {
+func getGeneralHandler(path string, headers []config.Header, file wrapper.IFileOps, logger *logrus.Entry) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		for _, header := range headers {
+			w.Header().Set(header.Key, header.Value)
+		}
+
 		fileInfo, err := file.Open(path)
 		defer fileInfo.Close()
 		if err != nil {

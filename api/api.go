@@ -149,7 +149,7 @@ func (api *API) Start(dir, defaultCert, defaultKey string) error {
 		}
 
 		contextLoggerEndpoint.Debug("registered endpoint; now assigning handler")
-		api.handlers[method][registeredRoute] = api.creator.getHandler(endpoint.EnforceValidJSON, dir, file, api.file)
+		api.handlers[method][registeredRoute] = api.creator.getHandler(endpoint.EnforceValidJSON, endpoint.Headers, dir, file, api.file)
 	}
 
 	return api.creator.startAPI(defaultCert, defaultKey, api.server, api.httpConfig)
