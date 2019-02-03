@@ -51,7 +51,14 @@ type (
 		Path             string
 		File             string
 		Method           string
+		Headers          []Header
 		EnforceValidJSON bool
+	}
+
+	// Header contains the keys and values to put on response headers.
+	Header struct {
+		Key   string
+		Value string
 	}
 
 	// IManager provides functionality to manage configurations, such as getting

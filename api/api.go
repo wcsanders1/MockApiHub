@@ -129,11 +129,12 @@ func (api *API) Start(dir, defaultCert, defaultKey string) error {
 		file := endpoint.File
 		method := strings.ToUpper(endpoint.Method)
 		contextLoggerEndpoint := api.log.WithFields(logrus.Fields{
-			log.PathField:         path,
-			log.RouteField:        registeredRoute,
-			log.FileField:         file,
-			log.MethodField:       method,
-			log.EndpointNameField: endpointName,
+			log.PathField:            path,
+			log.RouteField:           registeredRoute,
+			log.FileField:            file,
+			log.MethodField:          method,
+			log.EndpointNameField:    endpointName,
+			log.ResponseHeadersField: endpoint.Headers,
 		})
 
 		contextLoggerEndpoint.Debug("registering endpoint")

@@ -62,6 +62,9 @@ const (
 
 	// EndpointNameField is the name of the log field denoting the name of an endpoint.
 	EndpointNameField = "endpointName"
+
+	// ResponseHeadersField is the name of the log field denoting the response headers.
+	ResponseHeadersField = "responseHeaders"
 )
 
 // NewLogger returns a new instance of a logger.

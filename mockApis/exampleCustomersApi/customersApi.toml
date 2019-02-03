@@ -20,6 +20,10 @@ keyFile = ""
     file = "customers.json"
     method = "GET"
 
+        [[endpoints.getCustomers.headers]]
+        key = "content-type"
+        value = "application/json; charset=utf-8"
+
     [endpoints.getAccounts]
     path = "accounts"
     file = "accounts.json"
