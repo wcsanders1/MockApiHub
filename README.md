@@ -1,12 +1,12 @@
 # MockApiHub
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/wcsanders1/MockApiHub)](https://goreportcard.com/report/github.com/wcsanders1/MockApiHub) [![BuildStatus](https://travis-ci.org/wcsanders1/MockApiHub.svg?branch=master)](https://travis-ci.org/wcsanders1/MockApiHub) [![codecov](https://codecov.io/gh/wcsanders1/MockApiHub/branch/master/graph/badge.svg)](https://codecov.io/gh/wcsanders1/MockApiHub) [![License](https://img.shields.io/badge/license-mit-blue.svg)](https:/githubusercontent.com/wcsanders1/MOckApiHub/master/LICENSE) [![GoDoc](https://img.shields.io/badge/go-documentation-darkblue.svg)](https://godoc.org/github.com/wcsanders1/MockApiHub) ![Version](https://img.shields.io/badge/version-0.1.1-darkred.svg)
+[![Go Report Card](https://goreportcard.com/badge/github.com/wcsanders1/MockApiHub)](https://goreportcard.com/report/github.com/wcsanders1/MockApiHub) [![BuildStatus](https://travis-ci.org/wcsanders1/MockApiHub.svg?branch=master)](https://travis-ci.org/wcsanders1/MockApiHub) [![codecov](https://codecov.io/gh/wcsanders1/MockApiHub/branch/master/graph/badge.svg)](https://codecov.io/gh/wcsanders1/MockApiHub) [![License](https://img.shields.io/badge/license-mit-blue.svg)](https:/githubusercontent.com/wcsanders1/MOckApiHub/master/LICENSE) [![GoDoc](https://img.shields.io/badge/go-documentation-darkblue.svg)](https://godoc.org/github.com/wcsanders1/MockApiHub) ![Version](https://img.shields.io/badge/version-0.2.0-darkred.svg)
 
 ## Overview
 
 This application allows you to create a collection of mock APIs. The APIs are easily configurable and you can reconfigure them--i.e., change their URLs, HTTP methods, or return data--without restarting the hub server. This application is useful when you need to test a service that makes HTTP requests and you want to control the data being returned from those requests.
 
-## Getting Started
+## Configuring the Hub
 
 Download the appropriate binary from [here](https://github.com/wcsanders1/MockApiHub/releases).
 
@@ -26,6 +26,8 @@ maxFileDaysAge = 3
 formatAsJSON = true
 prettyJSON = true
 ```
+
+## Creating Mock APIs
 
 After configuring the hub server, you need to configure your mock APIs and provide files containing the data you want them to return. The API configuration files and data files must be placed in a directory called `mockApis`, whose root must be the directory of the executable. Each mock API must have its own directory as a subdirectory of `mockApis`, each of which must end in the letters `Api`. Each mock API must have its own configuration file, which must end in the letters `Api` and must be in `toml` format. See examples in the `mockApis` directory in this repository, or read further.
 
@@ -66,7 +68,7 @@ As shown above, logging for a mock API is configured the same way as for the hub
 
 A mock API can have a `baseURL`, which applies to all of its endpoints. Each endpoint of a mock API must have an entry in the `endpoints` section of the configuration file. Files containing the data that a mock API returns need to be placed in the same directory as the mock API's configuration file. In the example above (assuming the hub server is running on `localhost`) the following `GET` request will return whatever is in the `accounts.json` file: `http://localhost:5001/customersapi/accounts`. If you want to enforce valid JSON for a particular endpoint, you can add `enforceValidJSON = true` to that endpoint's configuration.
 
-If you want to have a variable as part of a mock API's URL, just put a colon in front of the route fragment. Also, a query string can be added to any HTTP request to a mock API and its values and keys will be logged. For example, the `getCustomerBalances` endpoint in the configuration above can be hit with the following URL, `http://localhost:5001/customersapi/customers/12345/balances?page=2&size=50`, which will return whatever is in `customers.json`. If logging is enabled, the request will be logged like this (note the logging of the `id` variable in `params`, as well as the keys and values in the query string):
+If you want to have an argument as part of a mock API's URL, just put a colon in front of the route fragment. Also, a query string can be added to any HTTP request to a mock API and its values and keys will be logged. For example, the `getCustomerBalances` endpoint in the configuration above can be hit with the following URL, `http://localhost:5001/customersapi/customers/12345/balances?page=2&size=50`, which will return whatever is in `customers.json`. If logging is enabled, the request will be logged like this (note the logging of the `id` variable in `params`, as well as the keys and values in the query string):
 
 ```json
 {
@@ -91,7 +93,28 @@ If you want to have a variable as part of a mock API's URL, just put a colon in 
 }
 ```
 
+To have a mocked endpoint put headers on responses, add configuration such as the following:
+
+```toml
+[endpoints]
+
+    [endpoints.getAllAccounts]
+    path = "accounts"
+    file = "accounts.json"
+    method = "GET"
+
+      [[endpoints.getAllAccounts.headers]]
+      key = "content-type"
+      value = "application/json; charset=utf-8"
+
+      [[endpoints.getAllAccounts.headers]]
+      key = "Access-Control-Allow-Origin"
+      value = "*"
+```
+
 This application does not cache the contents of the files that the mock APIs serve, so if you want to change the content of the files, you can do so without restarting or reloading anything.
+
+## The Hub API
 
 If you make a change to a mock API's configuration file, simply save the changes and send a `POST` request to the hub server with the path `refresh-all-mock-apis`; e.g., `http://localhost:5000/refresh-all-mock-apis`, which will apply any changes you made to the mock APIs.
 
