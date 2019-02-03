@@ -34,11 +34,12 @@ func main() {
 	var appConfig config.AppConfig
 	if _, err := toml.DecodeFile("app_config.toml", &appConfig); err != nil {
 		fmt.Println(err)
-		return
+		panic(err)
 	}
 
 	mgr, err := manager.NewManager(&appConfig)
 	if err != nil {
+		fmt.Println(err)
 		panic(err)
 	}
 
