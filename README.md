@@ -1,6 +1,6 @@
 # MockApiHub
 
-[![Go Report Card](http://goreportcard.com/badge/github.com/wcsanders1/MockApiHub)](http://goreportcard.com/report/github.com/wcsanders1/MockApiHub) [![BuildStatus](http://travis-ci.org/wcsanders1/MockApiHub.svg?branch=master)](http://travis-ci.org/wcsanders1/MockApiHub) [![codecov](http://codecov.io/gh/wcsanders1/MockApiHub/branch/master/graph/badge.svg)](http://codecov.io/gh/wcsanders1/MockApiHub) [![License](http://img.shields.io/badge/license-mit-blue.svg)](http:/githubusercontent.com/wcsanders1/MOckApiHub/master/LICENSE) [![GoDoc](http://img.shields.io/badge/go-documentation-darkblue.svg)](http://godoc.org/github.com/wcsanders1/MockApiHub) ![Version](http://img.shields.io/badge/version-0.2.0-darkred.svg)
+[![Go Report Card](https://goreportcard.com/badge/github.com/wcsanders1/MockApiHub)](https://goreportcard.com/report/github.com/wcsanders1/MockApiHub) [![BuildStatus](https://travis-ci.org/wcsanders1/MockApiHub.svg?branch=master)](https://travis-ci.org/wcsanders1/MockApiHub) [![codecov](https://codecov.io/gh/wcsanders1/MockApiHub/branch/master/graph/badge.svg)](https://codecov.io/gh/wcsanders1/MockApiHub) [![License](https://img.shields.io/badge/license-mit-blue.svg)](https:/githubusercontent.com/wcsanders1/MOckApiHub/master/LICENSE) [![GoDoc](https://img.shields.io/badge/go-documentation-darkblue.svg)](https://godoc.org/github.com/wcsanders1/MockApiHub) ![Version](https://img.shields.io/badge/version-0.2.0-darkred.svg)
 
 ## Overview
 
