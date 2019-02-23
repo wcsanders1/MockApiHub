@@ -39,7 +39,7 @@ func main() {
 	hubFlags.Visit(func(f *flag.Flag) {
 		if f.Name == "v" {
 			*showVersion = true
-			fmt.Println("v0.3.0")
+			fmt.Println("v0.4.0")
 		}
 	})
 
