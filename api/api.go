@@ -118,6 +118,7 @@ func (api *API) Start(dir, defaultCert, defaultKey string) error {
 	})
 	contextLogger.Debug("starting API")
 
+	api.handlers["OPTIONS"] = make(map[string]func(http.ResponseWriter, *http.Request))
 	for endpointName, endpoint := range api.endpoints {
 		var path string
 		if len(api.baseURL) > 0 {
@@ -149,7 +150,14 @@ func (api *API) Start(dir, defaultCert, defaultKey string) error {
 		}
 
 		contextLoggerEndpoint.Debug("registered endpoint; now assigning handler")
-		api.handlers[method][registeredRoute] = api.creator.getHandler(endpoint.EnforceValidJSON, endpoint.Headers, dir, file, api.file)
+		api.handlers[method][registeredRoute] = api.creator.getHandler(endpoint.EnforceValidJSON, endpoint.AllowCORS, endpoint.Headers, dir, file, api.file)
+		if endpoint.AllowCORS {
+			api.handlers["OPTIONS"][registeredRoute] = func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Access-Control-Allow-Origin", "*")
+				w.Header().Set("Access-Control-Allow-Methods", "*")
+				w.Header().Set("Access-Control-Allow-headers", "*")
+			}
+		}
 	}
 
 	return api.creator.startAPI(defaultCert, defaultKey, api.server, api.httpConfig)

@@ -19,6 +19,7 @@ keyFile = ""
     path = "customers/:id/balances"
     file = "customers.json"
     method = "GET"
+    allowCORS = true
 
         [[endpoints.getCustomers.headers]]
         key = "content-type"

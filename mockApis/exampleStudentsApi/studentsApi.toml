@@ -18,12 +18,14 @@ keyFile = ""
     [endpoints.getStudents]
     path = "students"
     method = "GET"
+    allowCORS = true
 
     [endpoints.getNothing]
     path = ""
     file = "students.json"
     method = "GET"
     enforceValidJSON = true
+    allowCORS = true
 
     [endpoints.postStudents]
     path = "students"

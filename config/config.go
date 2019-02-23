@@ -53,6 +53,7 @@ type (
 		Method           string
 		Headers          []Header
 		EnforceValidJSON bool
+		AllowCORS        bool
 	}
 
 	// Header contains the keys and values to put on response headers.
