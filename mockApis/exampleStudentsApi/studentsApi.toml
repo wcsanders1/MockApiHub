@@ -19,6 +19,7 @@ keyFile = ""
     path = "students"
     method = "GET"
     allowCORS = true
+    HTTPStatusCode = 201
 
     [endpoints.getNothing]
     path = ""

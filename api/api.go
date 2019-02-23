@@ -150,7 +150,7 @@ func (api *API) Start(dir, defaultCert, defaultKey string) error {
 		}
 
 		contextLoggerEndpoint.Debug("registered endpoint; now assigning handler")
-		api.handlers[method][registeredRoute] = api.creator.getHandler(endpoint.EnforceValidJSON, endpoint.AllowCORS, endpoint.Headers, dir, file, api.file)
+		api.handlers[method][registeredRoute] = api.creator.getHandler(endpoint.EnforceValidJSON, endpoint.AllowCORS, endpoint.HTTPStatusCode, endpoint.Headers, dir, file, api.file)
 		if endpoint.AllowCORS {
 			api.handlers["OPTIONS"][registeredRoute] = func(w http.ResponseWriter, r *http.Request) {
 				w.Header().Set("Access-Control-Allow-Origin", "*")

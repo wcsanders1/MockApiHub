@@ -17,7 +17,7 @@ import (
 
 type (
 	iCreator interface {
-		getHandler(enforceValidJSON, allowCORS bool, headers []config.Header, dir, fileName string, file wrapper.IFileOps) func(w http.ResponseWriter, r *http.Request)
+		getHandler(enforceValidJSON, allowCORS bool, statusCode int, headers []config.Header, dir, fileName string, file wrapper.IFileOps) func(w http.ResponseWriter, r *http.Request)
 		startAPI(defaultCert, defaultKey string, server wrapper.IServerOps, httpConfig config.HTTP) error
 	}
 
@@ -32,7 +32,7 @@ func newCreator(logger *logrus.Entry) *creator {
 	}
 }
 
-func (c creator) getHandler(enforceValidJSON, allowCORS bool, headers []config.Header, dir, fileName string, file wrapper.IFileOps) func(w http.ResponseWriter, r *http.Request) {
+func (c creator) getHandler(enforceValidJSON, allowCORS bool, statusCode int, headers []config.Header, dir, fileName string, file wrapper.IFileOps) func(w http.ResponseWriter, r *http.Request) {
 	var path string
 	if len(fileName) > 0 {
 		path = fmt.Sprintf("%s/%s/%s", constants.APIDir, dir, fileName)
@@ -47,12 +47,12 @@ func (c creator) getHandler(enforceValidJSON, allowCORS bool, headers []config.H
 	})
 
 	if enforceValidJSON {
-		return getJSONHandler(path, headers, file, contextLogger, allowCORS)
+		return getJSONHandler(path, headers, file, contextLogger, allowCORS, statusCode)
 	}
-	return getGeneralHandler(path, headers, file, contextLogger, allowCORS)
+	return getGeneralHandler(path, headers, file, contextLogger, allowCORS, statusCode)
 }
 
-func getJSONHandler(path string, headers []config.Header, file wrapper.IFileOps, logger *logrus.Entry, allowCORS bool) func(w http.ResponseWriter, r *http.Request) {
+func getJSONHandler(path string, headers []config.Header, file wrapper.IFileOps, logger *logrus.Entry, allowCORS bool, statusCode int) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		for _, header := range headers {
@@ -61,6 +61,11 @@ func getJSONHandler(path string, headers []config.Header, file wrapper.IFileOps,
 
 		if allowCORS {
 			w.Header().Set("Access-Control-Allow-Origin", "*")
+		}
+
+		if statusCode > 0 && len(http.StatusText(statusCode)) > 0 {
+
+			w.WriteHeader(statusCode)
 		}
 
 		if len(path) == 0 {
@@ -78,7 +83,7 @@ func getJSONHandler(path string, headers []config.Header, file wrapper.IFileOps,
 	}
 }
 
-func getGeneralHandler(path string, headers []config.Header, file wrapper.IFileOps, logger *logrus.Entry, allowCORS bool) func(w http.ResponseWriter, r *http.Request) {
+func getGeneralHandler(path string, headers []config.Header, file wrapper.IFileOps, logger *logrus.Entry, allowCORS bool, statusCode int) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		for _, header := range headers {
 			w.Header().Set(header.Key, header.Value)
@@ -86,6 +91,10 @@ func getGeneralHandler(path string, headers []config.Header, file wrapper.IFileO
 
 		if allowCORS {
 			w.Header().Set("Access-Control-Allow-Origin", "*")
+		}
+
+		if statusCode > 0 && len(http.StatusText(statusCode)) > 0 {
+			w.WriteHeader(statusCode)
 		}
 
 		if len(path) == 0 {

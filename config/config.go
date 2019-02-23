@@ -54,6 +54,7 @@ type (
 		Headers          []Header
 		EnforceValidJSON bool
 		AllowCORS        bool
+		HTTPStatusCode   int
 	}
 
 	// Header contains the keys and values to put on response headers.

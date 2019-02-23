@@ -33,7 +33,7 @@ func TestGetHandler_ReturnsHandler_WhenEnforceJSONFalse(t *testing.T) {
 		log: log.GetFakeLogger(),
 	}
 
-	result := creator.getHandler(false, false, nil, "testDir", "testFile", &wrapper.FakeFileOps{})
+	result := creator.getHandler(false, false, 0, nil, "testDir", "testFile", &wrapper.FakeFileOps{})
 
 	assert := assert.New(t)
 	assert.NotNil(result)
@@ -45,7 +45,7 @@ func TestGetHandler_ReturnsHandler_WhenEnforceJSONTrue(t *testing.T) {
 		log: log.GetFakeLogger(),
 	}
 
-	result := creator.getHandler(true, false, nil, "testDir", "testFile", &wrapper.FakeFileOps{})
+	result := creator.getHandler(true, false, 0, nil, "testDir", "testFile", &wrapper.FakeFileOps{})
 
 	assert := assert.New(t)
 	assert.NotNil(result)
@@ -55,7 +55,7 @@ func TestGetHandler_ReturnsHandler_WhenEnforceJSONTrue(t *testing.T) {
 func TestGetJSONHandler_ReturnsHandler_WhenCalled(t *testing.T) {
 	fileOps := wrapper.FakeFileOps{}
 	logger := log.GetFakeLogger()
-	funcResult := getJSONHandler("test", nil, &fileOps, logger, false)
+	funcResult := getJSONHandler("test", nil, &fileOps, logger, false, 0)
 
 	assert.NotNil(t, funcResult)
 }
@@ -66,7 +66,7 @@ func TestJSONHandler_Writes_OnSuccess(t *testing.T) {
 	logger := log.GetFakeLogger()
 	fileOps.On("Open", mock.AnythingOfType("string")).Return(os.NewFile(1, "fakefile"), nil)
 	fileOps.On("ReadAll", mock.AnythingOfType("*os.File")).Return(goodJSON, nil)
-	funcResult := getJSONHandler(path, nil, &fileOps, logger, false)
+	funcResult := getJSONHandler(path, nil, &fileOps, logger, false, 0)
 	w := fake.ResponseWriter{}
 	w.On("WriteHeader", mock.AnythingOfType("int")).Return(1)
 	w.On("Write", mock.AnythingOfType("[]uint8")).Return(1, nil)
@@ -85,7 +85,7 @@ func TestJSONHandler_WritesError_OnFailure(t *testing.T) {
 	logger := log.GetFakeLogger()
 	fileOps.On("Open", mock.AnythingOfType("string")).Return(os.NewFile(1, "fakefile"), nil)
 	fileOps.On("ReadAll", mock.AnythingOfType("*os.File")).Return([]byte{}, errors.New(""))
-	funcResult := getJSONHandler(path, nil, &fileOps, logger, false)
+	funcResult := getJSONHandler(path, nil, &fileOps, logger, false, 0)
 	w := fake.ResponseWriter{}
 	w.On("WriteHeader", mock.AnythingOfType("int")).Return(1)
 	w.On("Write", mock.AnythingOfType("[]uint8")).Return(1, nil)
@@ -102,7 +102,7 @@ func TestJSONHandler_WritesError_OnFailure(t *testing.T) {
 func TestGetGeneralHanlder_ReturnsFunc_WhenCalled(t *testing.T) {
 	fileOps := wrapper.FakeFileOps{}
 	logger := log.GetFakeLogger()
-	funcResult := getGeneralHandler("test", nil, &fileOps, logger, false)
+	funcResult := getGeneralHandler("test", nil, &fileOps, logger, false, 0)
 
 	assert.NotNil(t, funcResult)
 }
@@ -113,7 +113,7 @@ func TestGeneralHandler_Writes_OnSuccess(t *testing.T) {
 	logger := log.GetFakeLogger()
 	fileOps.On("Open", mock.AnythingOfType("string")).Return(os.NewFile(1, "fakefile"), nil)
 	fileOps.On("ReadAll", mock.AnythingOfType("*os.File")).Return(goodJSON, nil)
-	funcResult := getGeneralHandler(path, nil, &fileOps, logger, false)
+	funcResult := getGeneralHandler(path, nil, &fileOps, logger, false, 0)
 	w := fake.ResponseWriter{}
 	w.On("WriteHeader", mock.AnythingOfType("int")).Return(1)
 	w.On("Write", mock.AnythingOfType("[]uint8")).Return(1, nil)
@@ -132,7 +132,7 @@ func TestGeneralHandler_WritesError_WhenReadFails(t *testing.T) {
 	logger := log.GetFakeLogger()
 	fileOps.On("Open", mock.AnythingOfType("string")).Return(os.NewFile(1, "fakefile"), nil)
 	fileOps.On("ReadAll", mock.AnythingOfType("*os.File")).Return([]byte{}, errors.New(""))
-	funcResult := getGeneralHandler(path, nil, &fileOps, logger, false)
+	funcResult := getGeneralHandler(path, nil, &fileOps, logger, false, 0)
 	w := fake.ResponseWriter{}
 	w.On("WriteHeader", mock.AnythingOfType("int")).Return(1)
 	w.On("Write", mock.AnythingOfType("[]uint8")).Return(1, nil)
@@ -151,7 +151,7 @@ func TestGeneralHandler_WritesError_WhenFileOpenFails(t *testing.T) {
 	fileOps := wrapper.FakeFileOps{}
 	logger := log.GetFakeLogger()
 	fileOps.On("Open", mock.AnythingOfType("string")).Return(os.NewFile(1, "fakefile"), errors.New(""))
-	funcResult := getGeneralHandler(path, nil, &fileOps, logger, false)
+	funcResult := getGeneralHandler(path, nil, &fileOps, logger, false, 0)
 	w := fake.ResponseWriter{}
 	w.On("WriteHeader", mock.AnythingOfType("int")).Return(1)
 	w.On("Write", mock.AnythingOfType("[]uint8")).Return(1, nil)
