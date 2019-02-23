@@ -33,7 +33,13 @@ func newCreator(logger *logrus.Entry) *creator {
 }
 
 func (c creator) getHandler(enforceValidJSON bool, headers []config.Header, dir, fileName string, file wrapper.IFileOps) func(w http.ResponseWriter, r *http.Request) {
-	path := fmt.Sprintf("%s/%s/%s", constants.APIDir, dir, fileName)
+	var path string
+	if len(fileName) > 0 {
+		path = fmt.Sprintf("%s/%s/%s", constants.APIDir, dir, fileName)
+	} else {
+		path = ""
+	}
+
 	contextLogger := c.log.WithFields(logrus.Fields{
 		log.FuncField:      "handler for mock API",
 		"enforceValidJSON": enforceValidJSON,
@@ -53,6 +59,10 @@ func getJSONHandler(path string, headers []config.Header, file wrapper.IFileOps,
 			w.Header().Set(header.Key, header.Value)
 		}
 
+		if len(path) == 0 {
+			return
+		}
+
 		bytes, err := json.GetJSON(path, file)
 		if err != nil {
 			logger.WithError(err).Error("error serving JSON from this endpoint")
@@ -68,6 +78,10 @@ func getGeneralHandler(path string, headers []config.Header, file wrapper.IFileO
 	return func(w http.ResponseWriter, r *http.Request) {
 		for _, header := range headers {
 			w.Header().Set(header.Key, header.Value)
+		}
+
+		if len(path) == 0 {
+			return
 		}
 
 		fileInfo, err := file.Open(path)

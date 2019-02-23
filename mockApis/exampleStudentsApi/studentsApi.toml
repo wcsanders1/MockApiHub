@@ -17,7 +17,6 @@ keyFile = ""
 
     [endpoints.getStudents]
     path = "students"
-    file = "students.json"
     method = "GET"
 
     [endpoints.getNothing]
