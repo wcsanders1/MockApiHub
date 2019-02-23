@@ -1,6 +1,6 @@
 # MockApiHub
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/wcsanders1/MockApiHub)](https://goreportcard.com/report/github.com/wcsanders1/MockApiHub) [![BuildStatus](https://travis-ci.org/wcsanders1/MockApiHub.svg?branch=master)](https://travis-ci.org/wcsanders1/MockApiHub) [![codecov](https://codecov.io/gh/wcsanders1/MockApiHub/branch/master/graph/badge.svg)](https://codecov.io/gh/wcsanders1/MockApiHub) [![License](https://img.shields.io/badge/license-mit-blue.svg)](https:/githubusercontent.com/wcsanders1/MOckApiHub/master/LICENSE) [![GoDoc](https://img.shields.io/badge/go-documentation-darkblue.svg)](https://godoc.org/github.com/wcsanders1/MockApiHub) ![Version](https://img.shields.io/badge/version-0.2.1-darkred.svg)
+[![Go Report Card](https://goreportcard.com/badge/github.com/wcsanders1/MockApiHub)](https://goreportcard.com/report/github.com/wcsanders1/MockApiHub) [![BuildStatus](https://travis-ci.org/wcsanders1/MockApiHub.svg?branch=master)](https://travis-ci.org/wcsanders1/MockApiHub) [![codecov](https://codecov.io/gh/wcsanders1/MockApiHub/branch/master/graph/badge.svg)](https://codecov.io/gh/wcsanders1/MockApiHub) [![License](https://img.shields.io/badge/license-mit-blue.svg)](https:/githubusercontent.com/wcsanders1/MOckApiHub/master/LICENSE) [![GoDoc](https://img.shields.io/badge/go-documentation-darkblue.svg)](https://godoc.org/github.com/wcsanders1/MockApiHub) ![Version](https://img.shields.io/badge/version-0.3.0-darkred.svg)
 
 ## Overview
 
@@ -57,16 +57,18 @@ keyFile = ""
     path = "accounts"
     file = "accounts.json"
     method = "GET"
+    allowCORS = true
 
     [endpoints.getCustomerBalances]
     path = "customers/:id/balances"
     file = "customers.json"
     method = "GET"
+    allowCORS = true
 ```
 
 As shown above, logging for a mock API is configured the same way as for the hub server. If you want a mock API to use TLS and the hub server is also using TLS, you can leave the certificate and key file entries in the mock API configuration empty, in which case the certificate and key of the hub server will be used. Files containing the data that a mock API returns need to be placed in the same directory as the mock API's configuration file.
 
-A mock API can have a `baseURL`, which applies to all of its endpoints. Each endpoint of a mock API must have an entry in the `endpoints` section of the configuration file. Files containing the data that a mock API returns need to be placed in the same directory as the mock API's configuration file. In the example above (assuming the hub server is running on `localhost`) the following `GET` request will return whatever is in the `accounts.json` file: `http://localhost:5001/customersapi/accounts`. If you want to enforce valid JSON for a particular endpoint, you can add `enforceValidJSON = true` to that endpoint's configuration. Note that as of version 0.2.1 a mock endpoint does not need to return anything on the response body for the request to be successful.
+A mock API can have a `baseURL`, which applies to all of its endpoints. Each endpoint of a mock API must have an entry in the `endpoints` section of the configuration file. Files containing the data that a mock API returns need to be placed in the same directory as the mock API's configuration file. In the example above (assuming the hub server is running on `localhost`) the following `GET` request will return whatever is in the `accounts.json` file: `http://localhost:5001/customersapi/accounts`. If you want to enforce valid JSON for a particular endpoint, you can add `enforceValidJSON = true` to that endpoint's configuration. Note that a mock endpoint does not need to return anything on the response body for the request to be successful. Setting `allowCORS = true` allows all origins, headers, and methods.
 
 If you want to have an argument as part of a mock API's URL, just put a colon in front of the route fragment. Also, a query string can be added to any HTTP request to a mock API and its values and keys will be logged. For example, the `getCustomerBalances` endpoint in the configuration above can be hit with the following URL, `http://localhost:5001/customersapi/customers/12345/balances?page=2&size=50`, which will return whatever is in `customers.json`. If logging is enabled, the request will be logged like this (note the logging of the `id` variable in `params`, as well as the keys and values in the query string):
 
