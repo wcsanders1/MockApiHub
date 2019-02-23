@@ -20,6 +20,7 @@ Example configuration:
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"os/signal"
@@ -31,6 +32,21 @@ import (
 )
 
 func main() {
+
+	hubFlags := flag.NewFlagSet("hubFlags", flag.ExitOnError)
+	showVersion := hubFlags.Bool("v", false, "application version")
+	hubFlags.Parse(os.Args[1:])
+	hubFlags.Visit(func(f *flag.Flag) {
+		if f.Name == "v" {
+			*showVersion = true
+			fmt.Println("v0.2.1")
+		}
+	})
+
+	if *showVersion {
+		return
+	}
+
 	var appConfig config.AppConfig
 	if _, err := toml.DecodeFile("app_config.toml", &appConfig); err != nil {
 		fmt.Println(err)
